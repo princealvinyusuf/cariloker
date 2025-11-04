@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Bulk Import Jobs') }}
+            {{ __('Job Staging & Transform') }}
         </h2>
     </x-slot>
 
@@ -22,19 +22,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.jobs.import.store') }}" enctype="multipart/form-data" class="space-y-4">
-                    @csrf
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Upload Excel/CSV') }}</label>
-                        <input name="file" type="file" accept=".xlsx,.csv" class="mt-1 block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer" required />
-                        @error('file')
-                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <button class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">{{ __('Import') }}</button>
-                </form>
-
-                <div class="mt-6 text-sm text-gray-600 dark:text-gray-300">
+                <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
                     <p class="font-semibold mb-2">{{ __('Expected columns (exact headers)') }}:</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <ul class="list-disc ms-5">
