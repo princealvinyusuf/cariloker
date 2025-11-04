@@ -1,36 +1,36 @@
 @php
     $employmentTypes = [
-        'full_time' => 'Full-Time',
-        'part_time' => 'Part-Time',
-        'contract' => 'Contract',
-        'internship' => 'Internship',
-        'freelance' => 'Freelance',
+        'full_time' => __('Full-Time'),
+        'part_time' => __('Part-Time'),
+        'contract' => __('Contract'),
+        'internship' => __('Internship'),
+        'freelance' => __('Freelance'),
     ];
 @endphp
 
 <x-app-layout>
     <div class="bg-indigo-900 text-white py-10">
         <div class="max-w-7xl mx-auto px-4">
-            <h1 class="text-4xl font-bold mb-6">Find your dream job</h1>
+            <h1 class="text-4xl font-bold mb-6">{{ __('Find your dream job') }}</h1>
             <form method="GET" action="{{ route('jobs.index') }}" class="grid grid-cols-1 md:grid-cols-12 gap-3">
                 <div class="md:col-span-5">
-                    <label class="sr-only" for="q">Search</label>
-                    <input id="q" name="q" value="{{ request('q') }}" placeholder="Search job title, keywords or company" class="w-full rounded-lg border-0 px-4 py-3 text-gray-900" />
+                    <label class="sr-only" for="q">{{ __('Search') }}</label>
+                    <input id="q" name="q" value="{{ request('q') }}" placeholder="{{ __('Search job title, keywords or company') }}" class="w-full rounded-lg border-0 px-4 py-3 text-gray-900" />
                 </div>
                 <div class="md:col-span-4">
-                    <label class="sr-only" for="location">Location</label>
-                    <input id="location" name="location" value="{{ request('location') }}" placeholder="Location (e.g. Jakarta)" class="w-full rounded-lg border-0 px-4 py-3 text-gray-900" />
+                    <label class="sr-only" for="location">{{ __('Location') }}</label>
+                    <input id="location" name="location" value="{{ request('location') }}" placeholder="{{ __('Location (e.g. Jakarta)') }}" class="w-full rounded-lg border-0 px-4 py-3 text-gray-900" />
                 </div>
                 <div class="md:col-span-2">
                     <select name="type" class="w-full rounded-lg border-0 px-4 py-3 text-gray-900">
-                        <option value="">Any Type</option>
+                        <option value="">{{ __('Any Type') }}</option>
                         @foreach($employmentTypes as $key => $label)
                             <option value="{{ $key }}" @selected(request('type') === $key)>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="md:col-span-1">
-                    <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">Search</button>
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Search') }}</button>
                 </div>
             </form>
         </div>
@@ -40,12 +40,12 @@
         <aside class="md:col-span-3 space-y-6">
             <div>
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-gray-700">Filters</h2>
-                    <a href="{{ route('jobs.index') }}" class="text-xs text-indigo-600">Clear All</a>
+                    <h2 class="text-sm font-semibold text-gray-700">{{ __('Filters') }}</h2>
+                    <a href="{{ route('jobs.index') }}" class="text-xs text-indigo-600">{{ __('Clear All') }}</a>
                 </div>
                 <div class="space-y-4 bg-white rounded-xl p-4 shadow-sm">
                     <div>
-                        <p class="text-xs font-medium text-gray-500 mb-2">Job Type</p>
+                        <p class="text-xs font-medium text-gray-500 mb-2">{{ __('Job Type') }}</p>
                         <div class="space-y-2">
                             @foreach($employmentTypes as $key => $label)
                                 <label class="flex items-center gap-2 text-sm text-gray-700">
@@ -57,16 +57,16 @@
                         </div>
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500">Min. Salary (IDR)</label>
+                        <label class="text-xs font-medium text-gray-500">{{ __('Min. Salary (IDR)') }}</label>
                         <input type="number" name="min_salary" value="{{ request('min_salary') }}" form="filters" class="mt-1 w-full rounded-lg border-gray-300">
                     </div>
                     <div>
-                        <label class="text-xs font-medium text-gray-500">Experience (years)</label>
+                        <label class="text-xs font-medium text-gray-500">{{ __('Experience (years)') }}</label>
                         <input type="number" name="experience" value="{{ request('experience') }}" form="filters" class="mt-1 w-full rounded-lg border-gray-300">
                     </div>
                     <div class="flex items-center gap-2">
                         <input type="checkbox" name="remote" value="1" form="filters" @checked(request('remote')) class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="text-sm text-gray-700">Remote only</span>
+                        <span class="text-sm text-gray-700">{{ __('Remote only') }}</span>
                     </div>
                     <form id="filters" method="GET" action="{{ route('jobs.index') }}">
                         <input type="hidden" name="q" value="{{ request('q') }}">
@@ -76,13 +76,13 @@
             </div>
 
             <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                <p class="text-sm font-semibold text-indigo-900">Upload your resume</p>
-                <p class="text-xs text-indigo-800 mt-1">We'll match you with the best jobs.</p>
-                <a href="{{ route('register') }}" class="inline-flex mt-3 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm">Get started</a>
+                <p class="text-sm font-semibold text-indigo-900">{{ __('Upload your resume') }}</p>
+                <p class="text-xs text-indigo-800 mt-1">{{ __('We\'ll match you with the best jobs.') }}</p>
+                <a href="{{ route('register') }}" class="inline-flex mt-3 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm">{{ __('Get started') }}</a>
             </div>
 
             <div class="bg-white rounded-xl p-4 shadow-sm">
-                <p class="text-sm font-semibold text-gray-800">Categories</p>
+                <p class="text-sm font-semibold text-gray-800">{{ __('Categories') }}</p>
                 <div class="mt-3 space-y-2">
                     @foreach($categories as $category)
                         <a class="block text-sm text-gray-700 hover:text-indigo-600" href="{{ route('jobs.index', array_merge(request()->except('page'), ['category' => $category->slug])) }}">{{ $category->name }}</a>
@@ -93,11 +93,11 @@
 
         <main class="md:col-span-6 space-y-4">
             <div class="flex items-center justify-between text-sm text-gray-600">
-                <p>{{ number_format($jobs->total()) }} results found</p>
+                <p>{{ number_format($jobs->total()) }} {{ __('results found') }}</p>
                 <form>
                     <select name="sort" class="rounded-lg border-gray-300" onchange="this.form.submit()">
-                        <option value="date" @selected(request('sort')==='date')>Date Posted</option>
-                        <option value="salary" @selected(request('sort')==='salary')>Salary</option>
+                        <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
+                        <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
                     </select>
                     @foreach(request()->except(['sort','page']) as $k=>$v)
                         <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
@@ -118,7 +118,7 @@
                                 @auth
                                     <form method="POST" action="{{ route('jobs.save', $job) }}">
                                         @csrf
-                                        <button class="text-sm px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">Save Job</button>
+                                        <button class="text-sm px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50">{{ __('Save Job') }}</button>
                                     </form>
                                 @endauth
                             </div>
@@ -128,7 +128,7 @@
                                     <span class="px-2 py-1 rounded-full bg-gray-100">{{ number_format($job->salary_min) }} - {{ number_format($job->salary_max) }} {{ $job->salary_currency }}</span>
                                 @endif
                                 @if($job->is_remote)
-                                    <span class="px-2 py-1 rounded-full bg-green-100 text-green-700">Remote</span>
+                                    <span class="px-2 py-1 rounded-full bg-green-100 text-green-700">{{ __('Remote') }}</span>
                                 @endif
                             </div>
                         </div>
@@ -143,20 +143,20 @@
 
         <aside class="md:col-span-3 space-y-6">
             <div class="bg-white rounded-xl p-4 shadow-sm">
-                <p class="text-sm font-semibold text-gray-800">Be the first to see new jobs in <span class="text-indigo-600">{{ request('location') ?: 'your city' }}</span></p>
+                <p class="text-sm font-semibold text-gray-800">{{ __('Be the first to see new jobs in') }} <span class="text-indigo-600">{{ request('location') ?: __('your city') }}</span></p>
                 <form class="mt-3 flex gap-2">
-                    <input type="email" placeholder="Email" class="flex-1 rounded-lg border-gray-300" />
-                    <button type="button" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Subscribe</button>
+                    <input type="email" placeholder="{{ __('Email') }}" class="flex-1 rounded-lg border-gray-300" />
+                    <button type="button" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">{{ __('Subscribe') }}</button>
                 </form>
             </div>
 
             <div class="bg-white rounded-xl p-4 shadow-sm">
-                <p class="text-sm font-semibold text-gray-800">Popular Companies</p>
+                <p class="text-sm font-semibold text-gray-800">{{ __('Popular Companies') }}</p>
                 <ul class="mt-3 space-y-3">
                     @foreach($popularCompanies as $company)
                         <li class="flex items-center justify-between text-sm">
                             <a href="{{ route('companies.show', $company) }}" class="text-gray-700 hover:text-indigo-600">{{ $company->name }}</a>
-                            <span class="text-gray-500">{{ $company->jobs_count }} jobs</span>
+                            <span class="text-gray-500">{{ $company->jobs_count }} {{ __('jobs') }}</span>
                         </li>
                     @endforeach
                 </ul>
