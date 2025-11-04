@@ -15,6 +15,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.jobs.import.store');
     Route::post('/admin/jobs/import/process', [\App\Http\Controllers\Admin\JobImportController::class, 'processStaging'])
         ->name('admin.jobs.import.process');
+    Route::post('/admin/jobs/truncate', [\App\Http\Controllers\Admin\JobImportController::class, 'truncateAll'])
+        ->name('admin.jobs.truncate');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

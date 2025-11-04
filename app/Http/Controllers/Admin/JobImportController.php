@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
@@ -53,6 +54,39 @@ class JobImportController extends Controller
 		if (!Auth::user() || Auth::user()->role !== 'admin') {
 			abort(403);
 		}
+
+	public function truncateAll(Request $request)
+	{
+		if (!Auth::user() || Auth::user()->role !== 'admin') {
+			abort(403);
+		}
+
+		DB::beginTransaction();
+		try {
+			DB::statement('SET FOREIGN_KEY_CHECKS=0');
+			// Truncate in safe order (children first)
+			foreach ([
+				'job_listing_skill',
+				'applications',
+				'saved_jobs',
+				'job_listings',
+				'companies',
+				'locations',
+				'job_categories',
+				'skills',
+			] as $table) {
+				if (Schema::hasTable($table)) {
+					DB::table($table)->truncate();
+				}
+			}
+			DB::statement('SET FOREIGN_KEY_CHECKS=1');
+			DB::commit();
+			return Redirect::route('admin.jobs.import.create')->with('status', 'All related tables truncated.');
+		} catch (\Throwable $e) {
+			DB::rollBack();
+			return Redirect::route('admin.jobs.import.create')->with('import_errors', [$e->getMessage()]);
+		}
+	}
 
 		$processed = 0;
 		$errors = [];

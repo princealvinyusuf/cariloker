@@ -64,6 +64,10 @@
                         @csrf
                         <button class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">{{ __('Process Staging Data') }}</button>
                     </form>
+                    <form method="POST" action="{{ route('admin.jobs.truncate') }}" class="mt-3" onsubmit="return confirm('{{ __('This will delete jobs, companies, locations, categories, skills, applications and saved jobs. Continue?') }}')">
+                        @csrf
+                        <button class="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-semibold">{{ __('Truncate Related Tables') }}</button>
+                    </form>
                 </div>
             </div>
         </div>
