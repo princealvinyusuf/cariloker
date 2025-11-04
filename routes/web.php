@@ -7,6 +7,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
 use Illuminate\Support\Facades\Route;
 
+// Admin: Bulk job import (auth required)
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'create'])
+        ->name('admin.jobs.import.create');
+    Route::post('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'store'])
+        ->name('admin.jobs.import.store');
+});
+
 Route::get('/locale/{locale}', function (string $locale) {
     if (!in_array($locale, ['id', 'en'])) {
         abort(404);
