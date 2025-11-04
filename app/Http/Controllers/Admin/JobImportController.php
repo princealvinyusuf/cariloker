@@ -73,11 +73,16 @@ class JobImportController extends Controller
 		$processed = 0;
 		$errors = [];
 
-		DB::table('job_imports')
+        DB::table('job_imports')
 			->where('id', '>', $lastId)
 			->orderBy('id')
-			->chunkById($batchSize, function ($rows) use (&$processed, &$errors, $maxRows, &$lastId, $total, &$processedSoFar) {
+            ->chunkById($batchSize, function ($rows) use (&$processed, &$errors, $maxRows, &$lastId, $total, &$processedSoFar) {
 			foreach ($rows as $row) {
+                    // allow external cancel (e.g., when truncate is requested)
+                    if (Cache::get('import:cancel')) {
+                        $errors[] = 'Processing cancelled by admin.';
+                        return false; // stop chunking
+                    }
 				try {
 					DB::transaction(function () use ($row) {
 						$companyName = trim((string) ($row->nama_perusahaan ?? ''));
@@ -187,6 +192,10 @@ class JobImportController extends Controller
 			'total' => $total,
 			'running' => $hasMore,
 		], now()->addMinutes(30));
+        // clear cancel flag if set
+        if (!$hasMore) {
+            Cache::forget('import:cancel');
+        }
 
 		return Redirect::route('admin.jobs.import.create')
 			->with('status', "Processed {$processed} staging rows")
@@ -198,6 +207,9 @@ class JobImportController extends Controller
 		if (!Auth::user() || Auth::user()->role !== 'admin') {
 			abort(403);
 		}
+
+        // Signal any in-flight processing to stop
+        Cache::put('import:cancel', true, now()->addMinutes(10));
 
 		DB::beginTransaction();
 		try {
@@ -219,6 +231,8 @@ class JobImportController extends Controller
 			}
 			DB::statement('SET FOREIGN_KEY_CHECKS=1');
 			DB::commit();
+            Cache::forget('import:progress');
+            Cache::forget('import:cancel');
 			return Redirect::route('admin.jobs.import.create')->with('status', 'All related tables truncated.');
 		} catch (\Throwable $e) {
 			DB::rollBack();
