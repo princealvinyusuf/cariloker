@@ -15,6 +15,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                primary: {
+                    DEFAULT: '#10B981', // Tailwind emerald-500 (fresh green)
+                    light: '#6EE7B7',  // emerald-300
+                    dark: '#047857',   // emerald-800
+                }
+            },
         },
     },
 
