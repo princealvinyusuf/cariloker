@@ -7,6 +7,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/locale/{locale}', function (string $locale) {
+    if (!in_array($locale, ['id', 'en'])) {
+        abort(404);
+    }
+    session(['locale' => $locale]);
+    return back();
+})->name('locale.switch');
+
 Route::get('/', [JobController::class, 'index'])->name('jobs.index');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);

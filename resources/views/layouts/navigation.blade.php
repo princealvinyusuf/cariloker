@@ -33,6 +33,18 @@
                         <path d="M12 18a6 6 0 100-12 6 6 0 000 12zm0 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm0-20a1 1 0 01-1-1V0a1 1 0 112 0v1a1 1 0 01-1 1zm-8 9a1 1 0 011-1H6a1 1 0 110 2H5a1 1 0 01-1-1zm14 0a1 1 0 011-1h1a1 1 0 110 2h-1a1 1 0 01-1-1zM4.22 18.36a1 1 0 011.42 0l.71.71a1 1 0 11-1.42 1.42l-.71-.71a1 1 0 010-1.42zM17.66 4.22a1 1 0 011.42 0l.71.71a1 1 0 11-1.42 1.42l-.71-.71a1 1 0 010-1.42zM4.22 5.64a1 1 0 010-1.42l.71-.71a1 1 0 111.42 1.42l-.71.71a1 1 0 01-1.42 0zM17.66 19.78a1 1 0 010-1.42l.71-.71a1 1 0 111.42 1.42l-.71.71a1 1 0 01-1.42 0z"/>
                     </svg>
                 </button>
+                <x-dropdown align="right" width="36">
+                    <x-slot name="trigger">
+                        <button class="me-3 inline-flex items-center justify-center px-2 h-9 rounded-md border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="text-sm uppercase">{{ app()->getLocale() === 'id' ? 'ID' : 'EN' }}</span>
+                            <svg class="ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        </button>
+                    </x-slot>
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('locale.switch', 'id')">ID - Indonesia</x-dropdown-link>
+                        <x-dropdown-link :href="route('locale.switch', 'en')">EN - English</x-dropdown-link>
+                    </x-slot>
+                </x-dropdown>
                 <a href="{{ route('profile.edit') }}" class="me-4 inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500">Upload Resume</a>
                 @auth
                 <x-dropdown align="right" width="48">
@@ -94,6 +106,12 @@
         </div>
 
         <!-- Responsive Settings Options -->
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+            <div class="flex items-center gap-2">
+                <a href="{{ route('locale.switch', 'id') }}" class="inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">ID</a>
+                <a href="{{ route('locale.switch', 'en') }}" class="inline-flex items-center px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">EN</a>
+            </div>
+        </div>
         @auth
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
             <div class="px-4">
