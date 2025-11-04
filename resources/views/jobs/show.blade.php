@@ -32,16 +32,68 @@
             </div>
         </main>
         <aside class="md:col-span-4">
-            <div class="bg-white rounded-xl p-6 shadow-sm sticky top-6">
-                <div class="text-sm text-gray-600">{{ __('Type') }}</div>
-                <div class="font-semibold text-gray-900">{{ str($job->employment_type)->replace('_',' ')->title() }}</div>
-                @if($job->salary_min)
-                    <div class="mt-4 text-sm text-gray-600">{{ __('Salary') }}</div>
-                    <div class="font-semibold text-gray-900">{{ number_format($job->salary_min) }} - {{ number_format($job->salary_max) }} {{ $job->salary_currency }}</div>
-                @endif
+            <div class="bg-white rounded-xl p-6 shadow-sm sticky top-6 space-y-3">
+                <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                    <div class="text-gray-600">{{ __('Company') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->company?->name }}</div>
+
+                    <div class="text-gray-600">{{ __('Province') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->location?->state }}</div>
+
+                    <div class="text-gray-600">{{ __('City/Regency') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->location?->city }}</div>
+
+                    <div class="text-gray-600">{{ __('Sector') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->company?->industry ?? '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('Openings (people)') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->openings ?? '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('Date Posted') }}</div>
+                    <div class="font-medium text-gray-900">{{ optional($job->posted_at ?? $job->created_at)->format('d M Y') }}</div>
+
+                    <div class="text-gray-600">{{ __('Valid Until') }}</div>
+                    <div class="font-medium text-gray-900">{{ optional($job->valid_until)->format('d M Y') ?? '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('URL') }}</div>
+                    <div class="font-medium text-gray-900">
+                        @if($job->external_url)
+                            <a href="{{ $job->external_url }}" target="_blank" class="text-indigo-600 hover:underline">{{ __('Open link') }}</a>
+                        @else
+                            -
+                        @endif
+                    </div>
+
+                    <div class="text-gray-600">{{ __('Gender') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->gender ? __(str($job->gender)->title()) : '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('Work Arrangement') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->work_arrangement ? __(str($job->work_arrangement)->title()) : ($job->is_remote ? __('Remote') : '-') }}</div>
+
+                    <div class="text-gray-600">{{ __('Job Type') }}</div>
+                    <div class="font-medium text-gray-900">{{ __(str($job->employment_type)->replace('_',' ')->title()) }}</div>
+
+                    <div class="text-gray-600">{{ __('Job Level') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->seniority_level ? __(str($job->seniority_level)->title()) : '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('Education') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->education_level ?? '-' }}</div>
+
+                    <div class="text-gray-600">{{ __('Salary') }}</div>
+                    <div class="font-medium text-gray-900">
+                        @if($job->salary_min)
+                            {{ number_format($job->salary_min) }} - {{ number_format($job->salary_max) }} {{ $job->salary_currency }}
+                        @else
+                            -
+                        @endif
+                    </div>
+
+                    <div class="text-gray-600">{{ __('Job Category') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->category?->name ?? '-' }}</div>
+                </div>
 
                 @auth
-                    <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-6 space-y-3">
+                    <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
                         @csrf
                         <label class="block text-sm font-medium text-gray-700">{{ __('Resume (PDF/DOC, max 5MB)') }}</label>
                         <input type="file" name="resume" class="w-full border-gray-300 rounded-lg" />
@@ -50,7 +102,7 @@
                         <button class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}" class="mt-6 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
+                    <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
                 @endauth
             </div>
         </aside>

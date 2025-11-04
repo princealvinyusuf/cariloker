@@ -53,5 +53,24 @@
 	"Open Positions": "Lowongan Tersedia",
 	"No open positions at the moment.": "Belum ada lowongan saat ini.",
 	"You're logged in!": "Anda berhasil masuk!"
+,
+	"Company": "Nama Perusahaan",
+	"Province": "Provinsi",
+	"City/Regency": "KAB/KOTA",
+	"Sector": "Sektor",
+	"Openings (people)": "Jumlah Lowongan (orang)",
+	"Valid Until": "Tanggal Berakhir",
+	"URL": "URL",
+	"Open link": "Buka tautan",
+	"Gender": "Jenis Kelamin",
+	"Work Arrangement": "Kondisi",
+	"Job Level": "Tingkat pekerjaan",
+	"Education": "Pendidikan",
+	"Job Category": "Bidang pekerjaan",
+	"Male": "Pria",
+	"Female": "Wanita",
+	"Any": "Semua",
+	"Onsite": "Di kantor",
+	"Hybrid": "Hibrida"
 }
 

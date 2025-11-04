@@ -127,7 +127,7 @@
                                 @if($job->salary_min)
                                     <span class="px-2 py-1 rounded-full bg-gray-100">{{ number_format($job->salary_min) }} - {{ number_format($job->salary_max) }} {{ $job->salary_currency }}</span>
                                 @endif
-                                @if($job->is_remote)
+                                @if($job->is_remote || $job->work_arrangement === 'remote')
                                     <span class="px-2 py-1 rounded-full bg-green-100 text-green-700">{{ __('Remote') }}</span>
                                 @endif
                             </div>

@@ -53,5 +53,24 @@
 	"Open Positions": "Open Positions",
 	"No open positions at the moment.": "No open positions at the moment.",
 	"You're logged in!": "You're logged in!"
+,
+	"Company": "Company",
+	"Province": "Province",
+	"City/Regency": "City/Regency",
+	"Sector": "Sector",
+	"Openings (people)": "Openings (people)",
+	"Valid Until": "Valid Until",
+	"URL": "URL",
+	"Open link": "Open link",
+	"Gender": "Gender",
+	"Work Arrangement": "Work Arrangement",
+	"Job Level": "Job Level",
+	"Education": "Education",
+	"Job Category": "Job Category",
+	"Male": "Male",
+	"Female": "Female",
+	"Any": "Any",
+	"Onsite": "Onsite",
+	"Hybrid": "Hybrid"
 }
 
