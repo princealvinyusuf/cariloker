@@ -65,16 +65,16 @@
                     </div>
 
                     <div class="text-gray-600">{{ __('Gender') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->gender ? __(str($job->gender)->title()) : '-' }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->gender ? __((string) str($job->gender)->title()) : '-' }}</div>
 
                     <div class="text-gray-600">{{ __('Work Arrangement') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->work_arrangement ? __(str($job->work_arrangement)->title()) : ($job->is_remote ? __('Remote') : '-') }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : ($job->is_remote ? __('Remote') : '-') }}</div>
 
                     <div class="text-gray-600">{{ __('Job Type') }}</div>
                     <div class="font-medium text-gray-900">{{ __(str($job->employment_type)->replace('_',' ')->title()) }}</div>
 
                     <div class="text-gray-600">{{ __('Job Level') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->seniority_level ? __(str($job->seniority_level)->title()) : '-' }}</div>
+                    <div class="font-medium text-gray-900">{{ $job->seniority_level ? __((string) str($job->seniority_level)->title()) : '-' }}</div>
 
                     <div class="text-gray-600">{{ __('Education') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->education_level ?? '-' }}</div>

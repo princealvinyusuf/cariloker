@@ -38,6 +38,18 @@ class Job extends Model
         'valid_until',
     ];
 
+    /**
+     * Attribute casting rules
+     */
+    protected function casts(): array
+    {
+        return [
+            'posted_at' => 'datetime',
+            'valid_until' => 'datetime',
+            'is_remote' => 'boolean',
+        ];
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
