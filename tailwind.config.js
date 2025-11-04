@@ -17,15 +17,13 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#FF7B00', // main orange
-                    500: '#FF7B00', // main orange
-                    400: '#FF8D21',
-                    300: '#FFA652',
-                    200: '#FFB76B',
-                    100: '#FFCD90',
-                    50:  '#FFF4DF',
-                    light: '#FFCD90',
-                    dark: '#FF8D21',
+                    DEFAULT: '#82D1F1',   // Baby Blue (main)
+                    500: '#82D1F1',      // Baby Blue (main)
+                    400: '#ACE7F8',      // Fresh Air (light)
+                    300: '#CBF3F9',      // Water (lighter)
+                    light: '#ACE7F8',    // Fresh Air
+                    lighter: '#CBF3F9',  // Water
+                    dark: '#509fcf',     // Custom, deeper blue if needed
                 },
             },
         },
