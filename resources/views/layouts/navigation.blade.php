@@ -52,7 +52,7 @@
                         <x-dropdown-link :href="route('locale.switch', 'en')">EN - English</x-dropdown-link>
                     </x-slot>
                 </x-dropdown>
-                <a href="{{ route('profile.edit') }}" class="me-4 inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-500">{{ __('Upload Resume') }}</a>
+                <a href="{{ route('profile.edit') }}" class="me-4 inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark">{{ __('Upload Resume') }}</a>
                 @auth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

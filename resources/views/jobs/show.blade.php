@@ -3,12 +3,12 @@
         <div class="max-w-5xl mx-auto px-4 py-6">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <a href="{{ route('jobs.index') }}" class="text-indigo-600 dark:text-indigo-400 text-sm">← {{ __('Back to search') }}</a>
+                    <a href="{{ route('jobs.index') }}" class="text-primary text-sm">← {{ __('Back to search') }}</a>
                     <h1 class="text-3xl font-bold mt-1 text-gray-900 dark:text-gray-100">{{ $job->title }}</h1>
                     <p class="text-gray-600 dark:text-gray-300">{{ $job->company->name }} • {{ $job->location?->city ?? __('Remote') }}</p>
                 </div>
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">{{ __('Klik Untuk Melamar') }}</a>
+                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white font-semibold">{{ __('Klik Untuk Melamar') }}</a>
                 @endif
             </div>
 
@@ -137,7 +137,7 @@
                 </div>
 
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="md:hidden mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Klik Untuk Melamar') }}</a>
+                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="md:hidden mt-3 block w-full text-center bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Klik Untuk Melamar') }}</a>
                 @else
                     @auth
                         <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
@@ -146,10 +146,10 @@
                             <input type="file" name="resume" class="w-full border-gray-300 rounded-lg" />
                             <label class="block text-sm font-medium text-gray-700">{{ __('Cover Letter') }}</label>
                             <textarea name="cover_letter" rows="4" class="w-full border-gray-300 rounded-lg"></textarea>
-                            <button class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
+                            <button class="w-full mt-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
+                        <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
                     @endauth
                 @endif
             </div>
