@@ -55,14 +55,7 @@
                     <div class="text-gray-600">{{ __('Valid Until') }}</div>
                     <div class="font-medium text-gray-900">{{ optional($job->valid_until)->format('d M Y') ?? '-' }}</div>
 
-                    <div class="text-gray-600">{{ __('URL') }}</div>
-                    <div class="font-medium text-gray-900">
-                        @if($job->external_url)
-                            <a href="{{ $job->external_url }}" target="_blank" class="text-indigo-600 hover:underline">{{ __('Open link') }}</a>
-                        @else
-                            -
-                        @endif
-                    </div>
+                    
 
                     <div class="text-gray-600">{{ __('Gender') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->gender ? __((string) str($job->gender)->title()) : '-' }}</div>
@@ -92,18 +85,22 @@
                     <div class="font-medium text-gray-900">{{ $job->category?->name ?? '-' }}</div>
                 </div>
 
-                @auth
-                    <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
-                        @csrf
-                        <label class="block text-sm font-medium text-gray-700">{{ __('Resume (PDF/DOC, max 5MB)') }}</label>
-                        <input type="file" name="resume" class="w-full border-gray-300 rounded-lg" />
-                        <label class="block text-sm font-medium text-gray-700">{{ __('Cover Letter') }}</label>
-                        <textarea name="cover_letter" rows="4" class="w-full border-gray-300 rounded-lg"></textarea>
-                        <button class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
-                    </form>
+                @if($job->external_url)
+                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Klik Untuk Melamar') }}</a>
                 @else
-                    <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
-                @endauth
+                    @auth
+                        <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
+                            @csrf
+                            <label class="block text-sm font-medium text-gray-700">{{ __('Resume (PDF/DOC, max 5MB)') }}</label>
+                            <input type="file" name="resume" class="w-full border-gray-300 rounded-lg" />
+                            <label class="block text-sm font-medium text-gray-700">{{ __('Cover Letter') }}</label>
+                            <textarea name="cover_letter" rows="4" class="w-full border-gray-300 rounded-lg"></textarea>
+                            <button class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
+                    @endauth
+                @endif
             </div>
         </aside>
     </div>
