@@ -30,12 +30,12 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-primary-light dark:bg-primary-dark">
+        <div class="min-h-screen bg-primary-50 dark:bg-primary-500">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white dark:bg-primary-dark shadow">
+                <header class="bg-white dark:bg-primary-400 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>

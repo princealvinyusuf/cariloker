@@ -17,10 +17,16 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#10B981', // Tailwind emerald-500 (fresh green)
-                    light: '#6EE7B7',  // emerald-300
-                    dark: '#047857',   // emerald-800
-                }
+                    DEFAULT: '#FF7B00', // main orange
+                    500: '#FF7B00', // main orange
+                    400: '#FF8D21',
+                    300: '#FFA652',
+                    200: '#FFB76B',
+                    100: '#FFCD90',
+                    50:  '#FFF4DF',
+                    light: '#FFCD90',
+                    dark: '#FF8D21',
+                },
             },
         },
     },
