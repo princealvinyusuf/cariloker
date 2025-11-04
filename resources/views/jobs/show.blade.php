@@ -36,7 +36,13 @@
         <main class="md:col-span-8 space-y-6">
             <div class="bg-white rounded-xl p-6 shadow-sm">
                 <div class="flex items-center gap-4">
-                    <img class="w-16 h-16 rounded-lg object-cover ring-1 ring-gray-200" src="{{ $job->company->logo_path ? Storage::url($job->company->logo_path) : 'https://placehold.co/96x96' }}" alt="{{ $job->company->name }} logo">
+                    @if($job->company->logo_path)
+                        <img class="w-16 h-16 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo">
+                    @else
+                        <div class="w-16 h-16 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
+                            <i class="fa-solid fa-building text-2xl"></i>
+                        </div>
+                    @endif
                     <div>
                         <div class="text-gray-900 font-semibold">{{ $job->company->name }}</div>
                         <div class="text-gray-600 text-sm">{{ $job->location?->city ?? __('Remote') }}</div>

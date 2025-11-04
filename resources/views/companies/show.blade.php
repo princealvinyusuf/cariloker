@@ -9,7 +9,13 @@
     <div class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
         <aside class="md:col-span-4">
             <div class="bg-white rounded-xl p-6 shadow-sm">
-                <img class="w-24 h-24 rounded-lg object-cover ring-1 ring-gray-200" src="{{ $company->logo_path ? Storage::url($company->logo_path) : 'https://placehold.co/128x128' }}" alt="{{ $company->name }} logo">
+                @if($company->logo_path)
+                    <img class="w-24 h-24 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($company->logo_path) }}" alt="{{ $company->name }} logo">
+                @else
+                    <div class="w-24 h-24 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
+                        <i class="fa-solid fa-building text-3xl"></i>
+                    </div>
+                @endif
                 <div class="mt-4 text-sm text-gray-600">{{ __('Industry') }}</div>
                 <div class="font-semibold text-gray-900">{{ $company->industry ?: '-' }}</div>
                 <div class="mt-4 text-sm text-gray-600">{{ __('Location') }}</div>
