@@ -55,39 +55,6 @@ class JobImportController extends Controller
 			abort(403);
 		}
 
-	public function truncateAll(Request $request)
-	{
-		if (!Auth::user() || Auth::user()->role !== 'admin') {
-			abort(403);
-		}
-
-		DB::beginTransaction();
-		try {
-			DB::statement('SET FOREIGN_KEY_CHECKS=0');
-			// Truncate in safe order (children first)
-			foreach ([
-				'job_listing_skill',
-				'applications',
-				'saved_jobs',
-				'job_listings',
-				'companies',
-				'locations',
-				'job_categories',
-				'skills',
-			] as $table) {
-				if (Schema::hasTable($table)) {
-					DB::table($table)->truncate();
-				}
-			}
-			DB::statement('SET FOREIGN_KEY_CHECKS=1');
-			DB::commit();
-			return Redirect::route('admin.jobs.import.create')->with('status', 'All related tables truncated.');
-		} catch (\Throwable $e) {
-			DB::rollBack();
-			return Redirect::route('admin.jobs.import.create')->with('import_errors', [$e->getMessage()]);
-		}
-	}
-
 		$processed = 0;
 		$errors = [];
 
@@ -186,6 +153,39 @@ class JobImportController extends Controller
 		return Redirect::route('admin.jobs.import.create')
 			->with('status', "Processed {$processed} staging rows")
 			->with('import_errors', $errors);
+	}
+
+	public function truncateAll(Request $request)
+	{
+		if (!Auth::user() || Auth::user()->role !== 'admin') {
+			abort(403);
+		}
+
+		DB::beginTransaction();
+		try {
+			DB::statement('SET FOREIGN_KEY_CHECKS=0');
+			// Truncate in safe order (children first)
+			foreach ([
+				'job_listing_skill',
+				'applications',
+				'saved_jobs',
+				'job_listings',
+				'companies',
+				'locations',
+				'job_categories',
+				'skills',
+			] as $table) {
+				if (Schema::hasTable($table)) {
+					DB::table($table)->truncate();
+				}
+			}
+			DB::statement('SET FOREIGN_KEY_CHECKS=1');
+			DB::commit();
+			return Redirect::route('admin.jobs.import.create')->with('status', 'All related tables truncated.');
+		} catch (\Throwable $e) {
+			DB::rollBack();
+			return Redirect::route('admin.jobs.import.create')->with('import_errors', [$e->getMessage()]);
+		}
 	}
 
 	private function parseDate($value): ?string
