@@ -63,6 +63,20 @@
                     </div>
                     <p class="mt-2">{{ __('Tips') }}: {{ __('Export as .xlsx or .csv from Excel. Dates can be d/m/Y (e.g., 03/09/2025). Gaji may be a range like "6,000,000 - 10,000,000".') }}</p>
                 </div>
+
+                <hr class="my-8 border-gray-200 dark:border-gray-700">
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ __('Process staging (for DBeaver imports)') }}</h3>
+                    <ol class="list-decimal ms-6 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                        <li>{{ __('Run migrations to create table') }}: <code class="px-1 py-0.5 bg-gray-100 rounded">job_imports</code>.</li>
+                        <li>{{ __('In DBeaver, import your Excel/CSV into the') }} <code>job_imports</code> {{ __('table (map headers to columns).') }}</li>
+                        <li>{{ __('Click the button below to transform into normalized tables.') }}</li>
+                    </ol>
+                    <form method="POST" action="{{ route('admin.jobs.import.process') }}">
+                        @csrf
+                        <button class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">{{ __('Process Staging Data') }}</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

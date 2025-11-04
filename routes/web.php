@@ -13,6 +13,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.jobs.import.create');
     Route::post('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'store'])
         ->name('admin.jobs.import.store');
+    Route::post('/admin/jobs/import/process', [\App\Http\Controllers\Admin\JobImportController::class, 'processStaging'])
+        ->name('admin.jobs.import.process');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
