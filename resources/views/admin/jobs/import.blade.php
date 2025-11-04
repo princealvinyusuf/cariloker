@@ -54,6 +54,26 @@
 
                 <hr class="my-8 border-gray-200 dark:border-gray-700">
                 <div class="space-y-3">
+                    @if(isset($total))
+                        @php
+                            $p = $progress['processed'] ?? 0;
+                            $t = $progress['total'] ?? $total;
+                            $running = $progress['running'] ?? false;
+                            $percent = $t > 0 ? min(100, round(($p / $t) * 100)) : 0;
+                        @endphp
+                        <div>
+                            <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                                <span>{{ __('Progress') }}</span>
+                                <span>{{ $p }} / {{ $t }} ({{ $percent }}%)</span>
+                            </div>
+                            <div class="mt-1 h-3 bg-gray-100 rounded">
+                                <div class="h-3 bg-emerald-500 rounded" style="width: {{ $percent }}%"></div>
+                            </div>
+                            @if($running)
+                                <p class="mt-1 text-xs text-gray-500">{{ __('Processing is in progress or can be resumed. Click Process again to continue from the last point.') }}</p>
+                            @endif
+                        </div>
+                    @endif
                     <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ __('Process staging (for DBeaver imports)') }}</h3>
                     <ol class="list-decimal ms-6 text-sm text-gray-600 dark:text-gray-300 space-y-1">
                         <li>{{ __('Run migrations to create table') }}: <code class="px-1 py-0.5 bg-gray-100 rounded">job_imports</code>.</li>

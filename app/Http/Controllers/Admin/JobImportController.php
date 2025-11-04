@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
@@ -23,7 +24,9 @@ class JobImportController extends Controller
 		if (!Auth::user() || Auth::user()->role !== 'admin') {
 			abort(403);
 		}
-		return view('admin.jobs.import');
+		$progress = Cache::get('import:progress');
+		$total = DB::table('job_imports')->count();
+		return view('admin.jobs.import', ['progress' => $progress, 'total' => $total]);
 	}
 
 	public function store(Request $request)
@@ -55,10 +58,25 @@ class JobImportController extends Controller
 			abort(403);
 		}
 
+		// Allow long-running chunked processing without timeouts
+		@set_time_limit(0);
+		@ini_set('memory_limit', '1024M');
+		DB::disableQueryLog();
+
+		$batchSize = max(50, (int) $request->integer('batch', 200));
+		$maxRows = max(100, (int) $request->integer('max', 5000));
+		$total = DB::table('job_imports')->count();
+		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
+		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
+		Cache::put('import:progress.total', $total);
+
 		$processed = 0;
 		$errors = [];
 
-		DB::table('job_imports')->orderBy('id')->chunk(500, function ($rows) use (&$processed, &$errors) {
+		DB::table('job_imports')
+			->where('id', '>', $lastId)
+			->orderBy('id')
+			->chunkById($batchSize, function ($rows) use (&$processed, &$errors, $maxRows, &$lastId, $total, &$processedSoFar) {
 			foreach ($rows as $row) {
 				try {
 					DB::transaction(function () use ($row) {
@@ -144,11 +162,31 @@ class JobImportController extends Controller
 					});
 
 					$processed++;
+					$lastId = $row->id;
+					$processedSoFar++;
+					Cache::put('import:progress', [
+						'processed' => $processedSoFar,
+						'last_id' => $lastId,
+						'total' => $total,
+						'running' => true,
+					], now()->addMinutes(30));
+					if ($processed >= $maxRows) {
+						// stop further chunk processing for this request
+						return false;
+					}
 				} catch (\Throwable $e) {
 					$errors[] = "Row {$row->id}: ".$e->getMessage();
 				}
 			}
-		});
+			}, 'id');
+
+		$hasMore = DB::table('job_imports')->where('id', '>', $lastId)->exists();
+		Cache::put('import:progress', [
+			'processed' => $processedSoFar,
+			'last_id' => $lastId,
+			'total' => $total,
+			'running' => $hasMore,
+		], now()->addMinutes(30));
 
 		return Redirect::route('admin.jobs.import.create')
 			->with('status', "Processed {$processed} staging rows")
