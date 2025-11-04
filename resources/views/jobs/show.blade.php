@@ -71,7 +71,7 @@
                     <div class="font-medium text-gray-900">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : ($job->is_remote ? __('Remote') : '-') }}</div>
 
                     <div class="text-gray-600">{{ __('Job Type') }}</div>
-                    <div class="font-medium text-gray-900">{{ __(str($job->employment_type)->replace('_',' ')->title()) }}</div>
+                    <div class="font-medium text-gray-900">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</div>
 
                     <div class="text-gray-600">{{ __('Job Level') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->seniority_level ? __((string) str($job->seniority_level)->title()) : '-' }}</div>
