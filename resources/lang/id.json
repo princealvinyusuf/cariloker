@@ -72,6 +72,11 @@
 	"Female": "Wanita",
 	"Any": "Semua",
 	"Onsite": "Di kantor",
-	"Hybrid": "Hibrida"
+    "Hybrid": "Hibrida",
+    "Requirements": "Persyaratan",
+    "Experience": "Pengalaman",
+    "years": "tahun",
+    "years experience": "tahun pengalaman",
+    "About Company": "Tentang Perusahaan"
 }
 
