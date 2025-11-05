@@ -44,7 +44,7 @@
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('Privacy Policy') }}</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('Terms of Service') }}</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('Cookie Policy') }}</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">{{ __('FAQ') }}</a></li>
+                    <li><a href="{{ route('faq') }}" class="hover:text-white transition-colors">{{ __('FAQ') }}</a></li>
                 </ul>
             </div>
 
