@@ -220,4 +220,64 @@
             </div>
         </div>
     @endif
+
+    <!-- Floating Apply Button -->
+    @if($job->external_url)
+        <div class="fixed bottom-6 right-6 z-50">
+            <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
+               class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-full px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>{{ __('Apply Now') }}</span>
+            </a>
+        </div>
+    @else
+        @auth
+            <div class="fixed bottom-6 right-6 z-50">
+                <button onclick="document.getElementById('apply-form-modal').classList.remove('hidden')" 
+                        class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-full px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>{{ __('Apply Now') }}</span>
+                </button>
+            </div>
+            
+            <!-- Apply Form Modal -->
+            <div id="apply-form-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 relative">
+                    <button onclick="document.getElementById('apply-form-modal').classList.add('hidden')" 
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                        <i class="fa-solid fa-times text-xl"></i>
+                    </button>
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">{{ __('Apply for this Job') }}</h3>
+                    <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Resume (PDF/DOC, max 5MB)') }}</label>
+                            <input type="file" name="resume" required class="w-full border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Cover Letter') }}</label>
+                            <textarea name="cover_letter" rows="4" class="w-full border-gray-300 rounded-lg"></textarea>
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="document.getElementById('apply-form-modal').classList.add('hidden')" 
+                                    class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50">
+                                {{ __('Cancel') }}
+                            </button>
+                            <button type="submit" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2">
+                                {{ __('Submit Application') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="fixed bottom-6 right-6 z-50">
+                <a href="{{ route('login') }}" 
+                   class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-full px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                    <i class="fa-solid fa-sign-in-alt"></i>
+                    <span>{{ __('Sign in to Apply') }}</span>
+                </a>
+            </div>
+        @endauth
+    @endif
 </x-app-layout>
