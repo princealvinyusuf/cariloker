@@ -94,7 +94,7 @@
                                    class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
                         </div>
                     </div>
-                    <div class="md:col-span-4">
+                    <div class="md:col-span-3">
                         <label class="sr-only" for="location">{{ __('Location') }}</label>
                         <div class="relative">
                             <i class="fa-solid fa-location-dot absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -105,7 +105,7 @@
                     <div class="md:col-span-2">
                         <label class="sr-only" for="type">{{ __('Job Type') }}</label>
                         <div class="relative">
-                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 appearance-none bg-white">
+                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 appearance-none bg-white cursor-pointer">
                                 <option value="">{{ __('Any Type') }}</option>
                                 @foreach($employmentTypes as $key => $label)
                                     <option value="{{ $key }}" @selected(request('type') === $key)>{{ $label }}</option>
@@ -114,8 +114,8 @@
                             <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
                         </div>
                     </div>
-                    <div class="md:col-span-1">
-                        <button type="submit" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-6 py-3 transition-colors shadow-md hover:shadow-lg">
+                    <div class="md:col-span-2">
+                        <button type="submit" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3 transition-colors shadow-md hover:shadow-lg whitespace-nowrap">
                             {{ __('Search') }}
                         </button>
                     </div>
