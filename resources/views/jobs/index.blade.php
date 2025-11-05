@@ -215,42 +215,42 @@
                     <a href="{{ route('jobs.index', ['list' => '1']) }}" class="text-violet-600 hover:text-violet-700 font-semibold">{{ __('View All') }} →</a>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($featuredJobs as $index => $job)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 hover:bg-violet-50 transition-all overflow-hidden group {{ $index === 0 ? 'md:col-span-2 lg:col-span-1 bg-violet-600 text-white hover:bg-violet-600' : '' }}">
+                    @foreach($featuredJobs as $job)
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 hover:bg-violet-50 transition-all overflow-hidden group relative">
                             <div class="p-6">
                                 <div class="flex items-start gap-4 mb-4">
                                     @if($job->company->logo_path)
-                                        <img class="w-14 h-14 rounded-xl object-cover border {{ $index === 0 ? 'border-white/20' : 'border-gray-200' }} flex-shrink-0" 
+                                        <img class="w-14 h-14 rounded-xl object-cover border border-gray-200 flex-shrink-0" 
                                              src="{{ Storage::url($job->company->logo_path) }}" 
                                              alt="{{ $job->company->name }} logo">
                                     @else
-                                        <div class="w-14 h-14 rounded-xl border {{ $index === 0 ? 'border-white/20 bg-white/20' : 'border-gray-200 bg-violet-50' }} flex items-center justify-center flex-shrink-0">
-                                            <i class="fa-solid fa-building text-xl {{ $index === 0 ? 'text-white' : 'text-violet-600' }}"></i>
+                                        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-violet-50 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-building text-xl text-violet-600"></i>
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-semibold {{ $index === 0 ? 'text-white' : 'text-gray-900' }} truncate">{{ $job->company->name }}</p>
-                                        <p class="text-xs {{ $index === 0 ? 'text-white/80' : 'text-gray-500' }} mt-0.5">{{ $job->location?->city ?? __('Remote') }}</p>
+                                        <p class="text-sm font-semibold text-gray-900 truncate">{{ $job->company->name }}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $job->location?->city ?? __('Remote') }}</p>
                                     </div>
                                 </div>
                                 <a href="{{ route('jobs.show', $job) }}" class="block mb-3">
-                                    <h3 class="text-lg font-bold {{ $index === 0 ? 'text-white' : 'text-gray-900' }} group-hover:text-violet-600 transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $job->title }}</h3>
+                                    <h3 class="text-lg font-bold text-gray-900 group-hover:text-violet-600 transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $job->title }}</h3>
                                 </a>
-                                <p class="text-sm {{ $index === 0 ? 'text-white/90' : 'text-gray-600' }} mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(80) }}</p>
-                                <div class="flex items-center gap-2 pt-4 border-t {{ $index === 0 ? 'border-white/20' : 'border-gray-100' }}">
+                                <p class="text-sm text-gray-600 mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(80) }}</p>
+                                <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
                                     @if($job->external_url)
                                         <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
-                                           class="flex-1 {{ $index === 0 ? 'bg-white text-violet-600 hover:bg-gray-100' : 'bg-violet-600 hover:bg-violet-700 text-white' }} font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                             {{ __('Apply Now') }}
                                         </a>
                                     @else
                                         <a href="{{ route('jobs.show', $job) }}" 
-                                           class="flex-1 {{ $index === 0 ? 'bg-white text-violet-600 hover:bg-gray-100' : 'bg-violet-600 hover:bg-violet-700 text-white' }} font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                             {{ __('Apply Now') }}
                                         </a>
                                     @endif
                                     <a href="{{ route('jobs.show', $job) }}" 
-                                       class="px-4 py-2.5 border {{ $index === 0 ? 'border-white/30 text-white hover:bg-white/10' : 'border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600' }} font-semibold rounded-lg text-sm transition-colors">
+                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm transition-colors">
                                         {{ __('View Details') }}
                                     </a>
                                 </div>
