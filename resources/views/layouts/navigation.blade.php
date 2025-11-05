@@ -77,15 +77,6 @@
                             <x-dropdown-link :href="route('locale.switch', 'en')">EN - English</x-dropdown-link>
                         </x-slot>
                     </x-dropdown>
-                @else
-                    <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-violet-600 border border-violet-600 bg-white hover:bg-violet-50 transition-colors">
-                        {{ __('Login') }}
-                    </a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-violet-600 hover:bg-violet-700 transition-colors">
-                            {{ __('Register') }}
-                        </a>
-                    @endif
                 @endauth
             </div>
 
@@ -136,15 +127,6 @@
                         {{ __('Log Out') }}
                     </button>
                 </form>
-            @else
-                <a href="{{ route('login') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
-                    {{ __('Log in') }}
-                </a>
-                @if (Route::has('register'))
-                    <a href="{{ route('register') }}" class="block px-3 py-2 rounded-lg text-base font-semibold text-white bg-violet-600 text-center">
-                        {{ __('Register') }}
-                    </a>
-                @endif
             @endauth
         </div>
     </div>
