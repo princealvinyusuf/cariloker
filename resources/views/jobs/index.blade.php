@@ -105,13 +105,15 @@
                     <div class="md:col-span-2">
                         <label class="sr-only" for="type">{{ __('Job Type') }}</label>
                         <div class="relative">
-                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 appearance-none bg-white cursor-pointer">
+                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer" style="-webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important;">
                                 <option value="">{{ __('Any Type') }}</option>
                                 @foreach($employmentTypes as $key => $label)
                                     <option value="{{ $key }}" @selected(request('type') === $key)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
+                                <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="md:col-span-2">
