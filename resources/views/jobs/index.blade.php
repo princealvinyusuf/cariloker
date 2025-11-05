@@ -125,7 +125,7 @@
                     <div class="text-center">
                         <i class="fa-solid fa-file-arrow-up text-3xl text-blue-600 mb-3"></i>
                         <p class="text-sm font-bold text-gray-900 mb-1">{{ __('Upload your resume') }}</p>
-                        <p class="text-xs text-gray-600 mb-4">{{ __('We'll match you with the best jobs.') }}</p>
+                        <p class="text-xs text-gray-600 mb-4">{{ __("We'll match you with the best jobs.") }}</p>
                         <a href="{{ route('register') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors">
                             {{ __('Get started') }}
                         </a>
