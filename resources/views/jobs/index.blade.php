@@ -137,26 +137,18 @@
     </div>
 
     @if(isset($isLandingPage) && $isLandingPage)
-        <!-- Get Hired in 4 Steps Section -->
+        <!-- Get Hired in 2 Steps Section -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-                    {{ __('Get Hired in') }} <span class="text-violet-600">{{ __('4 Quick Easy Steps') }}</span>
+                    {{ __('Get Hired in') }} <span class="text-violet-600">{{ __('2 Quick Easy Steps') }}</span>
                 </h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
                     {{ __('The quickest and most effective way to get hired by the top firm working in your career interest areas.') }}
                 </p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Step 1 -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-                    <div class="w-16 h-16 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-user-plus text-2xl text-orange-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Create An Account') }}</h3>
-                    <p class="text-gray-600 text-sm">{{ __('Sign up and create your profile to start your job search journey.') }}</p>
-                </div>
-                <!-- Step 2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- Step 1: Search Job -->
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 rounded-xl bg-violet-100 flex items-center justify-center mb-4">
                         <i class="fa-solid fa-magnifying-glass text-2xl text-violet-600"></i>
@@ -164,15 +156,7 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Search Job') }}</h3>
                     <p class="text-gray-600 text-sm">{{ __('Browse through thousands of job opportunities that match your skills.') }}</p>
                 </div>
-                <!-- Step 3 -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-                    <div class="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-file-arrow-up text-2xl text-green-600"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Upload CV/Resume') }}</h3>
-                    <p class="text-gray-600 text-sm">{{ __('Upload your resume and let employers discover your potential.') }}</p>
-                </div>
-                <!-- Step 4 -->
+                <!-- Step 2: Get Job -->
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
                         <i class="fa-solid fa-briefcase text-2xl text-yellow-600"></i>
