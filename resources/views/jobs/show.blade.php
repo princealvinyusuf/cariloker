@@ -98,33 +98,33 @@
         <!-- Sidebar -->
         <aside class="md:col-span-4">
             <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100 sticky top-6 space-y-6">
+                @if(isset($job->reviews) && $job->reviews->count() > 0)
                 <div>
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('Review') }}</h3>
                     <ul class="mt-3 space-y-2 text-sm">
-                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Friendly environment') }}</span></li>
-                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Work from home facility') }}</span></li>
-                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Good for freshers to learn') }}</span></li>
-                        <li class="flex items-center gap-2 text-rose-600"><i class="fa-solid fa-thumbs-down"></i><span>{{ __('Work-life balance can be challenging') }}</span></li>
+                        @foreach($job->reviews as $review)
+                            <li class="flex items-center gap-2 {{ $review->type === 'positive' ? 'text-emerald-700' : 'text-rose-600' }}">
+                                <i class="fa-solid {{ $review->type === 'positive' ? 'fa-thumbs-up' : 'fa-thumbs-down' }}"></i>
+                                <span>{{ $review->text }}</span>
+                            </li>
+                        @endforeach
                     </ul>
                 </div>
+                @endif
 
+                @if(isset($job->benefits) && $job->benefits->count() > 0)
                 <div>
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('Benefits & Perks') }}</h3>
                     <div class="mt-3 grid grid-cols-3 gap-3 text-center">
-                        <div class="rounded-xl border border-violet-100 p-3">
-                            <i class="fa-solid fa-mug-saucer text-violet-600"></i>
-                            <div class="text-xs mt-1">{{ __('Cafeteria') }}</div>
-                        </div>
-                        <div class="rounded-xl border border-violet-100 p-3">
-                            <i class="fa-solid fa-house-laptop text-violet-600"></i>
-                            <div class="text-xs mt-1">WFH</div>
-                        </div>
-                        <div class="rounded-xl border border-violet-100 p-3">
-                            <i class="fa-solid fa-car-side text-violet-600"></i>
-                            <div class="text-xs mt-1">{{ __('Transportation') }}</div>
-                        </div>
+                        @foreach($job->benefits as $benefit)
+                            <div class="rounded-xl border border-violet-100 p-3">
+                                <i class="{{ $benefit->icon }} text-violet-600"></i>
+                                <div class="text-xs mt-1">{{ $benefit->name }}</div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+                @endif
 
                 <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                     <div class="text-gray-600">{{ __('Company') }}</div>
