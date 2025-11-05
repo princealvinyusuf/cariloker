@@ -183,12 +183,12 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                         @foreach($categories->take(8) as $index => $category)
                             <a href="{{ route('jobs.index', ['category' => $category->slug]) }}" 
-                               class="bg-white rounded-2xl p-6 text-center hover:shadow-lg hover:scale-105 transition-all group {{ $index === 0 ? 'bg-violet-600 text-white' : '' }}">
+                               class="bg-white rounded-2xl p-6 text-center hover:shadow-lg hover:scale-105 hover:bg-violet-50 transition-all group {{ $index === 0 ? 'bg-violet-600 text-white hover:bg-violet-600' : '' }}">
                                 <div class="w-12 h-12 mx-auto mb-3 rounded-xl {{ $index === 0 ? 'bg-white/20' : 'bg-violet-50' }} flex items-center justify-center group-hover:bg-violet-100 transition-colors">
                                     <i class="fa-solid fa-briefcase text-xl {{ $index === 0 ? 'text-white' : 'text-violet-600' }} group-hover:text-violet-600"></i>
                                 </div>
                                 <h3 class="font-bold text-sm mb-1 {{ $index === 0 ? 'text-white' : 'text-gray-900' }} group-hover:text-violet-600">{{ $category->name }}</h3>
-                                <p class="text-xs {{ $index === 0 ? 'text-white/80' : 'text-gray-500' }}">
+                                <p class="text-xs {{ $index === 0 ? 'text-white/80' : 'text-gray-500' }} group-hover:text-gray-600">
                                     {{ $category->jobs_count ?? 0 }}+ {{ __('openings') }}
                                 </p>
                             </a>
