@@ -52,17 +52,22 @@
             <div>
                 <h3 class="text-white font-semibold mb-4">{{ __('Contact Us') }}</h3>
                 <ul class="space-y-2 text-sm">
+                    @php
+                        $contactEmail = \App\Models\AboutPageContent::getContent('contact_email', 'info@cariloker.com');
+                        $contactPhone = \App\Models\AboutPageContent::getContent('contact_phone', '+62 123 456 7890');
+                        $contactAddress = \App\Models\AboutPageContent::getContent('contact_address', 'Jakarta, Indonesia');
+                    @endphp
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-envelope mt-1 text-violet-400"></i>
-                        <span>info@cariloker.com</span>
+                        <a href="mailto:{{ $contactEmail }}" class="hover:text-white transition-colors">{{ $contactEmail }}</a>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-phone mt-1 text-violet-400"></i>
-                        <span>+62 123 456 7890</span>
+                        <a href="tel:{{ $contactPhone }}" class="hover:text-white transition-colors">{{ $contactPhone }}</a>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-location-dot mt-1 text-violet-400"></i>
-                        <span>Jakarta, Indonesia</span>
+                        <span>{{ $contactAddress }}</span>
                     </li>
                 </ul>
             </div>
