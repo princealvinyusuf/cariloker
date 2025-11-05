@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\FaqController;
@@ -57,6 +58,7 @@ Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middl
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
