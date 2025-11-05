@@ -18,7 +18,7 @@
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all group">
                             @if($post->featured_image)
                                 <a href="{{ route('blog.show', $post) }}">
-                                    <img src="{{ Storage::disk('public')->url($post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
                                 </a>
                             @else
                                 <div class="w-full h-48 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center">

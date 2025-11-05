@@ -42,7 +42,7 @@
                     <label for="featured_image" class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Featured Image') }}</label>
                     @if($blog->featured_image)
                         <div class="mb-2">
-                            <img src="{{ Storage::disk('public')->url($blog->featured_image) }}" alt="Current image" class="w-32 h-32 object-cover rounded-lg">
+                            <img src="{{ Storage::url($blog->featured_image) }}" alt="Current image" class="w-32 h-32 object-cover rounded-lg">
                             <p class="text-sm text-gray-500 mt-1">{{ __('Current image. Upload a new image to replace it.') }}</p>
                         </div>
                     @endif
