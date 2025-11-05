@@ -10,7 +10,7 @@ return new class extends Migration
 	{
 		Schema::create('job_imports', function (Blueprint $table) {
 			$table->bigIncrements('id');
-			$table->string('nama_perusahaan')->nullable();
+			$table->string('nama_perusahaan', 1000)->nullable();
 			$table->string('provinsi')->nullable();
 			$table->string('kab_kota')->nullable();
 			$table->string('sektor')->nullable();
