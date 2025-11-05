@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\CompanyController;
@@ -23,6 +24,9 @@ Route::middleware('auth')->group(function () {
         ->name('admin.jobs.import.process');
     Route::post('/admin/jobs/truncate', [\App\Http\Controllers\Admin\JobImportController::class, 'truncateAll'])
         ->name('admin.jobs.truncate');
+    
+    // Admin Blog Management
+    Route::resource('admin/blog', \App\Http\Controllers\Admin\BlogController::class)->names('admin.blog');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
@@ -59,6 +63,8 @@ Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middl
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{blogPost}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
