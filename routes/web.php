@@ -6,6 +6,7 @@ use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\TermsOfServiceController;
@@ -49,6 +50,10 @@ Route::put('/cookie-policy', [CookiePolicyController::class, 'update'])->middlew
 Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('terms-of-service');
 Route::get('/terms-of-service/edit', [TermsOfServiceController::class, 'edit'])->middleware('auth')->name('terms-of-service.edit');
 Route::put('/terms-of-service', [TermsOfServiceController::class, 'update'])->middleware('auth')->name('terms-of-service.update');
+
+Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
+Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->middleware('auth')->name('privacy-policy.edit');
+Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['show']);

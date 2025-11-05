@@ -31,6 +31,9 @@
                             <a href="{{ route('terms-of-service.edit') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Edit Terms of Service') }} →
                             </a>
+                            <a href="{{ route('privacy-policy.edit') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
+                                {{ __('Edit Privacy Policy') }} →
+                            </a>
                             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Browse Jobs') }} →
                             </a>
