@@ -77,5 +77,8 @@ class DatabaseSeeder extends Seeder
         
         // Privacy Policy Content
         $this->call(PrivacyPolicyContentSeeder::class);
+        
+        // Blog Posts
+        $this->call(BlogPostSeeder::class);
     }
 }
