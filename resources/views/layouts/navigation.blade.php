@@ -7,7 +7,7 @@
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('jobs.index') }}" class="flex items-center gap-2">
                         <span class="text-2xl font-bold">
-                            <span class="text-violet-600">Job</span><span class="text-orange-500">hunt</span>
+                            <span class="text-violet-600">Cari</span><span class="text-orange-500"> Loker</span>
                         </span>
                     </a>
                 </div>

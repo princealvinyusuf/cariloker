@@ -5,7 +5,7 @@
             <div class="col-span-1">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="text-2xl font-bold">
-                        <span class="text-white">Job</span><span class="text-violet-400">hunt</span>
+                        <span class="text-white">Cari</span><span class="text-violet-400"> Loker</span>
                     </span>
                 </div>
                 <p class="text-sm text-gray-400 mb-4">{{ __('Your trusted platform for finding the perfect job opportunity.') }}</p>
@@ -54,7 +54,7 @@
                 <ul class="space-y-2 text-sm">
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-envelope mt-1 text-violet-400"></i>
-                        <span>info@jobhunt.com</span>
+                        <span>info@cariloker.com</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <i class="fa-solid fa-phone mt-1 text-violet-400"></i>
@@ -69,7 +69,7 @@
         </div>
 
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; {{ date('Y') }} Jobhunt. {{ __('All rights reserved.') }}</p>
+            <p>&copy; {{ date('Y') }} Cari Loker. {{ __('All rights reserved.') }}</p>
         </div>
     </div>
 </footer>

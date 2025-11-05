@@ -61,7 +61,7 @@
                 <!-- Badge -->
                 <div class="inline-block mb-4">
                     <span class="bg-orange-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                        No.1 Job Hunt Website
+                        No.1 Cari Loker Website
                     </span>
                 </div>
                 
