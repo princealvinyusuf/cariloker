@@ -86,7 +86,7 @@
             
             <form method="GET" action="{{ route('jobs.index') }}" class="max-w-5xl mx-auto mb-8">
                 <div class="bg-white rounded-2xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
-                    <div class="md:col-span-5">
+                    <div class="md:col-span-4">
                         <label class="sr-only" for="q">{{ __('Search') }}</label>
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
@@ -94,7 +94,7 @@
                                    class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
                         </div>
                     </div>
-                    <div class="md:col-span-3">
+                    <div class="md:col-span-4">
                         <label class="sr-only" for="location">{{ __('Location') }}</label>
                         <div class="relative">
                             <i class="fa-solid fa-location-dot absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
