@@ -29,7 +29,7 @@
             <div>
                 <h3 class="text-white font-semibold mb-4">{{ __('Quick Links') }}</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('jobs.index') }}" class="hover:text-white transition-colors">{{ __('Find Jobs') }}</a></li>
+                    <li><a href="{{ route('jobs.index', ['list' => '1']) }}" class="hover:text-white transition-colors">{{ __('Find Jobs') }}</a></li>
                     <li><a href="{{ route('companies.index') }}" class="hover:text-white transition-colors">{{ __('Browse Companies') }}</a></li>
                     <li><a href="{{ route('about') }}" class="hover:text-white transition-colors">{{ __('About Us') }}</a></li>
                 </ul>
