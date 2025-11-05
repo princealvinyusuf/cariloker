@@ -10,11 +10,13 @@
 
 <x-app-layout>
     <!-- Hero Search Section -->
-    <div class="bg-gradient-to-br from-blue-50 via-cyan-50 to-white py-12 border-b border-gray-200">
+    <div class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white py-12 border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8">
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-3">{{ __('Find your dream job') }}</h1>
-                <p class="text-lg text-gray-600">{{ __('Discover opportunities that match your skills and aspirations') }}</p>
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+                    {{ __('Search, Apply & Get Your') }} <span class="text-violet-600">{{ __('Dream Job') }}</span>
+                </h1>
+                <p class="text-lg text-gray-600">{{ __('Start your hunt for the best, life-changing career opportunities from here in your selected areas conveniently and get hired quickly.') }}</p>
             </div>
             <form method="GET" action="{{ route('jobs.index') }}" class="max-w-5xl mx-auto">
                 <div class="bg-white rounded-2xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -23,7 +25,7 @@
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input id="q" name="q" value="{{ request('q') }}" placeholder="{{ __('Search job title, keywords or company') }}" 
-                                   class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 transition-all" />
+                                   class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
                         </div>
                     </div>
                     <div class="md:col-span-4">
@@ -31,13 +33,13 @@
                         <div class="relative">
                             <i class="fa-solid fa-location-dot absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input id="location" name="location" value="{{ request('location') }}" placeholder="{{ __('Location (e.g. Jakarta)') }}" 
-                                   class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 transition-all" />
+                                   class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
                         </div>
                     </div>
                     <div class="md:col-span-2">
                         <label class="sr-only" for="type">{{ __('Job Type') }}</label>
                         <div class="relative">
-                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 appearance-none bg-white">
+                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 appearance-none bg-white">
                                 <option value="">{{ __('Any Type') }}</option>
                                 @foreach($employmentTypes as $key => $label)
                                     <option value="{{ $key }}" @selected(request('type') === $key)>{{ $label }}</option>
@@ -47,7 +49,7 @@
                         </div>
                     </div>
                     <div class="md:col-span-1">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl px-6 py-3 transition-colors shadow-md hover:shadow-lg">
+                        <button type="submit" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-6 py-3 transition-colors shadow-md hover:shadow-lg">
                             {{ __('Search') }}
                         </button>
                     </div>
@@ -56,16 +58,155 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Sidebar Filters -->
-            <aside class="lg:col-span-3 space-y-6">
+    @if(isset($isLandingPage) && $isLandingPage)
+        <!-- Get Hired in 4 Steps Section -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                    {{ __('Get Hired in') }} <span class="text-violet-600">{{ __('4 Quick Easy Steps') }}</span>
+                </h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    {{ __('The quickest and most effective way to get hired by the top firm working in your career interest areas.') }}
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-user-plus text-2xl text-orange-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Create An Account') }}</h3>
+                    <p class="text-gray-600 text-sm">{{ __('Sign up and create your profile to start your job search journey.') }}</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 rounded-xl bg-violet-100 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-magnifying-glass text-2xl text-violet-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Search Job') }}</h3>
+                    <p class="text-gray-600 text-sm">{{ __('Browse through thousands of job opportunities that match your skills.') }}</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 rounded-xl bg-green-100 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-file-arrow-up text-2xl text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Upload CV/Resume') }}</h3>
+                    <p class="text-gray-600 text-sm">{{ __('Upload your resume and let employers discover your potential.') }}</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                    <div class="w-16 h-16 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-briefcase text-2xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Get Job') }}</h3>
+                    <p class="text-gray-600 text-sm">{{ __('Apply and get hired by your dream company. Start your new career!') }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Categories Section -->
+        @if($categories->count() > 0)
+            <div class="bg-gray-50 py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                            <span class="text-violet-600">{{ __('Countless Career Options') }}</span> {{ __('Are Waiting For You to Explore') }}
+                        </h2>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                        @foreach($categories->take(8) as $index => $category)
+                            <a href="{{ route('jobs.index', ['category' => $category->slug]) }}" 
+                               class="bg-white rounded-2xl p-6 text-center hover:shadow-lg hover:scale-105 transition-all group {{ $index === 0 ? 'bg-violet-600 text-white' : '' }}">
+                                <div class="w-12 h-12 mx-auto mb-3 rounded-xl {{ $index === 0 ? 'bg-white/20' : 'bg-violet-50' }} flex items-center justify-center group-hover:bg-violet-100 transition-colors">
+                                    <i class="fa-solid fa-briefcase text-xl {{ $index === 0 ? 'text-white' : 'text-violet-600' }} group-hover:text-violet-600"></i>
+                                </div>
+                                <h3 class="font-bold text-sm mb-1 {{ $index === 0 ? 'text-white' : 'text-gray-900' }} group-hover:text-violet-600">{{ $category->name }}</h3>
+                                <p class="text-xs {{ $index === 0 ? 'text-white/80' : 'text-gray-500' }}">
+                                    {{ $category->jobs_count ?? 0 }}+ {{ __('openings') }}
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+                    @if($categories->count() > 8)
+                        <div class="text-center mt-8">
+                            <a href="{{ route('jobs.index') }}" class="inline-block bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-6 py-3 transition-colors">
+                                {{ __('View All Categories') }}
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        <!-- Latest Job Openings Section -->
+        @if(isset($featuredJobs) && $featuredJobs->count() > 0)
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                        {{ __('Latest and Top Job') }} <span class="text-violet-600">{{ __('Openings') }}</span>
+                    </h2>
+                    <a href="{{ route('jobs.index') }}" class="text-violet-600 hover:text-violet-700 font-semibold">{{ __('View All') }} →</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($featuredJobs as $index => $job)
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all overflow-hidden group {{ $index === 0 ? 'md:col-span-2 lg:col-span-1 bg-violet-600 text-white' : '' }}">
+                            <div class="p-6">
+                                <div class="flex items-start gap-4 mb-4">
+                                    @if($job->company->logo_path)
+                                        <img class="w-14 h-14 rounded-xl object-cover border {{ $index === 0 ? 'border-white/20' : 'border-gray-200' }} flex-shrink-0" 
+                                             src="{{ Storage::url($job->company->logo_path) }}" 
+                                             alt="{{ $job->company->name }} logo">
+                                    @else
+                                        <div class="w-14 h-14 rounded-xl border {{ $index === 0 ? 'border-white/20 bg-white/20' : 'border-gray-200 bg-violet-50' }} flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-building text-xl {{ $index === 0 ? 'text-white' : 'text-violet-600' }}"></i>
+                                        </div>
+                                    @endif
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold {{ $index === 0 ? 'text-white' : 'text-gray-900' }} truncate">{{ $job->company->name }}</p>
+                                        <p class="text-xs {{ $index === 0 ? 'text-white/80' : 'text-gray-500' }} mt-0.5">{{ $job->location?->city ?? __('Remote') }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('jobs.show', $job) }}" class="block mb-3">
+                                    <h3 class="text-lg font-bold {{ $index === 0 ? 'text-white' : 'text-gray-900' }} group-hover:text-violet-600 transition-colors" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $job->title }}</h3>
+                                </a>
+                                <p class="text-sm {{ $index === 0 ? 'text-white/90' : 'text-gray-600' }} mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(80) }}</p>
+                                <div class="flex items-center gap-2 pt-4 border-t {{ $index === 0 ? 'border-white/20' : 'border-gray-100' }}">
+                                    @if($job->external_url)
+                                        <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
+                                           class="flex-1 {{ $index === 0 ? 'bg-white text-violet-600 hover:bg-gray-100' : 'bg-violet-600 hover:bg-violet-700 text-white' }} font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                            {{ __('Apply Now') }}
+                                        </a>
+                                    @else
+                                        <a href="{{ route('jobs.show', $job) }}" 
+                                           class="flex-1 {{ $index === 0 ? 'bg-white text-violet-600 hover:bg-gray-100' : 'bg-violet-600 hover:bg-violet-700 text-white' }} font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                            {{ __('Apply Now') }}
+                                        </a>
+                                    @endif
+                                    <a href="{{ route('jobs.show', $job) }}" 
+                                       class="px-4 py-2.5 border {{ $index === 0 ? 'border-white/30 text-white hover:bg-white/10' : 'border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600' }} font-semibold rounded-lg text-sm transition-colors">
+                                        {{ __('View Details') }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+    @endif
+
+    <!-- Main Content (Filters & Job Listings - Only show when not landing page) -->
+    @if(!isset($isLandingPage) || !$isLandingPage)
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Sidebar Filters -->
+                <aside class="lg:col-span-3 space-y-6">
                 <!-- Filter Jobs Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-lg font-bold text-gray-900">{{ __('Filter Jobs') }}</h2>
-                        <a href="{{ route('jobs.index') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">{{ __('Clear All') }}</a>
+                        <a href="{{ route('jobs.index') }}" class="text-sm text-violet-600 hover:text-violet-700 font-medium">{{ __('Clear All') }}</a>
                     </div>
                     
                     <form id="filters" method="GET" action="{{ route('jobs.index') }}">
@@ -80,8 +221,8 @@
                                     @foreach($employmentTypes as $key => $label)
                                         <label class="flex items-center gap-3 cursor-pointer group">
                                             <input type="radio" name="type" value="{{ $key }}" form="filters" @checked(request('type')===$key)
-                                                   class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer">
-                                            <span class="text-sm text-gray-700 group-hover:text-blue-600">{{ $label }}</span>
+                                                   class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
+                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -92,7 +233,7 @@
                                 <label class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Min. Salary (IDR)') }}</label>
                                 <input type="number" name="min_salary" value="{{ request('min_salary') }}" form="filters" 
                                        placeholder="e.g. 5000000"
-                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 transition-all">
+                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all">
                             </div>
 
                             <!-- Experience -->
@@ -100,20 +241,20 @@
                                 <label class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Experience (years)') }}</label>
                                 <input type="number" name="experience" value="{{ request('experience') }}" form="filters" 
                                        placeholder="e.g. 2"
-                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 transition-all">
+                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all">
                             </div>
 
                             <!-- Remote Only -->
                             <div>
                                 <label class="flex items-center gap-3 cursor-pointer group">
                                     <input type="checkbox" name="remote" value="1" form="filters" @checked(request('remote')) 
-                                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
-                                    <span class="text-sm text-gray-700 group-hover:text-blue-600 font-medium">{{ __('Remote only') }}</span>
+                                           class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                    <span class="text-sm text-gray-700 group-hover:text-violet-600 font-medium">{{ __('Remote only') }}</span>
                                 </label>
                             </div>
 
                             <!-- Submit Button -->
-                            <button type="submit" form="filters" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2.5 transition-colors">
+                            <button type="submit" form="filters" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 transition-colors">
                                 {{ __('Apply Filters') }}
                             </button>
                         </div>
@@ -121,12 +262,12 @@
                 </div>
 
                 <!-- Upload Resume Card -->
-                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-100 p-6">
+                <div class="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-2xl border border-violet-100 p-6">
                     <div class="text-center">
-                        <i class="fa-solid fa-file-arrow-up text-3xl text-blue-600 mb-3"></i>
+                        <i class="fa-solid fa-file-arrow-up text-3xl text-violet-600 mb-3"></i>
                         <p class="text-sm font-bold text-gray-900 mb-1">{{ __('Upload your resume') }}</p>
                         <p class="text-xs text-gray-600 mb-4">{{ __("We'll match you with the best jobs.") }}</p>
-                        <a href="{{ route('register') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors">
+                        <a href="{{ route('register') }}" class="inline-block bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors">
                             {{ __('Get started') }}
                         </a>
                     </div>
@@ -137,7 +278,7 @@
                     <h3 class="text-sm font-bold text-gray-900 mb-4">{{ __('Categories') }}</h3>
                     <div class="space-y-2">
                         @foreach($categories as $category)
-                            <a class="block text-sm text-gray-700 hover:text-blue-600 font-medium transition-colors py-1" 
+                            <a class="block text-sm text-gray-700 hover:text-violet-600 font-medium transition-colors py-1" 
                                href="{{ route('jobs.index', array_merge(request()->except('page'), ['category' => $category->slug])) }}">
                                 {{ $category->name }}
                             </a>
@@ -152,14 +293,14 @@
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                     <div>
                         <p class="text-lg font-semibold text-gray-900">
-                            <span class="text-blue-600">{{ number_format($jobs->total()) }}</span> 
+                            <span class="text-violet-600">{{ number_format($jobs->total()) }}</span> 
                             <span class="text-gray-700">{{ __('results found') }}</span>
                         </p>
                     </div>
                     <form class="flex items-center gap-2">
                         <label class="text-sm text-gray-600">{{ __('Sort by:') }}</label>
                         <select name="sort" onchange="this.form.submit()" 
-                                class="px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-900 bg-white cursor-pointer">
+                                class="px-4 py-2 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer">
                             <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
                             <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
                         </select>
@@ -172,7 +313,7 @@
                 <!-- Job Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach($jobs as $job)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200 overflow-hidden group">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all duration-200 overflow-hidden group">
                             <div class="p-6">
                                 <!-- Company Logo & Info -->
                                 <div class="flex items-start gap-4 mb-4">
@@ -181,8 +322,8 @@
                                              src="{{ Storage::url($job->company->logo_path) }}" 
                                              alt="{{ $job->company->name }} logo">
                                     @else
-                                        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center flex-shrink-0">
-                                            <i class="fa-solid fa-building text-xl text-blue-600"></i>
+                                        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-building text-xl text-violet-600"></i>
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
@@ -200,7 +341,7 @@
                                 </div>
 
                                 <!-- Job Title -->
-                                <a href="{{ route('jobs.show', $job) }}" class="block mb-3 group-hover:text-blue-600 transition-colors">
+                                <a href="{{ route('jobs.show', $job) }}" class="block mb-3 group-hover:text-violet-600 transition-colors">
                                     <h3 class="text-lg font-bold text-gray-900" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $job->title }}</h3>
                                 </a>
 
@@ -210,7 +351,7 @@
                                 <!-- Job Tags -->
                                 <div class="flex flex-wrap items-center gap-2 mb-4">
                                     @if($job->openings)
-                                        <span class="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium">
+                                        <span class="px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-medium">
                                             {{ $job->openings }} {{ __('Positions') }}
                                         </span>
                                     @endif
@@ -243,17 +384,17 @@
                                 <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
                                     @if($job->external_url)
                                         <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
-                                           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                             {{ __('Apply Now') }}
                                         </a>
                                     @else
                                         <a href="{{ route('jobs.show', $job) }}" 
-                                           class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                             {{ __('Apply Now') }}
                                         </a>
                                     @endif
                                     <a href="{{ route('jobs.show', $job) }}" 
-                                       class="px-4 py-2.5 border border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600 font-semibold rounded-lg text-sm transition-colors">
+                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm transition-colors">
                                         {{ __('View Details') }}
                                     </a>
                                 </div>
@@ -275,7 +416,7 @@
                         <i class="fa-solid fa-briefcase text-4xl text-gray-300 mb-4"></i>
                         <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ __('No jobs found') }}</h3>
                         <p class="text-gray-600 mb-6">{{ __('Try adjusting your filters or search terms') }}</p>
-                        <a href="{{ route('jobs.index') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-6 py-3 transition-colors">
+                        <a href="{{ route('jobs.index') }}" class="inline-block bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-6 py-3 transition-colors">
                             {{ __('Clear Filters') }}
                         </a>
                     </div>
@@ -283,4 +424,5 @@
             </main>
         </div>
     </div>
+    @endif
 </x-app-layout>

@@ -56,17 +56,37 @@ class JobController extends Controller
 
         $jobs = $query->paginate(10)->withQueryString();
 
-        $categories = JobCategory::query()->orderBy('name')->get();
+        $categories = JobCategory::query()
+            ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
+            ->orderBy('name')
+            ->get();
+        
         $popularCompanies = Company::query()
             ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
             ->orderByDesc('jobs_count')
             ->limit(8)
             ->get();
 
+        // Check if this is a landing page (no filters applied)
+        $isLandingPage = !$request->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'sort', 'page']);
+
+        // Get featured jobs for landing page
+        $featuredJobs = null;
+        if ($isLandingPage) {
+            $featuredJobs = Job::query()
+                ->with(['company', 'location'])
+                ->where('status', 'published')
+                ->latest()
+                ->limit(6)
+                ->get();
+        }
+
         return view('jobs.index', [
             'jobs' => $jobs,
             'categories' => $categories,
             'popularCompanies' => $popularCompanies,
+            'isLandingPage' => $isLandingPage,
+            'featuredJobs' => $featuredJobs,
         ]);
     }
 
