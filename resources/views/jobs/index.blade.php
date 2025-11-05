@@ -212,7 +212,7 @@
                     <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
                         {{ __('Latest and Top Job') }} <span class="text-violet-600">{{ __('Openings') }}</span>
                     </h2>
-                    <a href="{{ route('jobs.index') }}" class="text-violet-600 hover:text-violet-700 font-semibold">{{ __('View All') }} →</a>
+                    <a href="{{ route('jobs.index', ['list' => '1']) }}" class="text-violet-600 hover:text-violet-700 font-semibold">{{ __('View All') }} →</a>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($featuredJobs as $index => $job)
