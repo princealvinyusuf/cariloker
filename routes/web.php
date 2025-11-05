@@ -3,6 +3,7 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
@@ -33,6 +34,11 @@ Route::get('/', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');
 Route::put('/about', [AboutController::class, 'update'])->middleware('auth')->name('about.update');
+
+Route::get('/faq', [FaqController::class, 'index'])->name('faq');
+Route::get('/faq/edit', [FaqController::class, 'edit'])->middleware('auth')->name('faq.edit');
+Route::put('/faq', [FaqController::class, 'update'])->middleware('auth')->name('faq.update');
+Route::delete('/faq/{id}', [FaqController::class, 'destroy'])->middleware('auth')->name('faq.destroy');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['show']);

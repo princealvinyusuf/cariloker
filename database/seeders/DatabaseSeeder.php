@@ -65,5 +65,8 @@ class DatabaseSeeder extends Seeder
 
         // About Page Content
         $this->call(AboutPageContentSeeder::class);
+        
+        // FAQ Content
+        $this->call(FaqSeeder::class);
     }
 }
