@@ -50,6 +50,20 @@
                     </svg>
                 </button>
                 
+                <!-- Language Switcher (Visible to all users) -->
+                <x-dropdown align="right" width="36">
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center justify-center px-3 h-9 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <span class="text-sm font-medium uppercase">{{ app()->getLocale() === 'id' ? 'ID' : 'EN' }}</span>
+                            <svg class="ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                        </button>
+                    </x-slot>
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('locale.switch', 'id')">{{ __('ID - Indonesia') }}</x-dropdown-link>
+                        <x-dropdown-link :href="route('locale.switch', 'en')">{{ __('EN - English') }}</x-dropdown-link>
+                    </x-slot>
+                </x-dropdown>
+                
                 @auth
                     <a href="{{ route('profile.edit') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 transition-colors">
                         {{ __('Upload Resume') }}
@@ -74,19 +88,16 @@
                             </form>
                         </x-slot>
                     </x-dropdown>
-                    <x-dropdown align="right" width="36">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center justify-center px-3 h-9 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                <span class="text-sm font-medium uppercase">{{ app()->getLocale() === 'id' ? 'ID' : 'EN' }}</span>
-                                <svg class="ms-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('locale.switch', 'id')">ID - Indonesia</x-dropdown-link>
-                            <x-dropdown-link :href="route('locale.switch', 'en')">EN - English</x-dropdown-link>
-                        </x-slot>
-                    </x-dropdown>
                 @endauth
+                
+                @guest
+                    <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        {{ __('Log in') }}
+                    </a>
+                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 transition-colors">
+                        {{ __('Register') }}
+                    </a>
+                @endguest
             </div>
 
             <!-- Hamburger -->
@@ -139,6 +150,19 @@
                 </div>
             </button>
             
+            <!-- Language Switcher (Mobile) -->
+            <div class="px-3 py-2">
+                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ __('Language') }}</div>
+                <div class="flex gap-2">
+                    <a href="{{ route('locale.switch', 'id') }}" class="flex-1 px-3 py-2 rounded-lg text-sm font-medium text-center {{ app()->getLocale() === 'id' ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }} transition-colors">
+                        {{ __('ID') }}
+                    </a>
+                    <a href="{{ route('locale.switch', 'en') }}" class="flex-1 px-3 py-2 rounded-lg text-sm font-medium text-center {{ app()->getLocale() === 'en' ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600' }} transition-colors">
+                        {{ __('EN') }}
+                    </a>
+                </div>
+            </div>
+            
             @auth
                 <div class="px-3">
                     <div class="font-medium text-base text-gray-900 dark:text-gray-100">{{ auth()->user()?->name }}</div>
@@ -157,6 +181,15 @@
                     </button>
                 </form>
             @endauth
+            
+            @guest
+                <a href="{{ route('login') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30">
+                    {{ __('Log in') }}
+                </a>
+                <a href="{{ route('register') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30">
+                    {{ __('Register') }}
+                </a>
+            @endguest
         </div>
     </div>
 </nav>
