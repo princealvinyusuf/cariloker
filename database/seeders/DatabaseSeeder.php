@@ -68,5 +68,8 @@ class DatabaseSeeder extends Seeder
         
         // FAQ Content
         $this->call(FaqSeeder::class);
+        
+        // Cookie Policy Content
+        $this->call(CookiePolicyContentSeeder::class);
     }
 }

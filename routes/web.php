@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\CookiePolicyController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\JobController;
@@ -39,6 +40,10 @@ Route::get('/faq', [FaqController::class, 'index'])->name('faq');
 Route::get('/faq/edit', [FaqController::class, 'edit'])->middleware('auth')->name('faq.edit');
 Route::put('/faq', [FaqController::class, 'update'])->middleware('auth')->name('faq.update');
 Route::delete('/faq/{id}', [FaqController::class, 'destroy'])->middleware('auth')->name('faq.destroy');
+
+Route::get('/cookie-policy', [CookiePolicyController::class, 'index'])->name('cookie-policy');
+Route::get('/cookie-policy/edit', [CookiePolicyController::class, 'edit'])->middleware('auth')->name('cookie-policy.edit');
+Route::put('/cookie-policy', [CookiePolicyController::class, 'update'])->middleware('auth')->name('cookie-policy.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['show']);
