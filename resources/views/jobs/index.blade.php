@@ -383,18 +383,6 @@
                     </form>
                 </div>
 
-                <!-- Upload Resume Card -->
-                <div class="bg-gradient-to-br from-violet-50 to-fuchsia-50 rounded-2xl border border-violet-100 p-6">
-                    <div class="text-center">
-                        <i class="fa-solid fa-file-arrow-up text-3xl text-violet-600 mb-3"></i>
-                        <p class="text-sm font-bold text-gray-900 mb-1">{{ __('Upload your resume') }}</p>
-                        <p class="text-xs text-gray-600 mb-4">{{ __("We'll match you with the best jobs.") }}</p>
-                        <a href="{{ route('register') }}" class="inline-block bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2 text-sm transition-colors">
-                            {{ __('Get started') }}
-                        </a>
-                    </div>
-                </div>
-
                 <!-- Categories Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <h3 class="text-sm font-bold text-gray-900 mb-4">{{ __('Categories') }}</h3>
