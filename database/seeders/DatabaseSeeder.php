@@ -62,5 +62,8 @@ class DatabaseSeeder extends Seeder
                 $job->skills()->sync($skills->random(rand(3, 6))->pluck('id'));
             });
         });
+
+        // About Page Content
+        $this->call(AboutPageContentSeeder::class);
     }
 }

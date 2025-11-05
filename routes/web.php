@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\JobController;
@@ -28,6 +29,10 @@ Route::get('/locale/{locale}', function (string $locale) {
 })->name('locale.switch');
 
 Route::get('/', [JobController::class, 'index'])->name('jobs.index');
+
+Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');
+Route::put('/about', [AboutController::class, 'update'])->middleware('auth')->name('about.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['show']);

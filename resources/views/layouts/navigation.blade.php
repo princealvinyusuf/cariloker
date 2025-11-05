@@ -17,17 +17,14 @@
                     <a href="{{ route('jobs.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('jobs.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
                         {{ __('Home') }}
                     </a>
-                    <a href="#" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
-                        {{ __('About') }}
-                    </a>
                     <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
                         {{ __('Jobs') }}
                     </a>
                     <a href="#" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
                         {{ __('Services') }}
                     </a>
-                    <a href="#" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
-                        {{ __('Contact Us') }}
+                    <a href="{{ route('about') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('about') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
+                        {{ __('About') }}
                     </a>
                 </div>
             </div>
@@ -98,17 +95,14 @@
             <a href="{{ route('jobs.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('jobs.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
                 {{ __('Home') }}
             </a>
-            <a href="#" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
-                {{ __('About') }}
-            </a>
             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
                 {{ __('Jobs') }}
             </a>
             <a href="#" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
                 {{ __('Services') }}
             </a>
-            <a href="#" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
-                {{ __('Contact Us') }}
+            <a href="{{ route('about') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('about') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
+                {{ __('About') }}
             </a>
         </div>
 
