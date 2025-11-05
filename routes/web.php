@@ -56,7 +56,7 @@ Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->mi
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
-Route::resource('companies', CompanyController::class)->only(['show']);
+Route::resource('companies', CompanyController::class)->only(['index', 'show']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');
