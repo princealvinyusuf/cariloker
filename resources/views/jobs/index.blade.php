@@ -151,7 +151,7 @@
                 <!-- Step 1: Search Job -->
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 rounded-xl bg-violet-100 flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-magnifying-glass text-2xl text-violet-600"></i>
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 1.5rem; color: #7c3aed;"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Search Job') }}</h3>
                     <p class="text-gray-600 text-sm">{{ __('Browse through thousands of job opportunities that match your skills.') }}</p>
@@ -159,7 +159,7 @@
                 <!-- Step 2: Get Job -->
                 <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
                     <div class="w-16 h-16 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
-                        <i class="fa-solid fa-briefcase text-2xl text-yellow-600"></i>
+                        <i class="fa-solid fa-briefcase" style="font-size: 1.5rem; color: #eab308;"></i>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">{{ __('Get Job') }}</h3>
                     <p class="text-gray-600 text-sm">{{ __('Apply and get hired by your dream company. Start your new career!') }}</p>
