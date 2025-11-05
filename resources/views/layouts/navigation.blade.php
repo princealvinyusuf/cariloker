@@ -20,9 +20,6 @@
                     <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
                         {{ __('Jobs') }}
                     </a>
-                    <a href="#" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
-                        {{ __('Services') }}
-                    </a>
                     <a href="{{ route('about') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('about') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
                         {{ __('About') }}
                     </a>
@@ -97,9 +94,6 @@
             </a>
             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
                 {{ __('Jobs') }}
-            </a>
-            <a href="#" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
-                {{ __('Services') }}
             </a>
             <a href="{{ route('about') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('about') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
                 {{ __('About') }}
