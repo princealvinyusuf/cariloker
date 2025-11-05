@@ -14,7 +14,7 @@
           gtag('js', new Date());
           gtag('config', 'G-CC928GJ6D0');
         </script>
-        <link rel="icon" type="image/svg+xml" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/svgs/solid/eraser.svg">
+        <link rel="icon" type="image/png" href="{{ asset('image/cariloker.png') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

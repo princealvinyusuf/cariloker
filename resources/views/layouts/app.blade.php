@@ -21,7 +21,7 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <!-- Icons -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-+ZcN6Qw5HnqE4oQfQO6z6p8Jk8mXxw2qQn1GQzI8M6cyG3qk7cZc7iWq0uE6e4A0Lx5N1lYwzv4Q5V7+Xl+4oQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link rel="icon" type="image/svg+xml" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/svgs/solid/suitcase.svg">
+        <link rel="icon" type="image/png" href="{{ asset('image/cariloker.png') }}">
 
         <!-- Scripts -->
         <script>
