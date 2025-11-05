@@ -14,10 +14,14 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-1 sm:ml-10 sm:flex">
-                    <a href="{{ route('jobs.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('jobs.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
+                    @php
+                        $isJobsListing = request()->routeIs('jobs.index') && (request()->has('list') || request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']));
+                        $isHomePage = request()->routeIs('jobs.index') && !$isJobsListing;
+                    @endphp
+                    <a href="{{ route('jobs.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isHomePage ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
                         {{ __('Home') }}
                     </a>
-                    <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50 transition-colors">
+                    <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isJobsListing ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
                         {{ __('Jobs') }}
                     </a>
                     <a href="{{ route('companies.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ request()->routeIs('companies.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }} transition-colors">
@@ -92,10 +96,14 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-100">
         <div class="pt-2 pb-3 space-y-1 px-4">
-            <a href="{{ route('jobs.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('jobs.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
+            @php
+                $isJobsListing = request()->routeIs('jobs.index') && (request()->has('list') || request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']));
+                $isHomePage = request()->routeIs('jobs.index') && !$isJobsListing;
+            @endphp
+            <a href="{{ route('jobs.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isHomePage ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
                 {{ __('Home') }}
             </a>
-            <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
+            <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isJobsListing ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
                 {{ __('Jobs') }}
             </a>
             <a href="{{ route('companies.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('companies.index') ? 'text-violet-600 bg-violet-50' : 'text-gray-700 hover:text-violet-600 hover:bg-violet-50' }}">
