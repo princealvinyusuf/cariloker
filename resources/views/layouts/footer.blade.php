@@ -32,8 +32,6 @@
                     <li><a href="{{ route('jobs.index') }}" class="hover:text-white transition-colors">{{ __('Find Jobs') }}</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('Browse Companies') }}</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('About Us') }}</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">{{ __('Contact Us') }}</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">{{ __('Blog') }}</a></li>
                 </ul>
             </div>
 
