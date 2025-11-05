@@ -71,5 +71,8 @@ class DatabaseSeeder extends Seeder
         
         // Cookie Policy Content
         $this->call(CookiePolicyContentSeeder::class);
+        
+        // Terms of Service Content
+        $this->call(TermsOfServiceContentSeeder::class);
     }
 }

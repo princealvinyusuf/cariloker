@@ -8,6 +8,7 @@ use App\Http\Controllers\FaqController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
+use App\Http\Controllers\TermsOfServiceController;
 use Illuminate\Support\Facades\Route;
 
 // Admin: Bulk job import (auth required)
@@ -44,6 +45,10 @@ Route::delete('/faq/{id}', [FaqController::class, 'destroy'])->middleware('auth'
 Route::get('/cookie-policy', [CookiePolicyController::class, 'index'])->name('cookie-policy');
 Route::get('/cookie-policy/edit', [CookiePolicyController::class, 'edit'])->middleware('auth')->name('cookie-policy.edit');
 Route::put('/cookie-policy', [CookiePolicyController::class, 'update'])->middleware('auth')->name('cookie-policy.update');
+
+Route::get('/terms-of-service', [TermsOfServiceController::class, 'index'])->name('terms-of-service');
+Route::get('/terms-of-service/edit', [TermsOfServiceController::class, 'edit'])->middleware('auth')->name('terms-of-service.edit');
+Route::put('/terms-of-service', [TermsOfServiceController::class, 'update'])->middleware('auth')->name('terms-of-service.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
 Route::resource('companies', CompanyController::class)->only(['show']);

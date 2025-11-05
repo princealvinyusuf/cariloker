@@ -42,7 +42,7 @@
                 <h3 class="text-white font-semibold mb-4">{{ __('Legal') }}</h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="#" class="hover:text-white transition-colors">{{ __('Privacy Policy') }}</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">{{ __('Terms of Service') }}</a></li>
+                    <li><a href="{{ route('terms-of-service') }}" class="hover:text-white transition-colors">{{ __('Terms of Service') }}</a></li>
                     <li><a href="{{ route('cookie-policy') }}" class="hover:text-white transition-colors">{{ __('Cookie Policy') }}</a></li>
                     <li><a href="{{ route('faq') }}" class="hover:text-white transition-colors">{{ __('FAQ') }}</a></li>
                 </ul>
