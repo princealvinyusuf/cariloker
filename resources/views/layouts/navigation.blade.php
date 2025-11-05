@@ -89,15 +89,6 @@
                         </x-slot>
                     </x-dropdown>
                 @endauth
-                
-                @guest
-                    <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        {{ __('Log in') }}
-                    </a>
-                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-violet-600 hover:bg-violet-700 dark:bg-violet-500 dark:hover:bg-violet-600 transition-colors">
-                        {{ __('Register') }}
-                    </a>
-                @endguest
             </div>
 
             <!-- Hamburger -->
@@ -181,15 +172,6 @@
                     </button>
                 </form>
             @endauth
-            
-            @guest
-                <a href="{{ route('login') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30">
-                    {{ __('Log in') }}
-                </a>
-                <a href="{{ route('register') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30">
-                    {{ __('Register') }}
-                </a>
-            @endguest
         </div>
     </div>
 </nav>
