@@ -38,12 +38,88 @@ class JobController extends Controller
                 });
             })
             ->when($request->filled('type'), fn ($q) => $q->where('employment_type', $request->string('type')))
-            ->when($request->boolean('remote'), fn ($q) => $q->where('is_remote', true))
+            ->when($request->boolean('remote') || (is_array($request->work_arrangement) && in_array('remote_check', $request->work_arrangement)), fn ($q) => $q->where('is_remote', true))
             ->when($request->filled('min_salary'), fn ($q) => $q->where('salary_min', '>=', (int) $request->integer('min_salary')))
+            ->when($request->filled('salary_range'), function ($q) use ($request) {
+                $salaryRanges = is_array($request->salary_range) ? $request->salary_range : [$request->salary_range];
+                $q->where(function ($sub) use ($salaryRanges) {
+                    foreach ($salaryRanges as $range) {
+                        switch ($range) {
+                            case '0-50000':
+                                $sub->orWhere(function ($s) {
+                                    $s->where('salary_min', '>=', 0)->where('salary_min', '<=', 50000);
+                                });
+                                break;
+                            case '50000-80000':
+                                $sub->orWhere(function ($s) {
+                                    $s->where('salary_min', '>=', 50000)->where('salary_min', '<=', 80000);
+                                });
+                                break;
+                            case '80000-100000':
+                                $sub->orWhere(function ($s) {
+                                    $s->where('salary_min', '>=', 80000)->where('salary_min', '<=', 100000);
+                                });
+                                break;
+                            case '100000-150000':
+                                $sub->orWhere(function ($s) {
+                                    $s->where('salary_min', '>=', 100000)->where('salary_min', '<=', 150000);
+                                });
+                                break;
+                            case '150000+':
+                                $sub->orWhere('salary_min', '>=', 150000);
+                                break;
+                        }
+                    }
+                });
+            })
             ->when($request->filled('experience'), function ($q) use ($request) {
-                $years = (int) $request->integer('experience');
-                $q->where(function ($sub) use ($years) {
-                    $sub->whereNull('experience_min')->orWhere('experience_min', '<=', $years);
+                $experiences = is_array($request->experience) ? $request->experience : [$request->experience];
+                $q->where(function ($sub) use ($experiences) {
+                    foreach ($experiences as $exp) {
+                        $years = (int) $exp;
+                        $sub->orWhere(function ($s) use ($years) {
+                            $s->whereNull('experience_min')->orWhere('experience_min', '<=', $years);
+                        });
+                    }
+                });
+            })
+            ->when($request->filled('date_posted'), function ($q) use ($request) {
+                $dateRanges = is_array($request->date_posted) ? $request->date_posted : [$request->date_posted];
+                $q->where(function ($sub) use ($dateRanges) {
+                    foreach ($dateRanges as $range) {
+                        switch ($range) {
+                            case 'today':
+                                $sub->orWhereDate('created_at', now()->toDateString());
+                                break;
+                            case 'last_7_days':
+                                $sub->orWhere('created_at', '>=', now()->subDays(7));
+                                break;
+                            case 'last_15_days':
+                                $sub->orWhere('created_at', '>=', now()->subDays(15));
+                                break;
+                            case 'last_month':
+                                $sub->orWhere('created_at', '>=', now()->subMonth());
+                                break;
+                        }
+                    }
+                });
+            })
+            ->when($request->filled('work_arrangement'), function ($q) use ($request) {
+                $arrangements = is_array($request->work_arrangement) ? $request->work_arrangement : [$request->work_arrangement];
+                $q->where(function ($sub) use ($arrangements) {
+                    foreach ($arrangements as $arrangement) {
+                        if ($arrangement === 'onsite') {
+                            $sub->orWhere(function ($s) {
+                                $s->where('work_arrangement', 'onsite')->orWhere(function ($s2) {
+                                    $s2->whereNull('work_arrangement')->where('is_remote', false);
+                                });
+                            });
+                        } elseif ($arrangement === 'remote') {
+                            $sub->orWhere(function ($s) {
+                                $s->where('work_arrangement', 'remote')->orWhere('is_remote', true);
+                            });
+                        }
+                    }
                 });
             });
 
@@ -68,7 +144,7 @@ class JobController extends Controller
             ->get();
 
         // Check if this is a landing page (no filters applied)
-        $isLandingPage = !$request->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'sort', 'page']);
+        $isLandingPage = !$request->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']);
 
         // Get featured jobs for landing page
         $featuredJobs = null;

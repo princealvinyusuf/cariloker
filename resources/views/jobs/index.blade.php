@@ -300,49 +300,105 @@
                         <input type="hidden" name="location" value="{{ request('location') }}">
                         
                         <div class="space-y-6">
-                            <!-- Job Type -->
+                            <!-- Salary Range -->
                             <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Job Type') }}</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Salary Range') }}</h3>
                                 <div class="space-y-2">
-                                    @foreach($employmentTypes as $key => $label)
+                                    @php
+                                        $salaryRanges = [
+                                            '0-50000' => '$0-50,000',
+                                            '50000-80000' => '$50,000-80,000',
+                                            '80000-100000' => '$80,000-100,000',
+                                            '100000-150000' => '$100,000-150,000',
+                                            '150000+' => '$150,000+',
+                                        ];
+                                        $selectedSalary = request('salary_range');
+                                    @endphp
+                                    @foreach($salaryRanges as $key => $label)
                                         <label class="flex items-center gap-3 cursor-pointer group">
-                                            <input type="radio" name="type" value="{{ $key }}" form="filters" @checked(request('type')===$key)
-                                                   class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
+                                            <input type="checkbox" name="salary_range[]" value="{{ $key }}" form="filters" 
+                                                   @checked(is_array($selectedSalary) && in_array($key, $selectedSalary) || $selectedSalary === $key)
+                                                   onchange="document.getElementById('filters').submit()"
+                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
                                             <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
                                         </label>
                                     @endforeach
                                 </div>
                             </div>
 
-                            <!-- Min Salary -->
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Min. Salary (IDR)') }}</label>
-                                <input type="number" name="min_salary" value="{{ request('min_salary') }}" form="filters" 
-                                       placeholder="e.g. 5000000"
-                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all">
-                            </div>
-
                             <!-- Experience -->
                             <div>
-                                <label class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Experience (years)') }}</label>
-                                <input type="number" name="experience" value="{{ request('experience') }}" form="filters" 
-                                       placeholder="e.g. 2"
-                                       class="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Experience') }}</h3>
+                                <div class="space-y-2">
+                                    @php
+                                        $experienceLevels = ['1' => '1 Year', '2' => '2 Years', '3' => '3 Years', '4' => '4 Years', '5' => '5 Years'];
+                                        $selectedExp = request('experience');
+                                        $selectedExpArray = is_array($selectedExp) ? $selectedExp : ($selectedExp ? [$selectedExp] : []);
+                                    @endphp
+                                    @foreach($experienceLevels as $key => $label)
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="experience[]" value="{{ $key }}" form="filters" 
+                                                   @checked(in_array($key, $selectedExpArray))
+                                                   onchange="document.getElementById('filters').submit()"
+                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
                             </div>
 
-                            <!-- Remote Only -->
+                            <!-- Date Posted -->
                             <div>
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" name="remote" value="1" form="filters" @checked(request('remote')) 
-                                           class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                    <span class="text-sm text-gray-700 group-hover:text-violet-600 font-medium">{{ __('Remote only') }}</span>
-                                </label>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Date Posted') }}</h3>
+                                <div class="space-y-2">
+                                    @php
+                                        $dateRanges = [
+                                            'today' => __('Today'),
+                                            'last_7_days' => __('Last 7 Days'),
+                                            'last_15_days' => __('Last 15 Days'),
+                                            'last_month' => __('Last Month'),
+                                        ];
+                                        $selectedDate = request('date_posted');
+                                    @endphp
+                                    @foreach($dateRanges as $key => $label)
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" name="date_posted[]" value="{{ $key }}" form="filters" 
+                                                   @checked(is_array($selectedDate) && in_array($key, $selectedDate) || $selectedDate === $key)
+                                                   onchange="document.getElementById('filters').submit()"
+                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
                             </div>
 
-                            <!-- Submit Button -->
-                            <button type="submit" form="filters" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 transition-colors">
-                                {{ __('Apply Filters') }}
-                            </button>
+                            <!-- Job Type / Work Arrangement -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Job Type') }}</h3>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="checkbox" name="work_arrangement[]" value="onsite" form="filters" 
+                                               @checked(is_array(request('work_arrangement')) && in_array('onsite', request('work_arrangement')) || request('work_arrangement') === 'onsite')
+                                               onchange="document.getElementById('filters').submit()"
+                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Office') }}</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="checkbox" name="work_arrangement[]" value="remote" form="filters" 
+                                               @checked(is_array(request('work_arrangement')) && in_array('remote', request('work_arrangement')) || request('work_arrangement') === 'remote' || request('remote'))
+                                               onchange="document.getElementById('filters').submit()"
+                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Home') }}</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="checkbox" name="work_arrangement[]" value="remote_check" form="filters" 
+                                               @checked(request('remote'))
+                                               onchange="document.getElementById('filters').submit()"
+                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
+                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Remote') }}</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -399,72 +455,80 @@
                 <!-- Job Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach($jobs as $job)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all duration-200 overflow-hidden group">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all duration-200 overflow-hidden group relative">
                             <div class="p-6">
+                                <!-- Favorite Icon - Top Right -->
+                                @auth
+                                    <form method="POST" action="{{ route('jobs.save', $job) }}" class="absolute top-4 right-4">
+                                        @csrf
+                                        <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors">
+                                            <i class="fa-regular fa-heart text-lg"></i>
+                                        </button>
+                                    </form>
+                                @endauth
+
                                 <!-- Company Logo & Info -->
-                                <div class="flex items-start gap-4 mb-4">
+                                <div class="flex items-start gap-3 mb-4">
                                     @if($job->company->logo_path)
-                                        <img class="w-14 h-14 rounded-xl object-cover border border-gray-200 flex-shrink-0" 
+                                        <img class="w-12 h-12 rounded-full object-cover border border-gray-200 flex-shrink-0" 
                                              src="{{ Storage::url($job->company->logo_path) }}" 
                                              alt="{{ $job->company->name }} logo">
                                     @else
-                                        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center flex-shrink-0">
-                                            <i class="fa-solid fa-building text-xl text-violet-600"></i>
+                                        <div class="w-12 h-12 rounded-full border border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center flex-shrink-0">
+                                            <i class="fa-solid fa-building text-lg text-violet-600"></i>
                                         </div>
                                     @endif
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-gray-900 truncate">{{ $job->company->name }}</p>
-                                        <p class="text-xs text-gray-500 mt-0.5">{{ $job->location?->city ?? __('Remote') }}</p>
+                                        <p class="text-xs text-gray-500 mt-0.5">{{ $job->location?->city ?? ($job->location?->country ?? __('Remote')) }}</p>
                                     </div>
-                                    @auth
-                                        <form method="POST" action="{{ route('jobs.save', $job) }}" class="flex-shrink-0">
-                                            @csrf
-                                            <button type="submit" class="text-gray-400 hover:text-red-500 transition-colors">
-                                                <i class="fa-regular fa-heart"></i>
-                                            </button>
-                                        </form>
-                                    @endauth
                                 </div>
 
                                 <!-- Job Title -->
-                                <a href="{{ route('jobs.show', $job) }}" class="block mb-3 group-hover:text-violet-600 transition-colors">
+                                <a href="{{ route('jobs.show', $job) }}" class="block mb-2 group-hover:text-violet-600 transition-colors">
                                     <h3 class="text-lg font-bold text-gray-900" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $job->title }}</h3>
                                 </a>
 
                                 <!-- Job Description -->
-                                <p class="text-sm text-gray-600 mb-4" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(100) }}</p>
+                                <p class="text-sm text-gray-600 mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(80) }}</p>
 
                                 <!-- Job Tags -->
                                 <div class="flex flex-wrap items-center gap-2 mb-4">
                                     @if($job->openings)
-                                        <span class="px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 text-xs font-medium">
-                                            {{ $job->openings }} {{ __('Positions') }}
+                                        <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                                            {{ $job->openings }} {{ $job->openings == 1 ? __('Position') : __('Positions') }}
                                         </span>
                                     @endif
-                                    <span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
+                                    @if($job->salary_min)
+                                        <span class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
+                                            @if($job->salary_max)
+                                                ${{ number_format($job->salary_min / 1000) }}-{{ number_format($job->salary_max / 1000) }},000/Year
+                                            @else
+                                                ${{ number_format($job->salary_min / 1000) }},000/Year
+                                            @endif
+                                        </span>
+                                    @endif
+                                    <span class="px-2.5 py-1 rounded-full bg-orange-500 text-white text-xs font-medium">
                                         {{ $employmentTypes[$job->employment_type] ?? str($job->employment_type)->replace('_', ' ')->title() }}
                                     </span>
                                     @if(!is_null($job->experience_min) || !is_null($job->experience_max))
-                                        <span class="px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-                                            {{ $job->experience_min ?? 0 }}–{{ $job->experience_max ?? '∞' }} {{ __('Yrs') }}
+                                        @php
+                                            $expText = ($job->experience_min ?? 0);
+                                            if ($job->experience_max && $job->experience_max != $job->experience_min) {
+                                                $expText .= '-' . $job->experience_max;
+                                            }
+                                            $expText .= ($job->experience_max == 1 || $job->experience_min == 1) ? ' Year' : ' Years';
+                                        @endphp
+                                        <span class="px-2.5 py-1 rounded-full bg-green-600 text-white text-xs font-medium">
+                                            {{ $expText }}
                                         </span>
                                     @endif
                                     @if($job->work_arrangement || $job->is_remote)
-                                        <span class="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-medium">
+                                        <span class="px-2.5 py-1 rounded-full bg-red-500 text-white text-xs font-medium">
                                             {{ $job->work_arrangement === 'onsite' ? 'WFO' : ($job->work_arrangement === 'remote' || $job->is_remote ? 'WFH' : 'Hybrid') }}
                                         </span>
                                     @endif
                                 </div>
-
-                                <!-- Salary -->
-                                @if($job->salary_min)
-                                    <div class="mb-4">
-                                        <p class="text-sm font-semibold text-gray-900">
-                                            {{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - ' . number_format($job->salary_max) : '' }} 
-                                            <span class="text-gray-600 font-normal">{{ $job->salary_currency }}</span>
-                                        </p>
-                                    </div>
-                                @endif
 
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
@@ -480,7 +544,7 @@
                                         </a>
                                     @endif
                                     <a href="{{ route('jobs.show', $job) }}" 
-                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm transition-colors">
+                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm bg-white transition-colors">
                                         {{ __('View Details') }}
                                     </a>
                                 </div>
