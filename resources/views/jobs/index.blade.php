@@ -421,11 +421,17 @@
                     </div>
                     <form class="flex items-center gap-2">
                         <label class="text-sm text-gray-600">{{ __('Sort by:') }}</label>
-                        <select name="sort" onchange="this.form.submit()" 
-                                class="px-4 py-2 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer">
-                            <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
-                            <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
-                        </select>
+                        <div class="relative">
+                            <select name="sort" onchange="this.form.submit()" 
+                                    class="px-4 pr-10 py-2 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer" 
+                                    style="-webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important;">
+                                <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
+                                <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
+                            </select>
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none z-10">
+                                <i class="fa-solid fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
                         @foreach(request()->except(['sort','page']) as $k=>$v)
                             <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
                         @endforeach
