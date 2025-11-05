@@ -5,6 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Cari Loker: Temukan Impianmu</title>
+
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CC928GJ6D0"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-CC928GJ6D0');
+        </script>
         <link rel="icon" type="image/svg+xml" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/svgs/solid/eraser.svg">
 
         <!-- Fonts -->
