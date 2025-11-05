@@ -81,14 +81,6 @@
                     <a href="#jobs" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-8 py-3.5 transition-colors text-lg">
                         Browse Jobs
                     </a>
-                    <button class="flex items-center gap-3 text-gray-600 hover:text-gray-900 transition-colors group">
-                        <div class="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center group-hover:bg-violet-700 transition-colors">
-                            <svg class="w-6 h-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                        </div>
-                        <span class="font-medium">How It Works?</span>
-                    </button>
                 </div>
             </div>
             
