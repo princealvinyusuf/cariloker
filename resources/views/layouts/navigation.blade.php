@@ -52,6 +52,7 @@
                             </button>
                         </x-slot>
                         <x-slot name="content">
+                            <x-dropdown-link :href="route('dashboard')">{{ __('Dashboard') }}</x-dropdown-link>
                             <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -126,6 +127,9 @@
                     <div class="font-medium text-base text-gray-900">{{ auth()->user()?->name }}</div>
                     <div class="text-sm text-gray-500">{{ auth()->user()?->email }}</div>
                 </div>
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
+                    {{ __('Dashboard') }}
+                </a>
                 <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:text-violet-600 hover:bg-violet-50">
                     {{ __('Profile') }}
                 </a>
