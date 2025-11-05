@@ -238,19 +238,8 @@
                                 </a>
                                 <p class="text-sm text-gray-600 mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ str($job->description)->limit(80) }}</p>
                                 <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
-                                    @if($job->external_url)
-                                        <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
-                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
-                                            {{ __('Apply Now') }}
-                                        </a>
-                                    @else
-                                        <a href="{{ route('jobs.show', $job) }}" 
-                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
-                                            {{ __('Apply Now') }}
-                                        </a>
-                                    @endif
                                     <a href="{{ route('jobs.show', $job) }}" 
-                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm transition-colors">
+                                       class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                         {{ __('View Details') }}
                                     </a>
                                 </div>
@@ -506,19 +495,8 @@
 
                                 <!-- Action Buttons -->
                                 <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
-                                    @if($job->external_url)
-                                        <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
-                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
-                                            {{ __('Apply Now') }}
-                                        </a>
-                                    @else
-                                        <a href="{{ route('jobs.show', $job) }}" 
-                                           class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
-                                            {{ __('Apply Now') }}
-                                        </a>
-                                    @endif
                                     <a href="{{ route('jobs.show', $job) }}" 
-                                       class="px-4 py-2.5 border border-gray-300 hover:border-violet-600 text-gray-700 hover:text-violet-600 font-semibold rounded-lg text-sm bg-white transition-colors">
+                                       class="w-full bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                                         {{ __('View Details') }}
                                     </a>
                                 </div>

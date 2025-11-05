@@ -208,10 +208,7 @@
                                     @endif
                                 </div>
                                 <div class="mt-4 flex items-center gap-2">
-                                    <a href="{{ route('jobs.show', $related) }}" class="px-3 py-2 rounded-lg border border-violet-200 text-violet-700 text-sm">{{ __('View Details') }}</a>
-                                    @if($related->external_url)
-                                        <a href="{{ $related->external_url }}" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg bg-violet-600 text-white text-sm">{{ __('Apply Now') }}</a>
-                                    @endif
+                                    <a href="{{ route('jobs.show', $related) }}" class="w-full px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm text-center transition-colors">{{ __('View Details') }}</a>
                                 </div>
                             </div>
                         </div>
