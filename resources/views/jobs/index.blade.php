@@ -216,7 +216,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($featuredJobs as $index => $job)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all overflow-hidden group {{ $index === 0 ? 'md:col-span-2 lg:col-span-1 bg-violet-600 text-white' : '' }}">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 hover:bg-violet-50 transition-all overflow-hidden group {{ $index === 0 ? 'md:col-span-2 lg:col-span-1 bg-violet-600 text-white hover:bg-violet-600' : '' }}">
                             <div class="p-6">
                                 <div class="flex items-start gap-4 mb-4">
                                     @if($job->company->logo_path)
@@ -429,7 +429,7 @@
                 <!-- Job Cards Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     @foreach($jobs as $job)
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 transition-all duration-200 overflow-hidden group relative">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-violet-300 hover:bg-violet-50 transition-all duration-200 overflow-hidden group relative">
                             <div class="p-6">
                                 <!-- Favorite Icon - Top Right -->
                                 @auth
