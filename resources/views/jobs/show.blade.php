@@ -1,45 +1,59 @@
 <x-app-layout>
-    <div class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-        <div class="max-w-5xl mx-auto px-4 py-6">
+    <!-- Header / Hero -->
+    <div class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white border-b border-violet-100">
+        <div class="max-w-6xl mx-auto px-4 py-8">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <a href="{{ route('jobs.index') }}" class="text-primary text-sm">← {{ __('Back to search') }}</a>
-                    <h1 class="text-3xl font-bold mt-1 text-gray-900 dark:text-gray-100">{{ $job->title }}</h1>
-                    <p class="text-gray-600 dark:text-gray-300">{{ $job->company->name }} • {{ $job->location?->city ?? __('Remote') }}</p>
+                    <a href="{{ route('jobs.index') }}" class="text-violet-600 text-sm">← {{ __('Back to search') }}</a>
+                    <h1 class="text-3xl font-bold mt-1 text-gray-900">{{ $job->title }}</h1>
+                    <p class="text-gray-600">{{ $job->company->name }} • {{ $job->location?->city ?? __('Remote') }}</p>
                 </div>
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark text-white font-semibold">{{ __('Klik Untuk Melamar') }}</a>
+                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Apply Now') }}</a>
                 @endif
             </div>
 
+            <!-- Chips -->
             <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
+                @if($job->openings)
+                    <span class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-700 font-medium">{{ $job->openings }} {{ __('Positions') }}</span>
+                @endif
                 @if($job->employment_type)
-                    <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</span>
-                @endif
-                @if($job->work_arrangement || $job->is_remote)
-                    <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : __('Remote') }}</span>
-                @endif
-                @if($job->education_level)
-                    <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">{{ $job->education_level }}</span>
-                @endif
-                @if($job->experience_min || $job->experience_max)
-                    <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">{{ __('Experience') }} {{ $job->experience_min }} - {{ $job->experience_max }} {{ __('years') }}</span>
+                    <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</span>
                 @endif
                 @if($job->salary_min)
-                    <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">{{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - '.number_format($job->salary_max) : '' }} {{ $job->salary_currency }}</span>
+                    <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">{{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - '.number_format($job->salary_max) : '' }} {{ $job->salary_currency }}</span>
                 @endif
+                @if($job->work_arrangement || $job->is_remote)
+                    <span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 font-medium">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->upper()) : __('Remote') }}</span>
+                @endif
+                @if($job->experience_min || $job->experience_max)
+                    <span class="px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 font-medium">{{ $job->experience_min ?? 0 }}–{{ $job->experience_max ?? '∞' }} {{ __('Years') }}</span>
+                @endif
+            </div>
+
+            <!-- Tabs (visual only) -->
+            <div class="mt-6 flex items-center gap-6 text-sm">
+                <a class="text-violet-700 font-semibold" href="#description">{{ __('Job Description') }}</a>
+                @if($job->education_level)
+                    <span class="text-gray-400">•</span>
+                    <span class="text-gray-700">{{ __('Education') }}: <span class="font-medium">{{ $job->education_level }}</span></span>
+                @endif
+                <span class="text-gray-400">•</span>
+                <span class="text-gray-700">{{ __('Total Applicants') }}: <span class="font-medium">{{ $totalApplicants ?? 0 }}</span></span>
             </div>
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
+        <!-- Main -->
         <main class="md:col-span-8 space-y-6">
-            <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100" id="description">
                 <div class="flex items-center gap-4">
                     @if($job->company->logo_path)
-                        <img class="w-16 h-16 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo">
+                        <img class="w-16 h-16 rounded-xl object-cover ring-1 ring-gray-200" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo">
                     @else
-                        <div class="w-16 h-16 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
+                        <div class="w-16 h-16 rounded-xl ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
                             <i class="fa-solid fa-building text-2xl"></i>
                         </div>
                     @endif
@@ -48,42 +62,70 @@
                         <div class="text-gray-600 text-sm">{{ $job->location?->city ?? __('Remote') }}</div>
                     </div>
                 </div>
+                <div class="mt-6 prose max-w-none">{!! nl2br(e($job->description)) !!}</div>
             </div>
 
-            <div class="bg-white rounded-xl p-6 shadow-sm">
+            <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100">
                 <h2 class="text-lg font-semibold">{{ __('Requirements') }}</h2>
                 <div class="mt-3 flex flex-wrap gap-2 text-xs">
                     @if($job->work_arrangement || $job->is_remote)
-                        <span class="px-2 py-1 rounded-md bg-gray-100 text-gray-700">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : __('Remote') }}</span>
+                        <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : __('Remote') }}</span>
                     @endif
                     @if($job->experience_min || $job->experience_max)
-                        <span class="px-2 py-1 rounded-md bg-gray-100 text-gray-700">{{ $job->experience_min }} - {{ $job->experience_max }} {{ __('years experience') }}</span>
+                        <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700">{{ $job->experience_min }} - {{ $job->experience_max }} {{ __('years experience') }}</span>
                     @endif
                     @if($job->education_level)
-                        <span class="px-2 py-1 rounded-md bg-gray-100 text-gray-700">{{ $job->education_level }}</span>
+                        <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700">{{ $job->education_level }}</span>
                     @endif
                     @if($job->openings)
-                        <span class="px-2 py-1 rounded-md bg-gray-100 text-gray-700">{{ __('Openings (people)') }}: {{ $job->openings }}</span>
+                        <span class="px-2 py-1 rounded-md bg-violet-50 text-violet-700">{{ __('Openings (people)') }}: {{ $job->openings }}</span>
                     @endif
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl p-6 shadow-sm">
-                <h2 class="text-lg font-semibold">{{ __('Skills') }}</h2>
-                <div class="mt-2 flex flex-wrap gap-2">
-                    @foreach($job->skills as $skill)
-                        <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">{{ $skill->name }}</span>
-                    @endforeach
+            @if($job->skills->count())
+                <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100">
+                    <h2 class="text-lg font-semibold">{{ __('Skills') }}</h2>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        @foreach($job->skills as $skill)
+                            <span class="px-2 py-1 text-xs rounded-full bg-violet-50 text-violet-700">{{ $skill->name }}</span>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-xl p-6 shadow-sm">
-                <h2 class="text-lg font-semibold">{{ __('Job Description') }}</h2>
-                <div class="prose max-w-none mt-3">{!! nl2br(e($job->description)) !!}</div>
-            </div>
+            @endif
         </main>
+
+        <!-- Sidebar -->
         <aside class="md:col-span-4">
-            <div class="bg-white rounded-xl p-6 shadow-sm sticky top-6 space-y-3">
+            <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100 sticky top-6 space-y-6">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">{{ __('Review') }}</h3>
+                    <ul class="mt-3 space-y-2 text-sm">
+                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Friendly environment') }}</span></li>
+                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Work from home facility') }}</span></li>
+                        <li class="flex items-center gap-2 text-emerald-700"><i class="fa-solid fa-thumbs-up"></i><span>{{ __('Good for freshers to learn') }}</span></li>
+                        <li class="flex items-center gap-2 text-rose-600"><i class="fa-solid fa-thumbs-down"></i><span>{{ __('Work-life balance can be challenging') }}</span></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900">{{ __('Benefits & Perks') }}</h3>
+                    <div class="mt-3 grid grid-cols-3 gap-3 text-center">
+                        <div class="rounded-xl border border-violet-100 p-3">
+                            <i class="fa-solid fa-mug-saucer text-violet-600"></i>
+                            <div class="text-xs mt-1">{{ __('Cafeteria') }}</div>
+                        </div>
+                        <div class="rounded-xl border border-violet-100 p-3">
+                            <i class="fa-solid fa-house-laptop text-violet-600"></i>
+                            <div class="text-xs mt-1">WFH</div>
+                        </div>
+                        <div class="rounded-xl border border-violet-100 p-3">
+                            <i class="fa-solid fa-car-side text-violet-600"></i>
+                            <div class="text-xs mt-1">{{ __('Transportation') }}</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                     <div class="text-gray-600">{{ __('Company') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->company?->name }}</div>
@@ -94,31 +136,14 @@
                     <div class="text-gray-600">{{ __('City/Regency') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->location?->city }}</div>
 
-                    <div class="text-gray-600">{{ __('Sector') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->company?->industry ?? '-' }}</div>
-
-                    <div class="text-gray-600">{{ __('Openings (people)') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->openings ?? '-' }}</div>
-
                     <div class="text-gray-600">{{ __('Date Posted') }}</div>
                     <div class="font-medium text-gray-900">{{ optional($job->posted_at ?? $job->created_at)->format('d M Y') }}</div>
 
                     <div class="text-gray-600">{{ __('Valid Until') }}</div>
                     <div class="font-medium text-gray-900">{{ optional($job->valid_until)->format('d M Y') ?? '-' }}</div>
 
-                    
-
-                    <div class="text-gray-600">{{ __('Gender') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->gender ? __((string) str($job->gender)->title()) : '-' }}</div>
-
-                    <div class="text-gray-600">{{ __('Work Arrangement') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->work_arrangement ? __((string) str($job->work_arrangement)->title()) : ($job->is_remote ? __('Remote') : '-') }}</div>
-
                     <div class="text-gray-600">{{ __('Job Type') }}</div>
                     <div class="font-medium text-gray-900">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</div>
-
-                    <div class="text-gray-600">{{ __('Job Level') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->seniority_level ? __((string) str($job->seniority_level)->title()) : '-' }}</div>
 
                     <div class="text-gray-600">{{ __('Education') }}</div>
                     <div class="font-medium text-gray-900">{{ $job->education_level ?? '-' }}</div>
@@ -126,35 +151,73 @@
                     <div class="text-gray-600">{{ __('Salary') }}</div>
                     <div class="font-medium text-gray-900">
                         @if($job->salary_min)
-                            {{ number_format($job->salary_min) }} - {{ number_format($job->salary_max) }} {{ $job->salary_currency }}
+                            {{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - '.number_format($job->salary_max) : '' }} {{ $job->salary_currency }}
                         @else
                             -
                         @endif
                     </div>
-
-                    <div class="text-gray-600">{{ __('Job Category') }}</div>
-                    <div class="font-medium text-gray-900">{{ $job->category?->name ?? '-' }}</div>
                 </div>
 
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="md:hidden mt-3 block w-full text-center bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Klik Untuk Melamar') }}</a>
+                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="md:hidden block w-full text-center bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3">{{ __('Apply Now') }}</a>
                 @else
                     @auth
-                        <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="mt-3 space-y-3">
+                        <form method="POST" action="{{ route('jobs.apply', $job) }}" enctype="multipart/form-data" class="space-y-3">
                             @csrf
                             <label class="block text-sm font-medium text-gray-700">{{ __('Resume (PDF/DOC, max 5MB)') }}</label>
                             <input type="file" name="resume" class="w-full border-gray-300 rounded-lg" />
                             <label class="block text-sm font-medium text-gray-700">{{ __('Cover Letter') }}</label>
                             <textarea name="cover_letter" rows="4" class="w-full border-gray-300 rounded-lg"></textarea>
-                            <button class="w-full mt-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Apply Now') }}</button>
+                            <button class="w-full mt-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3">{{ __('Apply Now') }}</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="mt-3 block w-full text-center bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg px-4 py-3">{{ __('Sign in to Apply') }}</a>
+                        <a href="{{ route('login') }}" class="block w-full text-center bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3">{{ __('Sign in to Apply') }}</a>
                     @endauth
                 @endif
             </div>
         </aside>
     </div>
+
+    @if(isset($relatedJobs) && $relatedJobs->count())
+        <div class="max-w-6xl mx-auto px-4 pb-12">
+            <h2 class="text-xl font-semibold mb-4">{{ __('More like this') }}</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($relatedJobs as $related)
+                    <div class="bg-white rounded-2xl p-5 shadow-sm ring-1 ring-violet-100">
+                        <div class="flex items-start gap-4">
+                            @if($related->company->logo_path)
+                                <img class="w-12 h-12 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($related->company->logo_path) }}" alt="{{ $related->company->name }} logo">
+                            @else
+                                <div class="w-12 h-12 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
+                                    <i class="fa-solid fa-building text-xl"></i>
+                                </div>
+                            @endif
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <a href="{{ route('jobs.show', $related) }}" class="text-base font-semibold text-gray-900 hover:text-violet-700">{{ $related->title }}</a>
+                                        <div class="text-xs text-gray-600">{{ $related->company->name }} • {{ $related->location?->city ?? 'Remote' }}</div>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-gray-600">
+                                    @if($related->employment_type)
+                                        <span class="px-2 py-0.5 rounded-full bg-violet-50 text-violet-700">{{ str($related->employment_type)->replace('_',' ')->title() }}</span>
+                                    @endif
+                                    @if($related->salary_min)
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{{ number_format($related->salary_min) }}{{ $related->salary_max ? ' - '.number_format($related->salary_max) : '' }} {{ $related->salary_currency }}</span>
+                                    @endif
+                                </div>
+                                <div class="mt-4 flex items-center gap-2">
+                                    <a href="{{ route('jobs.show', $related) }}" class="px-3 py-2 rounded-lg border border-violet-200 text-violet-700 text-sm">{{ __('View Details') }}</a>
+                                    @if($related->external_url)
+                                        <a href="{{ $related->external_url }}" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg bg-violet-600 text-white text-sm">{{ __('Apply Now') }}</a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </x-app-layout>
-
-

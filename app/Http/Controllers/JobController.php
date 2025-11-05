@@ -92,7 +92,28 @@ class JobController extends Controller
     public function show(Job $job)
     {
         $job->load(['company', 'location', 'category', 'skills']);
-        return view('jobs.show', ['job' => $job]);
+
+        $relatedJobs = Job::query()
+            ->with(['company', 'location'])
+            ->where('status', 'published')
+            ->where('id', '!=', $job->id)
+            ->where(function ($q) use ($job) {
+                $q->where('company_id', $job->company_id);
+                if ($job->category_id) {
+                    $q->orWhere('category_id', $job->category_id);
+                }
+            })
+            ->latest()
+            ->limit(6)
+            ->get();
+
+        $totalApplicants = $job->applications()->count();
+
+        return view('jobs.show', [
+            'job' => $job,
+            'relatedJobs' => $relatedJobs,
+            'totalApplicants' => $totalApplicants,
+        ]);
     }
 
     /**
