@@ -10,6 +10,12 @@
                 </div>
                 @if($job->external_url)
                     <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Apply Now') }}</a>
+                @else
+                    @auth
+                        <button onclick="document.getElementById('apply-form-modal').classList.remove('hidden')" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Apply Now') }}</button>
+                    @else
+                        <a href="{{ route('login') }}" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Sign in to Apply') }}</a>
+                    @endauth
                 @endif
             </div>
 
