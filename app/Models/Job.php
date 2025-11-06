@@ -36,6 +36,7 @@ class Job extends Model
         'salary_currency',
         'is_remote',
         'status',
+        'views',
         'valid_until',
     ];
 
@@ -48,6 +49,7 @@ class Job extends Model
             'posted_at' => 'datetime',
             'valid_until' => 'datetime',
             'is_remote' => 'boolean',
+            'views' => 'integer',
         ];
     }
 

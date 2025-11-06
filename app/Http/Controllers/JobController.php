@@ -189,6 +189,9 @@ class JobController extends Controller
     {
         $job->load(['company', 'location', 'category', 'skills']);
 
+        // Increment views count
+        $job->increment('views');
+
         $relatedJobs = Job::query()
             ->with(['company', 'location'])
             ->where('status', 'published')

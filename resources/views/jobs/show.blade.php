@@ -156,6 +156,9 @@
                             -
                         @endif
                     </div>
+
+                    <div class="text-gray-600">{{ __('Views') }}</div>
+                    <div class="font-medium text-gray-900">{{ number_format($job->views) }}</div>
                 </div>
 
                 @if($job->external_url)
