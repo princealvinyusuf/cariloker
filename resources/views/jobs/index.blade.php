@@ -274,12 +274,13 @@
                                 <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Salary Range') }}</h3>
                                 <div class="space-y-2">
                                     @php
+                                        // Salary ranges in IDR (Rupiah)
                                         $salaryRanges = [
-                                            '0-50000' => '$0-50,000',
-                                            '50000-80000' => '$50,000-80,000',
-                                            '80000-100000' => '$80,000-100,000',
-                                            '100000-150000' => '$100,000-150,000',
-                                            '150000+' => '$150,000+',
+                                            '0-5000000' => 'Rp 0 - 5.000.000',
+                                            '5000000-10000000' => 'Rp 5.000.000 - 10.000.000',
+                                            '10000000-15000000' => 'Rp 10.000.000 - 15.000.000',
+                                            '15000000-20000000' => 'Rp 15.000.000 - 20.000.000',
+                                            '20000000+' => 'Rp 20.000.000+',
                                         ];
                                         $selectedSalary = request('salary_range');
                                     @endphp
@@ -469,11 +470,14 @@
                                         </span>
                                     @endif
                                     @if($job->salary_min)
+                                        @php
+                                            $formatIdr = fn($n) => 'Rp ' . number_format((int)$n, 0, ',', '.');
+                                        @endphp
                                         <span class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
                                             @if($job->salary_max)
-                                                ${{ number_format($job->salary_min / 1000) }}-{{ number_format($job->salary_max / 1000) }},000/Year
+                                                {{ $formatIdr($job->salary_min) }} - {{ $formatIdr($job->salary_max) }}
                                             @else
-                                                ${{ number_format($job->salary_min / 1000) }},000/Year
+                                                {{ $formatIdr($job->salary_min) }}
                                             @endif
                                         </span>
                                     @endif

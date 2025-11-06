@@ -153,7 +153,8 @@
                     <div class="text-gray-600">{{ __('Salary') }}</div>
                     <div class="font-medium text-gray-900">
                         @if($job->salary_min)
-                            {{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - '.number_format($job->salary_max) : '' }} {{ $job->salary_currency }}
+                            @php $fmtIdr = fn($n) => 'Rp ' . number_format((int)$n, 0, ',', '.'); @endphp
+                            {{ $fmtIdr($job->salary_min) }}{{ $job->salary_max ? ' - '.$fmtIdr($job->salary_max) : '' }}
                         @else
                             -
                         @endif

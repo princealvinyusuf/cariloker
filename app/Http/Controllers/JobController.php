@@ -44,30 +44,19 @@ class JobController extends Controller
                 $salaryRanges = is_array($request->salary_range) ? $request->salary_range : [$request->salary_range];
                 $q->where(function ($sub) use ($salaryRanges) {
                     foreach ($salaryRanges as $range) {
-                        switch ($range) {
-                            case '0-50000':
-                                $sub->orWhere(function ($s) {
-                                    $s->where('salary_min', '>=', 0)->where('salary_min', '<=', 50000);
-                                });
-                                break;
-                            case '50000-80000':
-                                $sub->orWhere(function ($s) {
-                                    $s->where('salary_min', '>=', 50000)->where('salary_min', '<=', 80000);
-                                });
-                                break;
-                            case '80000-100000':
-                                $sub->orWhere(function ($s) {
-                                    $s->where('salary_min', '>=', 80000)->where('salary_min', '<=', 100000);
-                                });
-                                break;
-                            case '100000-150000':
-                                $sub->orWhere(function ($s) {
-                                    $s->where('salary_min', '>=', 100000)->where('salary_min', '<=', 150000);
-                                });
-                                break;
-                            case '150000+':
-                                $sub->orWhere('salary_min', '>=', 150000);
-                                break;
+                        $range = (string) $range;
+                        if (str_ends_with($range, '+')) {
+                            $min = (int) rtrim($range, '+');
+                            $sub->orWhere('salary_min', '>=', $min);
+                            continue;
+                        }
+                        if (str_contains($range, '-')) {
+                            [$minStr, $maxStr] = explode('-', $range, 2);
+                            $min = (int) $minStr;
+                            $max = (int) $maxStr;
+                            $sub->orWhere(function ($s) use ($min, $max) {
+                                $s->where('salary_min', '>=', $min)->where('salary_min', '<=', $max);
+                            });
                         }
                     }
                 });

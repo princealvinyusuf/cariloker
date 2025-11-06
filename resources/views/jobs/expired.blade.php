@@ -32,7 +32,8 @@
                                             <span class="px-2 py-0.5 rounded-full bg-violet-50 text-violet-700">{{ str($related->employment_type)->replace('_',' ')->title() }}</span>
                                         @endif
                                         @if($related->salary_min)
-                                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{{ number_format($related->salary_min) }}{{ $related->salary_max ? ' - '.number_format($related->salary_max) : '' }} {{ $related->salary_currency }}</span>
+                                            @php $idr = fn($n) => 'Rp ' . number_format((int)$n, 0, ',', '.'); @endphp
+                                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">{{ $idr($related->salary_min) }}{{ $related->salary_max ? ' - '.$idr($related->salary_max) : '' }}</span>
                                         @endif
                                     </div>
                                     <div class="mt-4 flex items-center gap-2">
