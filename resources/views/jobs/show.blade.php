@@ -41,6 +41,8 @@
                 @endif
                 <span class="text-gray-400">•</span>
                 <span class="text-gray-700">{{ __('Total Applicants') }}: <span class="font-medium">{{ $totalApplicants ?? 0 }}</span></span>
+                <span class="text-gray-400">•</span>
+                <span class="text-gray-700">{{ __('Views') }}: <span class="font-medium">{{ number_format($job->views) }}</span></span>
             </div>
         </div>
     </div>
