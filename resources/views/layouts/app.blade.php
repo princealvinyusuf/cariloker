@@ -26,13 +26,15 @@
 
         <!-- Scripts -->
         <script>
-            // Apply theme early to avoid FOUC
+            // Apply theme early to avoid FOUC (defaults to light mode)
             (function(){
                 try {
                     var saved = localStorage.getItem('theme');
-                    var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (saved === 'dark' || (!saved && prefersDark)) {
+                    // Default to light mode - only use dark if explicitly saved as 'dark'
+                    if (saved === 'dark') {
                         document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
                     }
                 } catch (e) {}
             })();

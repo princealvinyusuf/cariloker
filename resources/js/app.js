@@ -4,12 +4,12 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-// Initialize theme on load based on saved preference or system
+// Initialize theme on load based on saved preference (defaults to light mode)
 (() => {
     try {
         const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (saved === 'dark' || (!saved && prefersDark)) {
+        // Default to light mode - only use dark if explicitly saved as 'dark'
+        if (saved === 'dark') {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
