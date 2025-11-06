@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -79,5 +80,16 @@ class Job extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    protected static function booted(): void
+    {
+        // Exclude expired jobs by default: allow null (no expiry) or valid_until today or later
+        static::addGlobalScope('notExpired', function (Builder $query) {
+            $query->where(function ($q) {
+                $q->whereNull('valid_until')
+                  ->orWhereDate('valid_until', '>=', now()->toDateString());
+            });
+        });
     }
 }
