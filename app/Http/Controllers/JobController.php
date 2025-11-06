@@ -189,7 +189,30 @@ class JobController extends Controller
     {
         $job->load(['company', 'location', 'category', 'skills']);
 
-        // Increment views count
+        // If expired, show dedicated expired page with related jobs
+        $isExpired = $job->valid_until && $job->valid_until->lt(now()->startOfDay());
+        if ($isExpired) {
+            $relatedJobs = Job::query()
+                ->with(['company', 'location'])
+                ->where('status', 'published')
+                ->where('id', '!=', $job->id)
+                ->where(function ($q) use ($job) {
+                    $q->where('company_id', $job->company_id);
+                    if ($job->category_id) {
+                        $q->orWhere('category_id', $job->category_id);
+                    }
+                })
+                ->latest()
+                ->limit(6)
+                ->get();
+
+            return view('jobs.expired', [
+                'job' => $job,
+                'relatedJobs' => $relatedJobs,
+            ]);
+        }
+
+        // Increment views count for active listings
         $job->increment('views');
 
         $relatedJobs = Job::query()

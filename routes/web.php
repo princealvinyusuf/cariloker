@@ -14,6 +14,13 @@ use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\TermsOfServiceController;
 use Illuminate\Support\Facades\Route;
 
+// Bind job route parameter without the notExpired global scope to allow expired detail page
+Route::bind('job', function (string $slug) {
+    return \App\Models\Job::withoutGlobalScope('notExpired')
+        ->where('slug', $slug)
+        ->firstOrFail();
+});
+
 // Admin: Bulk job import (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'create'])
