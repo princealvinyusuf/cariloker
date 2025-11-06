@@ -410,7 +410,13 @@
                             </div>
                         </div>
                         @foreach(request()->except(['sort','page']) as $k=>$v)
-                            <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
+                            @if(is_array($v))
+                                @foreach($v as $item)
+                                    <input type="hidden" name="{{ $k }}[]" value="{{ $item }}" />
+                                @endforeach
+                            @elseif(!is_null($v))
+                                <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
+                            @endif
                         @endforeach
                     </form>
                 </div>
