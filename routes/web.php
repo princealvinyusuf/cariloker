@@ -33,7 +33,7 @@ Route::get('/locale/{locale}', function (string $locale) {
     if (!in_array($locale, ['id', 'en'])) {
         abort(404);
     }
-    session(['locale' => $locale]);
+    session(['locale_v2' => $locale]);
     return back();
 })->name('locale.switch');
 

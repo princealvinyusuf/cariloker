@@ -29,7 +29,7 @@
             // Apply theme early to avoid FOUC (defaults to light mode)
             (function(){
                 try {
-                    var saved = localStorage.getItem('theme');
+                    var saved = localStorage.getItem('theme_v2');
                     // Default to light mode - only use dark if explicitly saved as 'dark'
                     if (saved === 'dark') {
                         document.documentElement.classList.add('dark');

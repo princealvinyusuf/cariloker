@@ -7,7 +7,7 @@ window.Alpine = Alpine;
 // Initialize theme on load based on saved preference (defaults to light mode)
 (() => {
     try {
-        const saved = localStorage.getItem('theme');
+        const saved = localStorage.getItem('theme_v2');
         // Default to light mode - only use dark if explicitly saved as 'dark'
         if (saved === 'dark') {
             document.documentElement.classList.add('dark');
@@ -23,7 +23,7 @@ window.Alpine = Alpine;
 window.toggleTheme = () => {
     const isDark = document.documentElement.classList.toggle('dark');
     try {
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        localStorage.setItem('theme_v2', isDark ? 'dark' : 'light');
     } catch (_) {
         // ignore storage errors
     }

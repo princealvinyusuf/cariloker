@@ -15,7 +15,7 @@ class SetLocale
         $allowedLocales = ['id', 'en'];
 
         // Session might not be started in some contexts; guard it
-        $sessionLocale = $request->hasSession() ? $request->session()->get('locale') : null;
+        $sessionLocale = $request->hasSession() ? $request->session()->get('locale_v2') : null;
 
         $locale = in_array($sessionLocale, $allowedLocales, true)
             ? $sessionLocale
