@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.style.left = `${rect.left}px`;
         wrapper.style.width = `${rect.width}px`;
         wrapper.style.zIndex = '40';
+        wrapper.style.transform = 'translate3d(0,0,0)';
     };
 
     const applySticky = () => {
@@ -67,11 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.style.left = '';
         wrapper.style.width = '';
         wrapper.style.zIndex = '';
+        wrapper.style.transform = '';
     };
 
     const updateStickyState = () => {
         const rect = container.getBoundingClientRect();
-        const shouldStick = rect.top <= 16;
+        const shouldStick = rect.top <= getTopOffset();
         if (shouldStick) {
             applySticky();
             applyStickyStyles();
