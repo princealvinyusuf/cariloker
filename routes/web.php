@@ -59,6 +59,8 @@ Route::resource('jobs', JobController::class)->except(['index']);
 // Optional: keep /jobs working, redirect to /
 Route::redirect('/jobs', '/');
 
+Route::get('/hello', fn() => 'world');
+
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');
 Route::put('/about', [AboutController::class, 'update'])->middleware('auth')->name('about.update');
