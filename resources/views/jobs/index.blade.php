@@ -144,6 +144,20 @@
                     @endforeach
                 </div>
             @endif
+
+            @if(isset($educationLevels) && $educationLevels->count() > 0)
+                <div class="mt-6">
+                    <div class="text-center text-sm font-semibold text-gray-600 mb-3">{{ __('Education Level') }}</div>
+                    <div class="flex flex-wrap items-center justify-center gap-3">
+                        @foreach($educationLevels as $level)
+                            <a href="{{ route('jobs.index', array_merge(request()->except(['page', 'education_level']), ['education_level' => $level, 'list' => '1'])) }}"
+                               class="px-4 py-2 rounded-full border border-violet-500 text-violet-600 bg-white hover:bg-violet-50 transition-colors text-sm font-medium">
+                                {{ $level }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -279,6 +293,16 @@
                     <form id="filters" method="GET" action="{{ route('jobs.index') }}">
                         <input type="hidden" name="q" value="{{ request('q') }}">
                         <input type="hidden" name="location" value="{{ request('location') }}">
+                        @if(request()->filled('education_level'))
+                            @php $educationParam = request()->input('education_level'); @endphp
+                            @if(is_array($educationParam))
+                                @foreach($educationParam as $item)
+                                    <input type="hidden" name="education_level[]" value="{{ $item }}">
+                                @endforeach
+                            @else
+                                <input type="hidden" name="education_level" value="{{ $educationParam }}">
+                            @endif
+                        @endif
                         
                         <div class="space-y-6">
                             <!-- Salary Range -->

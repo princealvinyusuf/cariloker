@@ -67,6 +67,14 @@ class JobController extends Controller
                     }
                 });
             })
+            ->when($request->filled('education_level'), function ($q) use ($request) {
+                $selected = $request->input('education_level');
+                $levels = is_array($selected) ? $selected : [$selected];
+                $levels = array_values(array_filter(array_map(fn ($level) => trim((string) $level), $levels)));
+                if (!empty($levels)) {
+                    $q->whereIn($q->qualifyColumn('education_level'), $levels);
+                }
+            })
             ->when($request->filled('experience'), function ($q) use ($request) {
                 $experiences = is_array($request->experience) ? $request->experience : [$request->experience];
                 $q->where(function ($sub) use ($experiences) {
@@ -132,6 +140,16 @@ class JobController extends Controller
             ->orderBy('name')
             ->get();
         
+        $educationLevels = Job::query()
+            ->whereNotNull('education_level')
+            ->where('status', 'published')
+            ->select('education_level')
+            ->distinct()
+            ->orderBy('education_level')
+            ->pluck('education_level')
+            ->filter()
+            ->values();
+
         $popularCompanies = Company::query()
             ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
             ->orderByDesc('jobs_count')
@@ -158,6 +176,7 @@ class JobController extends Controller
             'popularCompanies' => $popularCompanies,
             'isLandingPage' => $isLandingPage,
             'featuredJobs' => $featuredJobs,
+            'educationLevels' => $educationLevels,
         ]);
     }
 
