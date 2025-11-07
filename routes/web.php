@@ -76,8 +76,8 @@ Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middl
 Route::resource('jobs', JobController::class)
     ->only(['index', 'show'])
     ->middleware([
-        'index' => ['scraper.protect', 'throttle:job-listing'],
-        'show' => ['scraper.protect', 'throttle:job-detail'],
+        'index' => 'scraper.protect|throttle:job-listing',
+        'show' => 'scraper.protect|throttle:job-detail',
     ]);
 Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
     ->name('jobs.apply.external');
