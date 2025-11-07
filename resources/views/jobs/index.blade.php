@@ -284,7 +284,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Sidebar Filters -->
-                <aside class="lg:col-span-3 space-y-6">
+                <aside class="lg:col-span-3 space-y-6 hidden lg:block">
                 <!-- Filter Jobs Card -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-6">
@@ -292,127 +292,11 @@
                         <a href="{{ route('jobs.index') }}" class="text-sm text-violet-600 hover:text-violet-700 font-medium">{{ __('Clear All') }}</a>
                     </div>
                     
-                    <form id="filters" method="GET" action="{{ route('jobs.index') }}">
-                        <input type="hidden" name="q" value="{{ request('q') }}">
-                        <input type="hidden" name="location" value="{{ request('location') }}">
-                        @if(request()->filled('education_level'))
-                            @php $educationParam = request()->input('education_level'); @endphp
-                            @if(is_array($educationParam))
-                                @foreach($educationParam as $item)
-                                    <input type="hidden" name="education_level[]" value="{{ $item }}">
-                                @endforeach
-                            @else
-                                <input type="hidden" name="education_level" value="{{ $educationParam }}">
-                            @endif
-                        @endif
-                        
-                        <div class="space-y-6">
-                            <!-- Salary Range -->
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Salary Range') }}</h3>
-                                <div class="space-y-2">
-                                    @php
-                                        // Salary ranges in IDR (Rupiah)
-                                        $salaryRanges = [
-                                            '0-5000000' => 'Rp 0 - 5.000.000',
-                                            '5000000-10000000' => 'Rp 5.000.000 - 10.000.000',
-                                            '10000000-15000000' => 'Rp 10.000.000 - 15.000.000',
-                                            '15000000-20000000' => 'Rp 15.000.000 - 20.000.000',
-                                            '20000000+' => 'Rp 20.000.000+',
-                                        ];
-                                        $selectedSalary = request('salary_range');
-                                    @endphp
-                                    @foreach($salaryRanges as $key => $label)
-                                        <label class="flex items-center gap-3 cursor-pointer group">
-                                            <input type="checkbox" name="salary_range[]" value="{{ $key }}" form="filters" 
-                                                   @checked(is_array($selectedSalary) && in_array($key, $selectedSalary) || $selectedSalary === $key)
-                                                   onchange="document.getElementById('filters').submit()"
-                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- Experience -->
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Experience') }}</h3>
-                                <div class="space-y-2">
-                                    @php
-                                        $experienceLevels = ['1' => '1 Year', '2' => '2 Years', '3' => '3 Years', '4' => '4 Years', '5' => '5 Years'];
-                                        $selectedExp = request('experience');
-                                        $selectedExpArray = is_array($selectedExp) ? $selectedExp : ($selectedExp ? [$selectedExp] : []);
-                                    @endphp
-                                    @foreach($experienceLevels as $key => $label)
-                                        <label class="flex items-center gap-3 cursor-pointer group">
-                                            <input type="checkbox" name="experience[]" value="{{ $key }}" form="filters" 
-                                                   @checked(in_array($key, $selectedExpArray))
-                                                   onchange="document.getElementById('filters').submit()"
-                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- Date Posted -->
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Date Posted') }}</h3>
-                                <div class="space-y-2">
-                                    @php
-                                        $dateRanges = [
-                                            'today' => __('Today'),
-                                            'last_7_days' => __('Last 7 Days'),
-                                            'last_15_days' => __('Last 15 Days'),
-                                            'last_month' => __('Last Month'),
-                                        ];
-                                        $selectedDate = request('date_posted');
-                                    @endphp
-                                    @foreach($dateRanges as $key => $label)
-                                        <label class="flex items-center gap-3 cursor-pointer group">
-                                            <input type="checkbox" name="date_posted[]" value="{{ $key }}" form="filters" 
-                                                   @checked(is_array($selectedDate) && in_array($key, $selectedDate) || $selectedDate === $key)
-                                                   onchange="document.getElementById('filters').submit()"
-                                                   class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                            <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
-                                        </label>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            <!-- Job Type / Work Arrangement -->
-                            <div>
-                                <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Job Type') }}</h3>
-                                <div class="space-y-2">
-                                    <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" name="work_arrangement[]" value="onsite" form="filters" 
-                                               @checked(is_array(request('work_arrangement')) && in_array('onsite', request('work_arrangement')) || request('work_arrangement') === 'onsite')
-                                               onchange="document.getElementById('filters').submit()"
-                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Office') }}</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" name="work_arrangement[]" value="remote" form="filters" 
-                                               @checked(is_array(request('work_arrangement')) && in_array('remote', request('work_arrangement')) || request('work_arrangement') === 'remote' || request('remote'))
-                                               onchange="document.getElementById('filters').submit()"
-                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Home') }}</span>
-                                    </label>
-                                    <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="checkbox" name="work_arrangement[]" value="remote_check" form="filters" 
-                                               @checked(request('remote'))
-                                               onchange="document.getElementById('filters').submit()"
-                                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Remote') }}</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    @include('jobs.partials.filters-form', ['formId' => 'filters-desktop'])
                 </div>
 
                 <!-- Categories Card removed -->
-            </aside>
+                </aside>
 
             <!-- Main Job Listings -->
             <main class="lg:col-span-9">
@@ -424,29 +308,46 @@
                             <span class="text-gray-700">{{ __('results found') }}</span>
                         </p>
                     </div>
-                    <form class="flex items-center gap-2">
-                        <label class="text-sm text-gray-600">{{ __('Sort by:') }}</label>
-                        <div class="relative inline-block">
-                            <select name="sort" onchange="this.form.submit()" 
-                                    class="px-4 pr-10 py-2 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer appearance-none" 
-                                    style="-webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important; background-color: white !important;">
-                                <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
-                                <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-10">
-                                <i class="fa-solid fa-chevron-down text-gray-400 text-sm"></i>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <div class="relative w-full sm:hidden" x-data="{ open: false }">
+                            <button type="button" @click="open = !open" class="w-full flex items-center justify-between px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+                                <span>{{ __('Filter Jobs') }}</span>
+                                <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                            <div x-cloak x-show="open" @click.outside="open = false" x-transition class="absolute right-0 mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-40">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-base font-semibold text-gray-900">{{ __('Filter Jobs') }}</h3>
+                                    <a href="{{ route('jobs.index') }}" class="text-sm text-violet-600 hover:text-violet-700 font-medium">{{ __('Clear All') }}</a>
+                                </div>
+                                @include('jobs.partials.filters-form', ['formId' => 'filters-mobile'])
                             </div>
                         </div>
-                        @foreach(request()->except(['sort','page']) as $k=>$v)
-                            @if(is_array($v))
-                                @foreach($v as $item)
-                                    <input type="hidden" name="{{ $k }}[]" value="{{ $item }}" />
-                                @endforeach
-                            @elseif(!is_null($v))
-                            <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
-                            @endif
-                        @endforeach
-                    </form>
+                        <form class="flex items-center gap-2 w-full sm:w-auto">
+                            <label class="text-sm text-gray-600">{{ __('Sort by:') }}</label>
+                            <div class="relative inline-block flex-1 sm:flex-initial">
+                                <select name="sort" onchange="this.form.submit()" 
+                                        class="w-full px-4 pr-10 py-2 rounded-lg border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer appearance-none" 
+                                        style="-webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important; background-color: white !important;">
+                                    <option value="date" @selected(request('sort')==='date')>{{ __('Date Posted') }}</option>
+                                    <option value="salary" @selected(request('sort')==='salary')>{{ __('Salary') }}</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-10">
+                                    <i class="fa-solid fa-chevron-down text-gray-400 text-sm"></i>
+                                </div>
+                            </div>
+                            @foreach(request()->except(['sort','page']) as $k=>$v)
+                                @if(is_array($v))
+                                    @foreach($v as $item)
+                                        <input type="hidden" name="{{ $k }}[]" value="{{ $item }}" />
+                                    @endforeach
+                                @elseif(!is_null($v))
+                                    <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
+                                @endif
+                            @endforeach
+                        </form>
+                    </div>
                 </div>
 
                 <!-- Job Cards Grid -->
