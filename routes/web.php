@@ -74,11 +74,7 @@ Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->mi
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
 Route::resource('jobs', JobController::class)
-    ->only(['index', 'show'])
-    ->middleware([
-        'index' => 'scraper.protect|throttle:job-listing',
-        'show' => 'scraper.protect|throttle:job-detail',
-    ]);
+    ->only(['index', 'show']);
 Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
     ->name('jobs.apply.external');
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
