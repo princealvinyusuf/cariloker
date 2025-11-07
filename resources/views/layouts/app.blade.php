@@ -40,6 +40,7 @@
             })();
         </script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="{{ asset('js/sticky-search.js') }}" defer></script>
     </head>
     <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900">
         @include('layouts.navigation')
