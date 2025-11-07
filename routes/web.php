@@ -34,6 +34,10 @@ Route::middleware('auth')->group(function () {
     
     // Admin Blog Management
     Route::resource('admin/blog', \App\Http\Controllers\Admin\BlogController::class)->names('admin.blog');
+    
+    // Admin Analytics
+    Route::get('/admin/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
+        ->name('admin.analytics.index');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
