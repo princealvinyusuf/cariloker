@@ -254,6 +254,11 @@
                         </div>
                     @endforeach
                 </div>
+                <div class="text-center mt-8">
+                    <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-block bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-6 py-3 transition-colors">
+                        {{ __('View All') }}
+                    </a>
+                </div>
             </div>
         @endif
     @endif
