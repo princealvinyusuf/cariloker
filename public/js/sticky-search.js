@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const wrapper = container.querySelector('.search-bar-wrapper');
     const focusableSelectors = 'input, select, textarea, button, a';
     let isSticky = false;
+    let originalOffsetTop = container.getBoundingClientRect().top + window.scrollY;
 
     const updatePlaceholder = () => {
         const rect = wrapper.getBoundingClientRect();
@@ -72,12 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateStickyState = () => {
-        const rect = container.getBoundingClientRect();
-        const shouldStick = rect.top <= getTopOffset();
+        const threshold = originalOffsetTop - getTopOffset();
+        const shouldStick = window.scrollY > threshold + 4;
+        const shouldUnstick = window.scrollY < threshold - 4;
+
         if (shouldStick) {
             applySticky();
             applyStickyStyles();
-        } else {
+        } else if (shouldUnstick) {
             removeSticky();
         }
     };
@@ -90,6 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const onResize = () => {
         updatePlaceholder();
         applyStickyStyles();
+        if (!isSticky) {
+            originalOffsetTop = container.getBoundingClientRect().top + window.scrollY;
+        }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -102,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new ResizeObserver(() => {
         updatePlaceholder();
         applyStickyStyles();
+        if (!isSticky) {
+            originalOffsetTop = container.getBoundingClientRect().top + window.scrollY;
+        }
     });
     observer.observe(container);
 });
