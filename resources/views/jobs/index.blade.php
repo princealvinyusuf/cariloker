@@ -428,7 +428,7 @@
                                     <input type="hidden" name="{{ $k }}[]" value="{{ $item }}" />
                                 @endforeach
                             @elseif(!is_null($v))
-                                <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
+                            <input type="hidden" name="{{ $k }}" value="{{ $v }}" />
                             @endif
                         @endforeach
                     </form>

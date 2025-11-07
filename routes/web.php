@@ -48,7 +48,9 @@ Route::get('/locale/{locale}', function (string $locale) {
     return back();
 })->name('locale.switch');
 
-Route::get('/', [JobController::class, 'index'])->name('jobs.index');
+Route::get('/', [JobController::class, 'index'])
+    ->middleware(['scraper.protect', 'throttle:job-listing'])
+    ->name('jobs.index');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');
@@ -71,7 +73,12 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->middleware('auth')->name('privacy-policy.edit');
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
-Route::resource('jobs', JobController::class)->only(['index', 'show']);
+Route::resource('jobs', JobController::class)
+    ->only(['index', 'show'])
+    ->middleware([
+        'index' => ['scraper.protect', 'throttle:job-listing'],
+        'show' => ['scraper.protect', 'throttle:job-detail'],
+    ]);
 Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
     ->name('jobs.apply.external');
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
