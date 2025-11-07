@@ -9,7 +9,7 @@
                     <p class="text-gray-600">{{ $job->company->name }} • {{ $job->location?->city ?? __('Remote') }}</p>
                 </div>
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Apply Now') }}</a>
+                    <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" class="hidden md:inline-flex items-center px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold shadow-sm">{{ __('Apply Now') }}</a>
                 @endif
             </div>
 
@@ -40,7 +40,7 @@
                     <span class="text-gray-700">{{ __('Education') }}: <span class="font-medium">{{ $job->education_level }}</span></span>
                 @endif
                 <span class="text-gray-400">•</span>
-                <span class="text-gray-700">{{ __('Total Applicants') }}: <span class="font-medium">{{ $totalApplicants ?? 0 }}</span></span>
+                <span class="text-gray-700">{{ __('Total Applicants') }}: <span class="font-medium">{{ number_format($totalApplicants ?? 0) }}</span></span>
                 <span class="text-gray-400">•</span>
                 <span class="text-gray-700">{{ __('Views') }}: <span class="font-medium">{{ number_format($job->views) }}</span></span>
             </div>
@@ -165,7 +165,7 @@
                 </div>
 
                 @if($job->external_url)
-                    <a href="{{ $job->external_url }}" target="_blank" rel="noopener" class="md:hidden block w-full text-center bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3">{{ __('Apply Now') }}</a>
+                    <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" class="md:hidden block w-full text-center bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl px-4 py-3">{{ __('Apply Now') }}</a>
                 @endif
             </div>
         </aside>
@@ -214,7 +214,7 @@
     <!-- Floating Apply Button -->
     @if($job->external_url)
         <div class="fixed bottom-6 right-6 z-50">
-            <a href="{{ $job->external_url }}" target="_blank" rel="noopener" 
+            <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" 
                class="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-full px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
                 <i class="fa-solid fa-paper-plane"></i>
                 <span>{{ __('Apply Now') }}</span>

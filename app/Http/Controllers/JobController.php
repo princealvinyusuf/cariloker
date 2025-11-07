@@ -218,7 +218,7 @@ class JobController extends Controller
             ->limit(6)
             ->get();
 
-        $totalApplicants = $job->applications()->count();
+        $totalApplicants = $job->applications()->count() + (int) $job->apply_clicks;
 
         return view('jobs.show', [
             'job' => $job,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\Job;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -31,5 +32,16 @@ class ApplicationController extends Controller
         ]);
 
         return back()->with('status', 'Application submitted successfully');
+    }
+
+    public function redirectToExternal(Job $job): RedirectResponse
+    {
+        if (! $job->external_url) {
+            return redirect()->route('jobs.show', $job);
+        }
+
+        $job->increment('apply_clicks');
+
+        return redirect()->away($job->external_url);
     }
 }

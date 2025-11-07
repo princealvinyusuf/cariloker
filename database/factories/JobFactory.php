@@ -40,6 +40,7 @@ class JobFactory extends Factory
             'is_remote' => fake()->boolean(30),
             'status' => 'published',
             'valid_until' => now()->addMonths(1),
+            'apply_clicks' => fake()->numberBetween(0, 150),
         ];
     }
 }

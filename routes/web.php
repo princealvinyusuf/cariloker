@@ -72,6 +72,8 @@ Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->mi
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
 Route::resource('jobs', JobController::class)->only(['index', 'show']);
+Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
+    ->name('jobs.apply.external');
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

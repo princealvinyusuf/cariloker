@@ -37,6 +37,7 @@ class Job extends Model
         'is_remote',
         'status',
         'views',
+        'apply_clicks',
         'valid_until',
     ];
 
@@ -50,6 +51,7 @@ class Job extends Model
             'valid_until' => 'datetime',
             'is_remote' => 'boolean',
             'views' => 'integer',
+            'apply_clicks' => 'integer',
         ];
     }
 
