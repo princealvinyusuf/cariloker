@@ -246,7 +246,7 @@
         <div x-cloak x-show="modal === 'categories'" class="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog" aria-modal="true" x-transition>
             <div class="relative w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900" @click.stop>
                 <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Job Categories Detail') }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Job Titles Detail') }}</h3>
                     <button type="button" class="rounded-full p-1 text-gray-500 transition hover:text-gray-700 focus-visible-outline dark:text-gray-400 dark:hover:text-gray-200" @click="modal = null">
                         <span class="sr-only">{{ __('Close') }}</span>
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +259,7 @@
                         <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">{{ __('Category') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">{{ __('Title') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Active Jobs') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Inactive Jobs') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Total') }}</th>
@@ -269,14 +269,14 @@
                                 @forelse ($categoryDetails as $category)
                                     @php($total = ($category->active_jobs_count ?? 0) + ($category->inactive_jobs_count ?? 0))
                                     <tr>
-                                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $category->name }}</td>
+                                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $category->title ?: __('Untitled Role') }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ number_format($category->active_jobs_count ?? 0) }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ number_format($category->inactive_jobs_count ?? 0) }}</td>
                                         <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">{{ number_format($total) }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No categories have been added yet.') }}</td>
+                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No job titles found yet.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

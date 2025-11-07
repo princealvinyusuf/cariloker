@@ -52,32 +52,25 @@ class AnalyticsController extends Controller
             ->limit(20)
             ->get(['id', 'title', 'company_id', 'status', 'valid_until', 'updated_at', 'posted_at']);
 
-        // Count total categories and gather detail breakdown
-        $totalCategories = JobCategory::count();
-        $categoryDetails = JobCategory::query()
-            ->withCount([
-                'jobs as active_jobs_count' => function ($query) use ($today) {
-                    $query->withoutGlobalScope('notExpired')
-                        ->where('status', 'published')
-                        ->where(function ($inner) use ($today) {
-                            $inner->whereNull('valid_until')
-                                ->orWhereDate('valid_until', '>=', $today);
-                        });
-                },
-                'jobs as inactive_jobs_count' => function ($query) use ($today) {
-                    $query->withoutGlobalScope('notExpired')
-                        ->where(function ($inner) use ($today) {
-                            $inner->where('status', '!=', 'published')
-                                ->orWhere(function ($q) use ($today) {
-                                    $q->where('status', 'published')
-                                        ->whereNotNull('valid_until')
-                                        ->whereDate('valid_until', '<', $today);
-                                });
-                        });
-                },
-            ])
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        // Count unique job titles as fallback "categories" and gather detail breakdown
+        $totalCategories = Job::withoutGlobalScope('notExpired')
+            ->select('title')
+            ->distinct()
+            ->count('title');
+        $categoryDetails = Job::withoutGlobalScope('notExpired')
+            ->select('title')
+            ->selectRaw(
+                "SUM(CASE WHEN status = 'published' AND (valid_until IS NULL OR DATE(valid_until) >= ?) THEN 1 ELSE 0 END) as active_jobs_count",
+                [$today]
+            )
+            ->selectRaw(
+                "SUM(CASE WHEN status != 'published' OR (status = 'published' AND valid_until IS NOT NULL AND DATE(valid_until) < ?) THEN 1 ELSE 0 END) as inactive_jobs_count",
+                [$today]
+            )
+            ->groupBy('title')
+            ->orderBy('title')
+            ->limit(100)
+            ->get();
 
         // Get total views (sum of all job views) and detailed breakdown
         $totalViews = Job::withoutGlobalScope('notExpired')->sum('views');
