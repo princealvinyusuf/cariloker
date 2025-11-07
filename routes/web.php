@@ -53,6 +53,12 @@ Route::get('/', [JobController::class, 'index'])
     ->middleware(['scraper.protect', 'throttle:job-listing'])
     ->name('jobs.index');
 
+// Exclude 'index' to avoid duplicate jobs.index route name
+Route::resource('jobs', JobController::class)->except(['index']);
+
+// Optional: keep /jobs working, redirect to /
+Route::redirect('/jobs', '/');
+
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');
 Route::put('/about', [AboutController::class, 'update'])->middleware('auth')->name('about.update');
@@ -73,13 +79,6 @@ Route::put('/terms-of-service', [TermsOfServiceController::class, 'update'])->mi
 Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy-policy');
 Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->middleware('auth')->name('privacy-policy.edit');
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
-
-// ❌ Was: ->only(['index','show'])
-// ✅ Exclude 'index' to avoid duplicate name with homepage
-Route::resource('jobs', JobController::class)->except(['index']);
-
-// Optional: keep /jobs working, redirect to /
-Route::redirect('/jobs', '/');
 
 Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
     ->name('jobs.apply.external');
