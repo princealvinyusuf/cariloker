@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const wrapper = container.querySelector('.search-bar-wrapper');
     const focusableSelectors = 'input, select, textarea, button, a';
     let isSticky = false;
-    let lastWidth = null;
 
     const updatePlaceholder = () => {
         const rect = wrapper.getBoundingClientRect();
@@ -25,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.querySelectorAll(focusableSelectors).forEach(el => {
             el.classList.add('focus-visible-outline');
         });
-        document.body.classList.add('has-sticky-search');
         updatePlaceholder();
     };
 
@@ -41,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.querySelectorAll(focusableSelectors).forEach(el => {
             el.classList.remove('focus-visible-outline');
         });
-        document.body.classList.remove('has-sticky-search');
     };
 
     const updateStickyState = () => {
@@ -54,22 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const updateWidth = () => {
-        if (!isSticky) return;
-        const computedWidth = container.offsetWidth;
-        if (computedWidth !== lastWidth) {
-            wrapper.style.width = `${computedWidth}px`;
-            lastWidth = computedWidth;
-        }
-    };
-
     const onScroll = () => {
         updateStickyState();
-        updateWidth();
     };
 
     const onResize = () => {
-        updateWidth();
         updatePlaceholder();
     };
 
@@ -79,9 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // initial run
     updateStickyState();
 
-    // ensure width matches container when sticky
+    // ensure placeholder stays updated when size changes
     const observer = new ResizeObserver(() => {
-        updateWidth();
         updatePlaceholder();
     });
     observer.observe(container);
