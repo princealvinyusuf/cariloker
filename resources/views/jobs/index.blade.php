@@ -409,18 +409,7 @@
                     </form>
                 </div>
 
-                <!-- Categories Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">{{ __('Categories') }}</h3>
-                    <div class="space-y-2">
-                        @foreach($categories as $category)
-                            <a class="block text-sm text-gray-700 hover:text-violet-600 font-medium transition-colors py-1" 
-                               href="{{ route('jobs.index', array_merge(request()->except('page'), ['category' => $category->slug])) }}">
-                                {{ $category->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
+                <!-- Categories Card removed -->
             </aside>
 
             <!-- Main Job Listings -->
