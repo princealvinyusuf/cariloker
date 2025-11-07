@@ -7,13 +7,8 @@
 }
 
 .sticky-search-active {
-    position: fixed;
-    top: 16px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    width: min(90vw, 70rem);
-    z-index: 40;
     box-shadow: 0 20px 45px rgba(76, 29, 149, 0.15);
+    border-radius: 1rem;
 }
 
 .focus-visible-outline:focus-visible {
