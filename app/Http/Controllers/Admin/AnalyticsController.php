@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\Job;
 use App\Models\JobCategory;
 use Illuminate\Support\Facades\Auth;
@@ -46,11 +47,15 @@ class AnalyticsController extends Controller
         $totalViews = Job::withoutGlobalScope('notExpired')
             ->sum('views');
 
+        $totalApplicants = Application::count()
+            + Job::withoutGlobalScope('notExpired')->sum('apply_clicks');
+
         return view('admin.analytics.index', [
             'activeJobs' => $activeJobs,
             'inactiveJobs' => $inactiveJobs,
             'totalCategories' => $totalCategories,
             'totalViews' => $totalViews,
+            'totalApplicants' => $totalApplicants,
         ]);
     }
 }
