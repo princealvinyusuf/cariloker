@@ -40,8 +40,11 @@ class AnalyticsController extends Controller
             })
             ->count();
 
-        // Get total categories count
-        $totalCategories = JobCategory::count();
+        // Count unique job titles (fallback when categories are missing)
+        $totalCategories = Job::withoutGlobalScope('notExpired')
+            ->select('title')
+            ->distinct()
+            ->count('title');
 
         // Get total views (sum of all job views)
         $totalViews = Job::withoutGlobalScope('notExpired')
