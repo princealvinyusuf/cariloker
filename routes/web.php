@@ -48,6 +48,7 @@ Route::get('/locale/{locale}', function (string $locale) {
     return back();
 })->name('locale.switch');
 
+// ✅ Homepage keeps the name jobs.index
 Route::get('/', [JobController::class, 'index'])
     ->middleware(['scraper.protect', 'throttle:job-listing'])
     ->name('jobs.index');
@@ -73,10 +74,16 @@ Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('
 Route::get('/privacy-policy/edit', [PrivacyPolicyController::class, 'edit'])->middleware('auth')->name('privacy-policy.edit');
 Route::put('/privacy-policy', [PrivacyPolicyController::class, 'update'])->middleware('auth')->name('privacy-policy.update');
 
-Route::resource('jobs', JobController::class)
-    ->only(['index', 'show']);
+// ❌ Was: ->only(['index','show'])
+// ✅ Exclude 'index' to avoid duplicate name with homepage
+Route::resource('jobs', JobController::class)->except(['index']);
+
+// Optional: keep /jobs working, redirect to /
+Route::redirect('/jobs', '/');
+
 Route::get('/jobs/{job}/apply/external', [ApplicationController::class, 'redirectToExternal'])
     ->name('jobs.apply.external');
+
 Route::resource('companies', CompanyController::class)->only(['index', 'show']);
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
