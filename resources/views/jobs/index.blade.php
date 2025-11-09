@@ -8,6 +8,8 @@
     ];
 @endphp
 
+@section('meta_description', __('Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.'))
+
 <x-app-layout>
     <!-- Hero Search Section -->
     <div class="bg-white py-12 border-b border-gray-200 relative overflow-hidden">
@@ -245,7 +247,7 @@
                                     @if($job->company->logo_path)
                                         <img class="w-14 h-14 rounded-xl object-cover border border-gray-200 flex-shrink-0" 
                                              src="{{ Storage::url($job->company->logo_path) }}" 
-                                             alt="{{ $job->company->name }} logo">
+                                             alt="{{ $job->company->name }} logo" loading="lazy">
                                     @else
                                         <div class="w-14 h-14 rounded-xl border border-gray-200 bg-violet-50 flex items-center justify-center flex-shrink-0">
                                             <i class="fa-solid fa-building text-xl text-violet-600"></i>
@@ -370,7 +372,7 @@
                                     @if($job->company->logo_path)
                                         <img class="w-12 h-12 rounded-full object-cover border border-gray-200 flex-shrink-0" 
                                              src="{{ Storage::url($job->company->logo_path) }}" 
-                                             alt="{{ $job->company->name }} logo">
+                                             alt="{{ $job->company->name }} logo" loading="lazy">
                                     @else
                                         <div class="w-12 h-12 rounded-full border border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center flex-shrink-0">
                                             <i class="fa-solid fa-building text-lg text-violet-600"></i>

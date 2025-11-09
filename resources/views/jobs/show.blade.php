@@ -53,7 +53,7 @@
             <div class="bg-white rounded-2xl p-6 shadow-sm ring-1 ring-violet-100" id="description">
                 <div class="flex items-center gap-4">
                     @if($job->company->logo_path)
-                        <img class="w-16 h-16 rounded-xl object-cover ring-1 ring-gray-200" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo">
+                        <img class="w-16 h-16 rounded-xl object-cover ring-1 ring-gray-200" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo" loading="lazy">
                     @else
                         <div class="w-16 h-16 rounded-xl ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
                             <i class="fa-solid fa-building text-2xl"></i>
@@ -179,7 +179,7 @@
                     <div class="bg-white rounded-2xl p-5 shadow-sm ring-1 ring-violet-100">
                         <div class="flex items-start gap-4">
                             @if($related->company->logo_path)
-                                <img class="w-12 h-12 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($related->company->logo_path) }}" alt="{{ $related->company->name }} logo">
+                                <img class="w-12 h-12 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($related->company->logo_path) }}" alt="{{ $related->company->name }} logo" loading="lazy">
                             @else
                                 <div class="w-12 h-12 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
                                     <i class="fa-solid fa-building text-xl"></i>

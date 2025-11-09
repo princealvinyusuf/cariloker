@@ -1,3 +1,4 @@
+@section('meta_description', __('Cari tips karier, insight dunia kerja, dan berita perusahaan terbaru di blog Cari Loker. Dapatkan update dunia kerja yang relevan setiap saat!'))
 <x-app-layout>
     <div class="bg-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,7 +19,7 @@
                         <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all group">
                             @if($post->featured_image)
                                 <a href="{{ route('blog.show', $post) }}">
-                                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                 </a>
                             @else
                                 <div class="w-full h-48 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center">

@@ -10,7 +10,7 @@
         <aside class="md:col-span-4">
             <div class="bg-white rounded-xl p-6 shadow-sm">
                 @if($company->logo_path)
-                    <img class="w-24 h-24 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($company->logo_path) }}" alt="{{ $company->name }} logo">
+                    <img class="w-24 h-24 rounded-lg object-cover ring-1 ring-gray-200" src="{{ Storage::url($company->logo_path) }}" alt="{{ $company->name }} logo" loading="lazy">
                 @else
                     <div class="w-24 h-24 rounded-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center text-gray-500">
                         <i class="fa-solid fa-building text-3xl"></i>

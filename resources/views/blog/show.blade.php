@@ -1,3 +1,4 @@
+@section('meta_description', str($blogPost->excerpt ?? strip_tags($blogPost->content))->limit(150, ''))
 <x-app-layout>
     <!-- Header -->
     <div class="bg-white border-b border-gray-200">
@@ -17,7 +18,7 @@
             <!-- Main Content -->
             <main class="lg:col-span-8">
                 @if($blogPost->featured_image)
-                    <img src="{{ Storage::url($blogPost->featured_image) }}" alt="{{ $blogPost->title }}" class="w-full rounded-2xl mb-6">
+                    <img src="{{ Storage::url($blogPost->featured_image) }}" alt="{{ $blogPost->title }}" class="w-full rounded-2xl mb-6" loading="lazy">
                 @endif
                 <div class="prose max-w-none">
                     {!! nl2br(e($blogPost->content)) !!}

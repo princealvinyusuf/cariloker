@@ -141,7 +141,7 @@
                                     @if($company->logo_path)
                                         <img class="w-16 h-16 rounded-xl object-cover border border-gray-200 flex-shrink-0" 
                                              src="{{ Storage::url($company->logo_path) }}" 
-                                             alt="{{ $company->name }} logo">
+                                             alt="{{ $company->name }} logo" loading="lazy">
                                     @else
                                         <div class="w-16 h-16 rounded-xl border border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 flex items-center justify-center flex-shrink-0">
                                             <i class="fa-solid fa-building text-2xl text-violet-600"></i>
