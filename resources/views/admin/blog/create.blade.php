@@ -28,10 +28,68 @@
                     @enderror
                 </div>
 
-                <div>
-                    <label for="content" class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Content') }} *</label>
-                    <textarea name="content" id="content" rows="15" required 
+                <div x-data="{
+                    addLink() {
+                        const textarea = this.$refs.contentTextarea;
+                        if (!textarea) {
+                            return;
+                        }
+                        const start = textarea.selectionStart ?? 0;
+                        const end = textarea.selectionEnd ?? 0;
+                        const rawSelection = textarea.value.slice(start, end);
+                        const trimmedSelection = rawSelection.trim();
+                        const placeholder = 'Some Text';
+                        const placeholderUsed = trimmedSelection.length === 0;
+                        const label = placeholderUsed ? placeholder : rawSelection;
+                        const promptDefault = trimmedSelection.length > 0 && trimmedSelection.startsWith('http') ? trimmedSelection : 'https://';
+                        const urlInput = window.prompt('Enter the link URL', promptDefault);
+                        if (!urlInput) {
+                            textarea.focus();
+                            textarea.setSelectionRange(start, end);
+                            return;
+                        }
+                        let sanitizedUrl = urlInput.trim();
+                        if (!sanitizedUrl) {
+                            textarea.focus();
+                            textarea.setSelectionRange(start, end);
+                            return;
+                        }
+                        const protocolPattern = /^[a-z][a-z0-9+\-.]*:/i;
+                        if (!protocolPattern.test(sanitizedUrl)) {
+                            sanitizedUrl = 'https://' + sanitizedUrl;
+                        }
+                        const markdown = '[' + label + '](' + sanitizedUrl + ')';
+                        if (typeof textarea.setRangeText === 'function') {
+                            textarea.setRangeText(markdown, start, end, 'end');
+                        } else {
+                            textarea.value = textarea.value.slice(0, start) + markdown + textarea.value.slice(end);
+                        }
+                        if (placeholderUsed) {
+                            const textStart = start + 1;
+                            const textEnd = textStart + placeholder.length;
+                            textarea.setSelectionRange(textStart, textEnd);
+                        } else {
+                            const caret = start + markdown.length;
+                            textarea.setSelectionRange(caret, caret);
+                        }
+                        textarea.dispatchEvent(new Event('input'));
+                        textarea.focus();
+                    }
+                }">
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="content" class="block text-sm font-semibold text-gray-900">{{ __('Content') }} *</label>
+                        <button type="button" class="text-sm font-semibold text-violet-600 hover:text-violet-700"
+                                x-on:click.prevent="addLink">
+                            {{ __('Insert Link') }}
+                        </button>
+                    </div>
+                    <textarea name="content" id="content" x-ref="contentTextarea" rows="15" required 
                               class="w-full border-gray-300 rounded-lg focus:border-violet-500 focus:ring-violet-500">{{ old('content') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-2">
+                        {{ __('Tip: Select your text and click "Insert Link" or type Markdown like') }}
+                        <code class="bg-gray-100 px-1 py-0.5 rounded">[Some Text](https://example.com)</code>
+                        {{ __('to add a hyperlink.') }}
+                    </p>
                     @error('content')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror

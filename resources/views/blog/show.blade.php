@@ -20,8 +20,17 @@
                 @if($blogPost->featured_image)
                     <img src="{{ Storage::url($blogPost->featured_image) }}" alt="{{ $blogPost->title }}" class="w-full rounded-2xl mb-6" loading="lazy">
                 @endif
+                @php
+                    $parsedContent = \Illuminate\Support\Str::markdown($blogPost->content, [
+                        'html_input' => 'strip',
+                        'allow_unsafe_links' => false,
+                        'renderer' => [
+                            'soft_break' => "<br />\n",
+                        ],
+                    ]);
+                @endphp
                 <div class="prose max-w-none">
-                    {!! nl2br(e($blogPost->content)) !!}
+                    {!! $parsedContent !!}
                 </div>
             </main>
 
