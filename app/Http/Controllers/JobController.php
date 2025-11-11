@@ -12,8 +12,8 @@ class JobController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['scraper.protect', 'throttle:job-listing'])->only('index');
-        $this->middleware(['scraper.protect', 'throttle:job-detail'])->only('show');
+        $this->middleware('throttle:job-listing')->only('index');
+        $this->middleware('throttle:job-detail')->only('show');
     }
 
     /**

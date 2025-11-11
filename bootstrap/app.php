@@ -12,10 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
-
-        $middleware->alias([
-            'scraper.protect' => \App\Http\Middleware\ProtectAgainstScraping::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
