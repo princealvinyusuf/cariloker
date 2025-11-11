@@ -48,16 +48,17 @@ Route::get('/locale/{locale}', function (string $locale) {
     return back();
 })->name('locale.switch');
 
-// ✅ Homepage keeps the name jobs.index
+// Homepage has a dedicated route name to avoid conflicts with jobs.index
 Route::get('/', [JobController::class, 'index'])
+    ->middleware(['scraper.protect', 'throttle:job-listing'])
+    ->name('home');
+
+// Jobs listing page retains the jobs.index name for navigation and filters
+Route::get('/jobs', [JobController::class, 'index'])
     ->middleware(['scraper.protect', 'throttle:job-listing'])
     ->name('jobs.index');
 
-// Exclude 'index' to avoid duplicate jobs.index route name
 Route::resource('jobs', JobController::class)->except(['index']);
-
-// Optional: keep /jobs working, redirect to /
-Route::redirect('/jobs', '/');
 
 Route::get('/hello', fn() => 'world');
 

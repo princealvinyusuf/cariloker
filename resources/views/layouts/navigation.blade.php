@@ -5,7 +5,7 @@
             <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('jobs.index') }}" class="flex items-center gap-2">
+                    <a href="{{ route('home') }}" class="flex items-center gap-2">
                         <span class="text-2xl font-bold">
                             <span class="text-violet-600">Cari</span><span class="text-orange-500"> Loker</span>
                         </span>
@@ -15,10 +15,10 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-1 sm:ml-10 sm:flex">
                     @php
-                        $isJobsListing = request()->routeIs('jobs.index') && (request()->has('list') || request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']));
-                        $isHomePage = request()->routeIs('jobs.index') && !$isJobsListing;
+                        $isJobsListing = request()->routeIs('jobs.index');
+                        $isHomePage = request()->routeIs('home');
                     @endphp
-                    <a href="{{ route('jobs.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isHomePage ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }} transition-colors">
+                    <a href="{{ route('home') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isHomePage ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }} transition-colors">
                         {{ __('Home') }}
                     </a>
                     <a href="{{ route('jobs.index', ['list' => '1']) }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isJobsListing ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }} transition-colors">
@@ -104,10 +104,10 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div class="pt-2 pb-3 space-y-1 px-4">
             @php
-                $isJobsListing = request()->routeIs('jobs.index') && (request()->has('list') || request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']));
-                $isHomePage = request()->routeIs('jobs.index') && !$isJobsListing;
+                $isJobsListing = request()->routeIs('jobs.index');
+                $isHomePage = request()->routeIs('home');
             @endphp
-            <a href="{{ route('jobs.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isHomePage ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }}">
+            <a href="{{ route('home') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isHomePage ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }}">
                 {{ __('Home') }}
             </a>
             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isJobsListing ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }}">

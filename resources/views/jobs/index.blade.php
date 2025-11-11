@@ -79,7 +79,7 @@
                 </p>
 
                 <!-- CTA Buttons -->
-                @if(!request()->has('list') && !request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']))
+                @if(request()->routeIs('home') && !request()->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']))
                 <div class="flex items-center justify-center gap-4 mb-12">
                     <a href="{{ route('jobs.index', ['list' => '1']) }}" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-lg px-8 py-3.5 transition-colors text-lg">
                         {{ __('Browse Jobs') }}

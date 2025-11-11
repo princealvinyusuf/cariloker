@@ -156,8 +156,21 @@ class JobController extends Controller
             ->limit(8)
             ->get();
 
-        // Check if this is a landing page (no filters applied and not explicitly requesting list view)
-        $isLandingPage = !$request->has('list') && !$request->hasAny(['q', 'location', 'type', 'category', 'remote', 'min_salary', 'experience', 'salary_range', 'date_posted', 'work_arrangement', 'sort', 'page']);
+        // Check if this is the homepage landing view (no filters applied)
+        $isLandingPage = $request->routeIs('home') && !$request->hasAny([
+            'q',
+            'location',
+            'type',
+            'category',
+            'remote',
+            'min_salary',
+            'experience',
+            'salary_range',
+            'date_posted',
+            'work_arrangement',
+            'sort',
+            'page',
+        ]);
 
         // Get featured jobs for landing page
         $featuredJobs = null;
