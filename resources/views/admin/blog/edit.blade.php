@@ -61,6 +61,28 @@
                         textarea.dispatchEvent(new Event('input'));
                         textarea.focus();
                     },
+                    wrapSelection(prefix, suffix, placeholder) {
+                        this.replaceSelection(({ selection }) => {
+                            const trimmed = selection.trim();
+                            if (!trimmed.length) {
+                                const text = prefix + placeholder + suffix;
+                                return {
+                                    text,
+                                    selectStartOffset: prefix.length,
+                                    selectEndOffset: prefix.length + placeholder.length,
+                                };
+                            }
+                            return {
+                                text: prefix + selection + suffix,
+                            };
+                        });
+                    },
+                    addBold() {
+                        this.wrapSelection('**', '**', '{{ __('Bold text') }}');
+                    },
+                    addItalic() {
+                        this.wrapSelection('*', '*', '{{ __('Italic text') }}');
+                    },
                     addLink() {
                         this.replaceSelection(({ selection }) => {
                             const trimmed = selection.trim();
@@ -180,6 +202,16 @@
                         <div class="flex flex-wrap items-center gap-2">
                             <div class="flex items-center gap-1">
                                 <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addBold">
+                                    {{ __('Bold') }}
+                                </button>
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addItalic">
+                                    {{ __('Italic') }}
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
                                         x-on:click.prevent="addHeading(2)">
                                     {{ __('H2') }}
                                 </button>
@@ -207,9 +239,11 @@
                     <textarea name="content" id="content" x-ref="contentTextarea" rows="15" required 
                               class="w-full border-gray-300 rounded-lg focus:border-violet-500 focus:ring-violet-500">{{ old('content', $blog->content) }}</textarea>
                     <p class="text-xs text-gray-500 mt-2">
-                        {{ __('Tip: Select your text and click "Insert Link" or type Markdown like') }}
-                        <code class="bg-gray-100 px-1 py-0.5 rounded">[Some Text](https://example.com)</code>
-                        {{ __('to add a hyperlink.') }}
+                        {{ __('Tip: Select text and use the toolbar or type Markdown like') }}
+                        <code class="bg-gray-100 px-1 py-0.5 rounded">**{{ __('bold') }}**</code>,
+                        <code class="bg-gray-100 px-1 py-0.5 rounded">*{{ __('italic') }}*</code>,
+                        <code class="bg-gray-100 px-1 py-0.5 rounded">[{{ __('Some Text') }}](https://example.com)</code>
+                        {{ __('to format your content.') }}
                     </p>
                     @error('content')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

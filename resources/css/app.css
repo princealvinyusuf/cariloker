@@ -76,3 +76,19 @@
 .prose li {
     @apply leading-relaxed;
 }
+
+.prose strong {
+    @apply font-semibold text-gray-900;
+}
+
+.dark .prose strong {
+    @apply text-gray-100;
+}
+
+.prose em {
+    @apply italic text-gray-700;
+}
+
+.dark .prose em {
+    @apply text-gray-300;
+}
