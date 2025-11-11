@@ -30,59 +30,179 @@
                 </div>
 
                 <div x-data="{
-                    addLink() {
+                    replaceSelection(transformer) {
                         const textarea = this.$refs.contentTextarea;
                         if (!textarea) {
                             return;
                         }
                         const start = textarea.selectionStart ?? 0;
                         const end = textarea.selectionEnd ?? 0;
-                        const rawSelection = textarea.value.slice(start, end);
-                        const trimmedSelection = rawSelection.trim();
-                        const placeholder = 'Some Text';
-                        const placeholderUsed = trimmedSelection.length === 0;
-                        const label = placeholderUsed ? placeholder : rawSelection;
-                        const promptDefault = trimmedSelection.length > 0 && trimmedSelection.startsWith('http') ? trimmedSelection : 'https://';
-                        const urlInput = window.prompt('Enter the link URL', promptDefault);
-                        if (!urlInput) {
+                        const value = textarea.value;
+                        const selection = value.slice(start, end);
+                        const result = transformer({ selection, start, end, value });
+                        if (!result || typeof result.text !== 'string') {
                             textarea.focus();
                             textarea.setSelectionRange(start, end);
                             return;
                         }
-                        let sanitizedUrl = urlInput.trim();
-                        if (!sanitizedUrl) {
-                            textarea.focus();
-                            textarea.setSelectionRange(start, end);
-                            return;
-                        }
-                        const protocolPattern = /^[a-z][a-z0-9+\-.]*:/i;
-                        if (!protocolPattern.test(sanitizedUrl)) {
-                            sanitizedUrl = 'https://' + sanitizedUrl;
-                        }
-                        const markdown = '[' + label + '](' + sanitizedUrl + ')';
+                        const text = result.text;
                         if (typeof textarea.setRangeText === 'function') {
-                            textarea.setRangeText(markdown, start, end, 'end');
+                            textarea.setRangeText(text, start, end, 'end');
                         } else {
-                            textarea.value = textarea.value.slice(0, start) + markdown + textarea.value.slice(end);
+                            textarea.value = value.slice(0, start) + text + value.slice(end);
                         }
-                        if (placeholderUsed) {
-                            const textStart = start + 1;
-                            const textEnd = textStart + placeholder.length;
-                            textarea.setSelectionRange(textStart, textEnd);
-                        } else {
-                            const caret = start + markdown.length;
-                            textarea.setSelectionRange(caret, caret);
-                        }
+                        const selectStartOffset = typeof result.selectStartOffset === 'number'
+                            ? result.selectStartOffset
+                            : text.length;
+                        const selectEndOffset = typeof result.selectEndOffset === 'number'
+                            ? result.selectEndOffset
+                            : text.length;
+                        textarea.setSelectionRange(start + selectStartOffset, start + selectEndOffset);
                         textarea.dispatchEvent(new Event('input'));
                         textarea.focus();
+                    },
+                    addLink() {
+                        this.replaceSelection(({ selection }) => {
+                            const trimmed = selection.trim();
+                            const placeholder = 'Some Text';
+                            const placeholderUsed = trimmed.length === 0;
+                            const label = placeholderUsed ? placeholder : selection;
+                            const promptDefault = trimmed.length > 0 && trimmed.startsWith('http') ? trimmed : 'https://';
+                            const urlInput = window.prompt('Enter the link URL', promptDefault);
+                            if (!urlInput) {
+                                return null;
+                            }
+                            let sanitizedUrl = urlInput.trim();
+                            if (!sanitizedUrl) {
+                                return null;
+                            }
+                            const protocolPattern = /^[a-z][a-z0-9+\-.]*:/i;
+                            if (!protocolPattern.test(sanitizedUrl)) {
+                                sanitizedUrl = 'https://' + sanitizedUrl;
+                            }
+                            const markdown = '[' + label + '](' + sanitizedUrl + ')';
+                            if (placeholderUsed) {
+                                return {
+                                    text: markdown,
+                                    selectStartOffset: 1,
+                                    selectEndOffset: 1 + placeholder.length,
+                                };
+                            }
+                            return { text: markdown };
+                        });
+                    },
+                    addHeading(level) {
+                        const safeLevel = Math.min(Math.max(level, 2), 6);
+                        const prefix = '#'.repeat(safeLevel) + ' ';
+                        this.replaceSelection(({ selection }) => {
+                            const trimmed = selection.trim();
+                            if (!trimmed.length) {
+                                const placeholder = 'Heading ' + safeLevel;
+                                const text = prefix + placeholder;
+                                return {
+                                    text,
+                                    selectStartOffset: prefix.length,
+                                    selectEndOffset: prefix.length + placeholder.length,
+                                };
+                            }
+                            const normalized = selection.replace(/\r/g, '');
+                            const hasTrailingNewline = normalized.endsWith('\n');
+                            const lines = normalized.split('\n');
+                            if (hasTrailingNewline) {
+                                lines.pop();
+                            }
+                            const transformed = lines.map((line) => {
+                                const cleaned = line.replace(/^\s*#{1,6}\s+/, '').trim();
+                                return prefix + (cleaned.length ? cleaned : 'Heading ' + safeLevel);
+                            }).join('\n');
+                            const text = transformed + (hasTrailingNewline ? '\n' : '');
+                            return { text };
+                        });
+                    },
+                    addBulletList() {
+                        this.replaceSelection(({ selection }) => {
+                            const trimmed = selection.trim();
+                            if (!trimmed.length) {
+                                const text = '- List item 1\n- List item 2\n- List item 3';
+                                const newlineIndex = text.indexOf('\n');
+                                const endOffset = newlineIndex === -1 ? text.length : newlineIndex;
+                                return {
+                                    text,
+                                    selectStartOffset: 2,
+                                    selectEndOffset: endOffset,
+                                };
+                            }
+                            const normalized = selection.replace(/\r/g, '');
+                            const hasTrailingNewline = normalized.endsWith('\n');
+                            const lines = normalized.split('\n');
+                            if (hasTrailingNewline) {
+                                lines.pop();
+                            }
+                            const transformed = lines.map((line) => {
+                                const cleaned = line.replace(/^\s*([-*+]\s+)/, '').trim();
+                                return '- ' + (cleaned.length ? cleaned : 'List item');
+                            }).join('\n');
+                            const text = transformed + (hasTrailingNewline ? '\n' : '');
+                            return { text };
+                        });
+                    },
+                    addNumberedList() {
+                        this.replaceSelection(({ selection }) => {
+                            const trimmed = selection.trim();
+                            if (!trimmed.length) {
+                                const text = '1. List item 1\n2. List item 2\n3. List item 3';
+                                const newlineIndex = text.indexOf('\n');
+                                const endOffset = newlineIndex === -1 ? text.length : newlineIndex;
+                                return {
+                                    text,
+                                    selectStartOffset: 3,
+                                    selectEndOffset: endOffset,
+                                };
+                            }
+                            const normalized = selection.replace(/\r/g, '');
+                            const hasTrailingNewline = normalized.endsWith('\n');
+                            const lines = normalized.split('\n');
+                            if (hasTrailingNewline) {
+                                lines.pop();
+                            }
+                            const transformed = lines.map((line, index) => {
+                                const cleaned = line.replace(/^\s*\d+\.\s+/, '').trim();
+                                const label = cleaned.length ? cleaned : 'List item ' + (index + 1);
+                                return (index + 1) + '. ' + label;
+                            }).join('\n');
+                            const text = transformed + (hasTrailingNewline ? '\n' : '');
+                            return { text };
+                        });
                     }
                 }">
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
                         <label for="content" class="block text-sm font-semibold text-gray-900">{{ __('Content') }} *</label>
-                        <button type="button" class="text-sm font-semibold text-violet-600 hover:text-violet-700"
-                                x-on:click.prevent="addLink">
-                            {{ __('Insert Link') }}
-                        </button>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center gap-1">
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addHeading(2)">
+                                    {{ __('H2') }}
+                                </button>
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addHeading(3)">
+                                    {{ __('H3') }}
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addBulletList">
+                                    {{ __('• List') }}
+                                </button>
+                                <button type="button" class="text-xs font-semibold px-3 py-1 border border-gray-200 rounded-md text-gray-700 hover:bg-gray-50"
+                                        x-on:click.prevent="addNumberedList">
+                                    {{ __('1. List') }}
+                                </button>
+                            </div>
+                            <button type="button" class="text-xs font-semibold px-3 py-1 border border-violet-100 text-violet-600 hover:bg-violet-50 rounded-md"
+                                    x-on:click.prevent="addLink">
+                                {{ __('Insert Link') }}
+                            </button>
+                        </div>
                     </div>
                     <textarea name="content" id="content" x-ref="contentTextarea" rows="15" required 
                               class="w-full border-gray-300 rounded-lg focus:border-violet-500 focus:ring-violet-500">{{ old('content', $blog->content) }}</textarea>

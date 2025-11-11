@@ -27,3 +27,52 @@
 .dark .prose a {
     @apply text-violet-400 hover:text-violet-300;
 }
+
+.prose p {
+    @apply text-gray-700 leading-relaxed my-4;
+}
+
+.dark .prose p {
+    @apply text-gray-300;
+}
+
+.prose h2 {
+    @apply text-2xl font-bold text-gray-900 mt-8 mb-4;
+}
+
+.dark .prose h2 {
+    @apply text-gray-100;
+}
+
+.prose h3 {
+    @apply text-xl font-semibold text-gray-900 mt-6 mb-3;
+}
+
+.dark .prose h3 {
+    @apply text-gray-100;
+}
+
+.prose h4 {
+    @apply text-lg font-semibold text-gray-900 mt-4 mb-2;
+}
+
+.dark .prose h4 {
+    @apply text-gray-100;
+}
+
+.prose ul {
+    @apply list-disc pl-6 text-gray-700 my-4 space-y-2;
+}
+
+.prose ol {
+    @apply list-decimal pl-6 text-gray-700 my-4 space-y-2;
+}
+
+.dark .prose ul,
+.dark .prose ol {
+    @apply text-gray-300;
+}
+
+.prose li {
+    @apply leading-relaxed;
+}
