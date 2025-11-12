@@ -7,6 +7,7 @@ use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class JobController extends Controller
 {
@@ -135,52 +136,41 @@ class JobController extends Controller
 
         $jobs = $query->paginate(10)->withQueryString();
 
-        $categories = JobCategory::query()
-            ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
-            ->orderBy('name')
-            ->get();
+        // Cache categories
+        $categories = Cache::remember('categories:with-count', 600, function() {
+            return JobCategory::query()
+                ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
+                ->orderBy('name')
+                ->get();
+        });
         
-        $educationLevels = Job::query()
-            ->whereNotNull('education_level')
-            ->where('status', 'published')
-            ->select('education_level')
-            ->distinct()
-            ->orderBy('education_level')
-            ->pluck('education_level')
-            ->filter()
-            ->values();
+        // Cache education levels
+        $educationLevels = Cache::remember('education_levels:distinct', 600, function() {
+            return Job::query()
+                ->whereNotNull('education_level')
+                ->where('status', 'published')
+                ->select('education_level')
+                ->distinct()->orderBy('education_level')->pluck('education_level')->filter()->values();
+        });
 
-        $popularCompanies = Company::query()
-            ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
-            ->orderByDesc('jobs_count')
-            ->limit(8)
-            ->get();
+        // Cache popular companies
+        $popularCompanies = Cache::remember('companies:popular', 600, function() {
+            return Company::query()
+                ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
+                ->orderByDesc('jobs_count')->limit(8)->get();
+        });
 
-        // Check if this is the homepage landing view (no filters applied)
-        $isLandingPage = $request->routeIs('home') && !$request->hasAny([
-            'q',
-            'location',
-            'type',
-            'category',
-            'remote',
-            'min_salary',
-            'experience',
-            'salary_range',
-            'date_posted',
-            'work_arrangement',
-            'sort',
-            'page',
-        ]);
-
-        // Get featured jobs for landing page
+        // Cache featured jobs only on landing page
         $featuredJobs = null;
         if ($isLandingPage) {
-            $featuredJobs = Job::query()
-                ->with(['company', 'location'])
-                ->where('status', 'published')
-                ->latest()
-                ->limit(6)
-                ->get();
+            $featuredJobs = Cache::remember('jobs:featured:landing', 600, function() {
+                return Job::query()
+                    ->with(['company', 'location'])
+                    ->where('status', 'published')
+                    ->latest()
+                    ->limit(6)
+                    ->get();
+            });
         }
 
         return view('jobs.index', [
