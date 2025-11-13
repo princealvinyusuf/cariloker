@@ -16,13 +16,8 @@
                 <div class="hidden space-x-1 sm:ml-10 sm:flex">
                     @php
                         $isJobsListing = request()->routeIs('jobs.index');
-                        $isHomePage = request()->routeIs('home');
                         $isBeranda = request()->routeIs('beranda');
                     @endphp
-                    <a href="{{ route('home') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ (
-                        $isHomePage && !$isBeranda) ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }} transition-colors">
-                        {{ __('Home') }}
-                    </a>
                     <a href="{{ route('beranda') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium {{ $isBeranda ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }} transition-colors">
                         {{ __('Beranda') }}
                     </a>
@@ -110,12 +105,8 @@
         <div class="pt-2 pb-3 space-y-1 px-4">
             @php
                 $isJobsListing = request()->routeIs('jobs.index');
-                $isHomePage = request()->routeIs('home');
                 $isBeranda = request()->routeIs('beranda');
             @endphp
-            <a href="{{ route('home') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isHomePage ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }}">
-                {{ __('Home') }}
-            </a>
             <a href="{{ route('beranda') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ $isBeranda ? 'text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30' : 'text-gray-700 dark:text-gray-300 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/30' }}">
                 {{ __('Beranda') }}
             </a>
