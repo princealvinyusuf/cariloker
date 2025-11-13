@@ -143,7 +143,6 @@ class JobController extends Controller
                 ->orderBy('name')
                 ->get();
         });
-        
         // Cache education levels
         $educationLevels = Cache::remember('education_levels:distinct', 600, function() {
             return Job::query()
@@ -152,7 +151,6 @@ class JobController extends Controller
                 ->select('education_level')
                 ->distinct()->orderBy('education_level')->pluck('education_level')->filter()->values();
         });
-
         // Cache popular companies
         $popularCompanies = Cache::remember('companies:popular', 600, function() {
             return Company::query()
@@ -160,25 +158,10 @@ class JobController extends Controller
                 ->orderByDesc('jobs_count')->limit(8)->get();
         });
 
-        // Cache featured jobs only on landing page
-        $featuredJobs = null;
-        if ($isLandingPage) {
-            $featuredJobs = Cache::remember('jobs:featured:landing', 600, function() {
-                return Job::query()
-                    ->with(['company', 'location'])
-                    ->where('status', 'published')
-                    ->latest()
-                    ->limit(6)
-                    ->get();
-            });
-        }
-
         return view('jobs.index', [
             'jobs' => $jobs,
             'categories' => $categories,
             'popularCompanies' => $popularCompanies,
-            'isLandingPage' => $isLandingPage,
-            'featuredJobs' => $featuredJobs,
             'educationLevels' => $educationLevels,
         ]);
     }
