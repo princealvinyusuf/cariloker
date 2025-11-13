@@ -8,7 +8,6 @@ return new class extends Migration {
     public function up(): void {
         // Jobs table
         Schema::table('jobs', function (Blueprint $table) {
-            $table->index('status');
             $table->index('category_id');
             $table->index('company_id');
             $table->index('location_id');
@@ -33,7 +32,6 @@ return new class extends Migration {
     public function down(): void {
         // Jobs table
         Schema::table('jobs', function (Blueprint $table) {
-            $table->dropIndex(['status']);
             $table->dropIndex(['category_id']);
             $table->dropIndex(['company_id']);
             $table->dropIndex(['location_id']);
