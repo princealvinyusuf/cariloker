@@ -104,4 +104,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/beranda', [JobController::class, 'beranda'])->name('beranda');
+
 require __DIR__.'/auth.php';

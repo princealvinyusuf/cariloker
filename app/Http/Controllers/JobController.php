@@ -184,6 +184,36 @@ class JobController extends Controller
     }
 
     /**
+     * Display the alternative landing page (Beranda)
+     */
+    public function beranda(Request $request)
+    {
+        // TODO: optimize the logic or queries as needed for performance improvements!
+        $query = Job::query()
+            ->with(['company', 'location', 'category'])
+            ->where('status', 'published');
+        $jobs = $query->paginate(10)->withQueryString();
+
+        $categories = JobCategory::query()->orderBy('name')->get();
+        $educationLevels = Job::query()
+            ->whereNotNull('education_level')
+            ->where('status', 'published')
+            ->select('education_level')
+            ->distinct()->orderBy('education_level')->pluck('education_level')->filter()->values();
+        $popularCompanies = Company::query()->limit(8)->get();
+        $featuredJobs = Job::query()->with(['company', 'location'])
+            ->where('status', 'published')->latest()->limit(6)->get();
+
+        return view('beranda', [
+            'jobs' => $jobs,
+            'categories' => $categories,
+            'popularCompanies' => $popularCompanies,
+            'featuredJobs' => $featuredJobs,
+            'educationLevels' => $educationLevels,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
