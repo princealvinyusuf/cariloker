@@ -45,26 +45,12 @@
                                    class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
                         </div>
                     </div>
-                    <div class="md:col-span-4">
+                    <div class="md:col-span-6">
                         <label class="sr-only" for="location">{{ __('Location') }}</label>
                         <div class="relative">
                             <i class="fa-solid fa-location-dot absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input id="location" name="location" value="{{ request('location') }}" placeholder="{{ __('Location (e.g. Jakarta)') }}" 
                                    class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 transition-all" />
-                        </div>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="sr-only" for="type">{{ __('Job Type') }}</label>
-                        <div class="relative">
-                            <select id="type" name="type" class="w-full pl-4 pr-10 py-3 rounded-xl border border-gray-200 focus:border-violet-500 focus:ring-2 focus:ring-violet-200 text-gray-900 bg-white cursor-pointer appearance-none" style="-webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; background-image: none !important; background-color: white !important;">
-                                <option value="">{{ __('Any Type') }}</option>
-                                @foreach($employmentTypes as $key => $label)
-                                    <option value="{{ $key }}" @selected(request('type') === $key)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none z-10">
-                                <i class="fa-solid fa-chevron-down text-gray-400 text-sm"></i>
-                            </div>
                         </div>
                     </div>
                         <div class="md:col-span-2">

@@ -21,6 +21,15 @@
         'last_month' => __('Last Month'),
     ];
     $selectedDate = request('date_posted');
+
+    $employmentTypes = [
+        'full_time' => __('Full-Time'),
+        'part_time' => __('Part-Time'),
+        'contract' => __('Contract'),
+        'internship' => __('Internship'),
+        'freelance' => __('Freelance'),
+    ];
+    $selectedType = request('type');
 @endphp
 
 <form id="{{ $formId }}" method="GET" action="{{ route('jobs.index') }}" class="{{ $formClass }}">
@@ -86,9 +95,32 @@
             </div>
         </div>
 
-        <!-- Job Type / Work Arrangement -->
+        <!-- Employment Type -->
         <div>
             <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Job Type') }}</h3>
+            <div class="space-y-2">
+                <label class="flex items-center gap-3 cursor-pointer group">
+                    <input type="radio" name="type" value="" form="{{ $formId }}"
+                           @checked(!$selectedType)
+                           onchange="document.getElementById('{{ $formId }}').submit()"
+                           class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
+                    <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Any Type') }}</span>
+                </label>
+                @foreach($employmentTypes as $key => $label)
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="radio" name="type" value="{{ $key }}" form="{{ $formId }}"
+                               @checked($selectedType === $key)
+                               onchange="document.getElementById('{{ $formId }}').submit()"
+                               class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
+                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                    </label>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Work Arrangement -->
+        <div>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Work Arrangement') }}</h3>
             <div class="space-y-2">
                 <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" name="work_arrangement[]" value="onsite" form="{{ $formId }}"
