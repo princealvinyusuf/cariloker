@@ -160,5 +160,7 @@
     "beranda.step2_title": "Cari Lowongan",
     "beranda.step2_desc": "Setel parameter pencarian Anda, jelajahi ribuan peluang kerja yang relevan.",
     "beranda.step4_title": "Dapatkan Pekerjaan",
-    "beranda.step4_desc": "Setelah melamar, ikuti proses rekrutmen dan mulai karir baru Anda."
+    "beranda.step4_desc": "Setelah melamar, ikuti proses rekrutmen dan mulai karir baru Anda.",
+    "beranda.job_openings_title": "Lowongan Terbaru dan",
+    "beranda.job_openings_title_highlight": "Terpopuler"
 }

@@ -161,5 +161,7 @@
     "beranda.step2_title": "Search Job",
     "beranda.step2_desc": "Set your job filters, browse thousands of jobs relevant to your interest and expertise.",
     "beranda.step4_title": "Get Job",
-    "beranda.step4_desc": "After applying, proceed with recruitment—and start your new career!"
+    "beranda.step4_desc": "After applying, proceed with recruitment—and start your new career!",
+    "beranda.job_openings_title": "Latest and Top Job",
+    "beranda.job_openings_title_highlight": "Openings"
 }

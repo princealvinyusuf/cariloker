@@ -149,8 +149,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-                    <span class="text-violet-600">{{ __('Latest and Top Job') }}</span><br>
-                    <span class="text-gray-900">{{ __('Openings') }}</span>
+                    <span class="text-violet-600">{{ __('beranda.job_openings_title') }}</span><br>
+                    <span class="text-gray-900">{{ __('beranda.job_openings_title_highlight') }}</span>
                 </h2>
                 <p class="text-lg text-gray-600 max-w-3xl mx-auto mt-4">
                     {{ __('Discover the fresh job openings from the giant firms in which you might want to apply and take a chance to get hired by top fortune companies.') }}
