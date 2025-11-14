@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\ErrorLog;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\VisitorIp;
@@ -101,6 +102,13 @@ class AnalyticsController extends Controller
             ->limit(20)
             ->get(['id', 'ip_address', 'first_visited_at', 'last_visited_at', 'visit_count']);
 
+        // Get error count and details
+        $errorCount = ErrorLog::sum('count');
+        $uniqueErrors = ErrorLog::count();
+        $recentErrors = ErrorLog::orderByDesc('last_occurred_at')
+            ->limit(20)
+            ->get(['id', 'status_code', 'method', 'url', 'route', 'message', 'count', 'first_occurred_at', 'last_occurred_at']);
+
         return view('admin.analytics.index', [
             'activeJobs' => $activeJobs,
             'inactiveJobs' => $inactiveJobs,
@@ -108,6 +116,8 @@ class AnalyticsController extends Controller
             'totalViews' => $totalViews,
             'totalApplicants' => $totalApplicants,
             'uniqueIpVisitors' => $uniqueIpVisitors,
+            'errorCount' => $errorCount,
+            'uniqueErrors' => $uniqueErrors,
             'activeJobDetails' => $activeJobDetails,
             'inactiveJobDetails' => $inactiveJobDetails,
             'categoryDetails' => $categoryDetails,
@@ -115,6 +125,7 @@ class AnalyticsController extends Controller
             'recentApplications' => $recentApplications,
             'applyClickLeaders' => $applyClickLeaders,
             'recentVisitors' => $recentVisitors,
+            'recentErrors' => $recentErrors,
         ]);
     }
 }
