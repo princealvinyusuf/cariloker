@@ -171,28 +171,46 @@ class JobController extends Controller
      */
     public function beranda(Request $request)
     {
-        // TODO: optimize the logic or queries as needed for performance improvements!
-        $query = Job::query()
-            ->with(['company', 'location', 'category'])
-            ->where('status', 'published');
-        $jobs = $query->paginate(10)->withQueryString();
+        // Get categories with job counts
+        $categories = Cache::remember('beranda:categories:with-count', 600, function() {
+            return JobCategory::query()
+                ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
+                ->orderBy('name')
+                ->get();
+        });
 
-        $categories = JobCategory::query()->orderBy('name')->get();
-        $educationLevels = Job::query()
-            ->whereNotNull('education_level')
+        // Get popular companies with logos
+        $popularCompanies = Cache::remember('beranda:companies:popular', 600, function() {
+            return Company::query()
+                ->whereNotNull('logo_path')
+                ->withCount(['jobs' => fn ($j) => $j->where('status', 'published')])
+                ->orderByDesc('jobs_count')
+                ->limit(8)
+                ->get();
+        });
+
+        // Get featured/latest jobs
+        $featuredJobs = Job::query()
+            ->with(['company', 'location', 'category'])
             ->where('status', 'published')
-            ->select('education_level')
-            ->distinct()->orderBy('education_level')->pluck('education_level')->filter()->values();
-        $popularCompanies = Company::query()->limit(8)->get();
-        $featuredJobs = Job::query()->with(['company', 'location'])
-            ->where('status', 'published')->latest()->limit(6)->get();
+            ->latest()
+            ->limit(6)
+            ->get();
+
+        // Get top jobs (by views or most recent)
+        $topJobs = Job::query()
+            ->with(['company', 'location', 'category'])
+            ->where('status', 'published')
+            ->orderByDesc('views')
+            ->orderByDesc('created_at')
+            ->limit(6)
+            ->get();
 
         return view('beranda', [
-            'jobs' => $jobs,
             'categories' => $categories,
             'popularCompanies' => $popularCompanies,
             'featuredJobs' => $featuredJobs,
-            'educationLevels' => $educationLevels,
+            'topJobs' => $topJobs,
         ]);
     }
 
