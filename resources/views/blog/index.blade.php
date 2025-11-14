@@ -1,4 +1,4 @@
-@section('meta_description', __('Cari tips karier, insight dunia kerja, dan berita perusahaan terbaru di blog Cari Loker. Dapatkan update dunia kerja yang relevan setiap saat!'))
+@section('meta_description', __('blog.meta_description'))
 <x-app-layout>
     <div class="bg-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
