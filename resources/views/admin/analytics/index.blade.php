@@ -7,7 +7,7 @@
 
     <div class="py-12" x-data="{ modal: null }" @keydown.escape.window="modal = null">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Active Jobs Card -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 flex h-full flex-col justify-between">
@@ -141,6 +141,34 @@
                             </div>
                         </div>
                         <button type="button" @click="modal = 'applicants'"
+                            class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-600 transition hover:text-violet-700 focus-visible-outline dark:text-violet-400 dark:hover:text-violet-300">
+                            <span>{{ __('View details') }}</span>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Unique IP Visitors Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 flex h-full flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    {{ __('Unique IP Visitors') }}
+                                </p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ number_format($uniqueIpVisitors) }}
+                                </p>
+                            </div>
+                            <div class="rounded-full bg-indigo-100 p-3 dark:bg-indigo-900">
+                                <svg class="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <button type="button" @click="modal = 'visitors'"
                             class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-600 transition hover:text-violet-700 focus-visible-outline dark:text-violet-400 dark:hover:text-violet-300">
                             <span>{{ __('View details') }}</span>
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -383,6 +411,41 @@
                             @endforelse
                         </div>
                     </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unique IP Visitors Modal -->
+        <div x-cloak x-show="modal === 'visitors'" class="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog" aria-modal="true" x-transition>
+            <div class="relative w-full max-w-3xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900" @click.stop>
+                <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Unique IP Visitors Detail') }}</h3>
+                    <button type="button" class="rounded-full p-1 text-gray-500 transition hover:text-gray-700 focus-visible-outline dark:text-gray-400 dark:hover:text-gray-200" @click="modal = null">
+                        <span class="sr-only">{{ __('Close') }}</span>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="max-h-[28rem] space-y-4 overflow-y-auto px-6 py-5">
+                    @forelse ($recentVisitors as $visitor)
+                        <div class="rounded-lg border border-gray-100 p-4 dark:border-gray-700">
+                            <div class="flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 font-mono">{{ $visitor->ip_address }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        {{ __('First visited') }}: {{ optional($visitor->first_visited_at)->format('d M Y H:i') ?? __('N/A') }}
+                                    </p>
+                                </div>
+                                <div class="text-right text-xs text-gray-500 dark:text-gray-400">
+                                    <p>{{ __('Visit count:') }} {{ number_format($visitor->visit_count ?? 0) }}</p>
+                                    <p>{{ __('Last visited:') }} {{ optional($visitor->last_visited_at)->format('d M Y H:i') ?? __('N/A') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('No visitor IPs have been recorded yet.') }}</p>
+                    @endforelse
                 </div>
             </div>
         </div>

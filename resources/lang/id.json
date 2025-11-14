@@ -194,5 +194,11 @@
     "No companies found": "Tidak ada perusahaan ditemukan",
     "Try adjusting your filters or search terms": "Coba sesuaikan filter atau kata kunci pencarian Anda",
     "Clear Filters": "Bersihkan Filter",
-    "Work From Office": "Kerja di Kantor"
+    "Work From Office": "Kerja di Kantor",
+    "Unique IP Visitors": "Pengunjung IP Unik",
+    "Unique IP Visitors Detail": "Detail Pengunjung IP Unik",
+    "First visited": "Kunjungan pertama",
+    "Visit count:": "Jumlah kunjungan:",
+    "Last visited:": "Kunjungan terakhir:",
+    "No visitor IPs have been recorded yet.": "Belum ada IP pengunjung yang tercatat."
 }

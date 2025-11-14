@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Job;
 use App\Models\JobCategory;
+use App\Models\VisitorIp;
 use Illuminate\Support\Facades\Auth;
 
 class AnalyticsController extends Controller
@@ -94,18 +95,26 @@ class AnalyticsController extends Controller
             ->limit(20)
             ->get(['id', 'title', 'company_id', 'apply_clicks', 'views']);
 
+        // Get unique IP visitors count
+        $uniqueIpVisitors = VisitorIp::count();
+        $recentVisitors = VisitorIp::orderByDesc('last_visited_at')
+            ->limit(20)
+            ->get(['id', 'ip_address', 'first_visited_at', 'last_visited_at', 'visit_count']);
+
         return view('admin.analytics.index', [
             'activeJobs' => $activeJobs,
             'inactiveJobs' => $inactiveJobs,
             'totalCategories' => $totalCategories,
             'totalViews' => $totalViews,
             'totalApplicants' => $totalApplicants,
+            'uniqueIpVisitors' => $uniqueIpVisitors,
             'activeJobDetails' => $activeJobDetails,
             'inactiveJobDetails' => $inactiveJobDetails,
             'categoryDetails' => $categoryDetails,
             'topViewedJobs' => $topViewedJobs,
             'recentApplications' => $recentApplications,
             'applyClickLeaders' => $applyClickLeaders,
+            'recentVisitors' => $recentVisitors,
         ]);
     }
 }
