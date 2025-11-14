@@ -4,10 +4,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                    {{ isset($contents['hero_title']) ? $contents['hero_title']->value : 'About Cari Loker' }}
+                    {{ isset($contents['hero_title']) ? $contents['hero_title']->value : __('about.hero_title') }}
                 </h1>
                 <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                    {{ isset($contents['hero_description']) ? $contents['hero_description']->value : 'Your trusted platform for finding the perfect job opportunity.' }}
+                    {{ isset($contents['hero_description']) ? $contents['hero_description']->value : __('about.hero_description') }}
                 </p>
             </div>
         </div>
@@ -18,20 +18,20 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                    {{ isset($contents['about_title']) ? $contents['about_title']->value : 'About Us' }}
+                    {{ isset($contents['about_title']) ? $contents['about_title']->value : __('about.about_title') }}
                 </h2>
                 <div class="prose prose-lg max-w-none text-gray-600">
-                    {!! nl2br(e(isset($contents['about_content']) ? $contents['about_content']->value : 'We are dedicated to connecting job seekers with their dream careers. Our platform provides a seamless experience for both job seekers and employers.')) !!}
+                    {!! nl2br(e(isset($contents['about_content']) ? $contents['about_content']->value : __('about.about_content'))) !!}
                 </div>
             </div>
             <div class="bg-white rounded-2xl shadow-lg p-8">
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ isset($contents['mission_title']) ? $contents['mission_title']->value : 'Our Mission' }}</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ isset($contents['mission_title']) ? $contents['mission_title']->value : __('about.mission_title') }}</h3>
                 <p class="text-gray-600 mb-6">
-                    {{ isset($contents['mission_content']) ? $contents['mission_content']->value : 'To empower individuals in their career journey by providing the best job opportunities and resources.' }}
+                    {{ isset($contents['mission_content']) ? $contents['mission_content']->value : __('about.mission_content') }}
                 </p>
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ isset($contents['vision_title']) ? $contents['vision_title']->value : 'Our Vision' }}</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ isset($contents['vision_title']) ? $contents['vision_title']->value : __('about.vision_title') }}</h3>
                 <p class="text-gray-600">
-                    {{ isset($contents['vision_content']) ? $contents['vision_content']->value : 'To become the leading job portal in Indonesia, connecting millions of job seekers with opportunities.' }}
+                    {{ isset($contents['vision_content']) ? $contents['vision_content']->value : __('about.vision_content') }}
                 </p>
             </div>
         </div>
@@ -42,10 +42,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                    {{ isset($contents['contact_title']) ? $contents['contact_title']->value : 'Contact Us' }}
+                    {{ isset($contents['contact_title']) ? $contents['contact_title']->value : __('about.contact_title') }}
                 </h2>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    {{ isset($contents['contact_description']) ? $contents['contact_description']->value : 'Get in touch with us. We are here to help you with any questions or concerns.' }}
+                    {{ isset($contents['contact_description']) ? $contents['contact_description']->value : __('about.contact_description') }}
                 </p>
             </div>
 

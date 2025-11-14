@@ -163,5 +163,18 @@
     "beranda.step4_title": "Get Job",
     "beranda.step4_desc": "After applying, proceed with recruitment—and start your new career!",
     "beranda.job_openings_title": "Latest and Top Job",
-    "beranda.job_openings_title_highlight": "Openings"
+    "beranda.job_openings_title_highlight": "Openings",
+    "about.hero_title": "About Cari Loker",
+    "about.hero_description": "Your trusted platform for finding the perfect job opportunity.",
+    "about.about_title": "About Us",
+    "about.about_content": "We are dedicated to connecting job seekers with their dream careers. Our platform provides a seamless experience for both job seekers and employers.",
+    "about.mission_title": "Our Mission",
+    "about.mission_content": "To empower individuals in their career journey by providing the best job opportunities and resources.",
+    "about.vision_title": "Our Vision",
+    "about.vision_content": "To become the leading job portal in Indonesia, connecting millions of job seekers with opportunities.",
+    "about.contact_title": "Contact Us",
+    "about.contact_description": "Get in touch with us. We are here to help you with any questions or concerns.",
+    "Phone": "Phone",
+    "Address": "Address",
+    "Business Hours": "Business Hours"
 }
