@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <!-- Get Hired in 4 Quick Easy Steps Section -->
+    <!-- Get Hired in 2 Quick Easy Steps Section -->
     <div class="bg-gray-50 py-16" id="how-it-works">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
@@ -236,23 +236,14 @@
                 </p>
             </div>
             <div class="relative">
-                <!-- Connecting Dotted Line -->
-                <div class="hidden lg:block absolute left-0 right-0 h-0.5 border-t-2 border-dashed border-violet-300" style="top: 6rem;"></div>
+                <!-- Connecting Dotted Line (horizontal) -->
+                <div class="hidden lg:block absolute left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-violet-300" style="top: 6rem;"></div>
                 <!-- Arrow at the end -->
-                <div class="hidden lg:block absolute text-violet-600" style="top: 5.5rem; right: -1rem;">
+                <div class="hidden lg:block absolute text-violet-600" style="top: 5.5rem; right: calc(25% - 1rem);">
                     <i class="fa-solid fa-paper-plane text-3xl transform rotate-45"></i>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative">
-                    <!-- Step 1: Create an Account -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow relative z-10">
-                        <div class="w-16 h-16 rounded-xl bg-orange-100 flex items-center justify-center mb-4 mx-auto">
-                            <i class="fa-solid fa-user-plus text-2xl" style="color: #fb923c;"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">{{ __('beranda.step1_title') }}</h3>
-                        <p class="text-gray-600 text-sm text-center">{{ __('beranda.step1_desc') }}</p>
-                    </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto relative">
                     <!-- Step 2: Search Job -->
                     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow relative z-10">
                         <div class="w-16 h-16 rounded-xl bg-violet-100 flex items-center justify-center mb-4 mx-auto">
@@ -260,15 +251,6 @@
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">{{ __('beranda.step2_title') }}</h3>
                         <p class="text-gray-600 text-sm text-center">{{ __('beranda.step2_desc') }}</p>
-                    </div>
-
-                    <!-- Step 3: Upload CV/Resume -->
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow relative z-10">
-                        <div class="w-16 h-16 rounded-xl bg-blue-100 flex items-center justify-center mb-4 mx-auto">
-                            <i class="fa-solid fa-file-arrow-up text-2xl" style="color: #2563eb;"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-2 text-center">{{ __('beranda.step3_title') }}</h3>
-                        <p class="text-gray-600 text-sm text-center">{{ __('beranda.step3_desc') }}</p>
                     </div>
 
                     <!-- Step 4: Get Job -->
