@@ -162,44 +162,41 @@
                     $allJobs = $featuredJobs->merge($topJobs)->unique('id')->take(6);
                 @endphp
                 @foreach($allJobs as $index => $job)
-                    @php
-                        $isHighlighted = $index == 0; // First job highlighted
-                    @endphp
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border-2 {{ $isHighlighted ? 'border-violet-600 bg-violet-600' : 'border-gray-200 hover:border-violet-300 hover:shadow-lg' }} transition-all duration-200 group">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-200 hover:border-violet-600 hover:bg-violet-600 hover:shadow-lg transition-all duration-200 group">
                         <div class="flex items-start gap-4 mb-4">
                             @if($job->company->logo_path)
-                                <img class="w-14 h-14 rounded-full object-cover border-2 {{ $isHighlighted ? 'border-white' : 'border-gray-200' }} flex-shrink-0" 
+                                <img class="w-14 h-14 rounded-full object-cover border-2 border-gray-200 group-hover:border-white flex-shrink-0 transition-colors" 
                                      src="{{ Storage::url($job->company->logo_path) }}" 
                                      alt="{{ $job->company->name }} logo" loading="lazy">
                             @else
-                                <div class="w-14 h-14 rounded-full border-2 {{ $isHighlighted ? 'border-white bg-white' : 'border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50' }} flex items-center justify-center flex-shrink-0">
-                                    <i class="fa-solid fa-building text-lg {{ $isHighlighted ? 'text-violet-600' : 'text-violet-600' }}"></i>
+                                <div class="w-14 h-14 rounded-full border-2 border-gray-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 group-hover:border-white group-hover:bg-white flex items-center justify-center flex-shrink-0 transition-colors">
+                                    <i class="fa-solid fa-building text-lg text-violet-600 group-hover:text-violet-600 transition-colors"></i>
                                 </div>
                             @endif
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold {{ $isHighlighted ? 'text-white' : 'text-gray-900' }} truncate">{{ $job->company->name }}</p>
-                                <p class="text-xs {{ $isHighlighted ? 'text-violet-100' : 'text-gray-500' }} mt-0.5">
+                                <p class="text-sm font-semibold text-gray-900 group-hover:text-white truncate transition-colors">{{ $job->company->name }}</p>
+                                <p class="text-xs text-gray-500 group-hover:text-violet-100 mt-0.5 transition-colors">
                                     {{ $job->location?->city ?? ($job->location?->country ?? __('Remote')) }}
                                 </p>
                             </div>
                         </div>
-                        <a href="{{ route('jobs.show', $job) }}" class="block mb-2 group-hover:text-violet-600 transition-colors">
-                            <h3 class="text-lg font-bold {{ $isHighlighted ? 'text-white' : 'text-gray-900' }} mb-2 line-clamp-2">{{ $job->title }}</h3>
+                        <a href="{{ route('jobs.show', $job) }}" class="block mb-2 group-hover:text-white transition-colors">
+                            <h3 class="text-lg font-bold text-gray-900 group-hover:text-white mb-2 line-clamp-2 transition-colors">{{ $job->title }}</h3>
                         </a>
-                        <p class="text-sm {{ $isHighlighted ? 'text-violet-100' : 'text-gray-600' }} mb-4 line-clamp-2">
+                        <p class="text-sm text-gray-600 group-hover:text-violet-100 mb-4 line-clamp-2 transition-colors">
                             {{ str($job->description)->stripTags()->limit(100) }}
                         </p>
                         <div class="flex flex-wrap items-center gap-2 mb-4">
                             @if($job->openings)
-                                <span class="px-2.5 py-1 rounded-full {{ $isHighlighted ? 'bg-white text-violet-600' : 'bg-blue-100 text-blue-700' }} text-xs font-medium">
+                                <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 group-hover:bg-white group-hover:text-violet-600 text-xs font-medium transition-colors">
                                     {{ $job->openings }} {{ $job->openings == 1 ? __('Position') : __('Positions') }}
                                 </span>
                             @endif
-                            <span class="px-2.5 py-1 rounded-full {{ $isHighlighted ? 'bg-white text-violet-600' : 'bg-orange-500 text-white' }} text-xs font-medium">
+                            <span class="px-2.5 py-1 rounded-full bg-orange-500 text-white group-hover:bg-white group-hover:text-violet-600 text-xs font-medium transition-colors">
                                 {{ $employmentTypes[$job->employment_type] ?? str($job->employment_type)->replace('_', ' ')->title() }}
                             </span>
-                                    @if($job->salary_min)
-                                <span class="px-2.5 py-1 rounded-full {{ $isHighlighted ? 'bg-white text-violet-600' : 'bg-green-100 text-green-700' }} text-xs font-medium">
+                            @if($job->salary_min)
+                                <span class="px-2.5 py-1 rounded-full bg-green-100 text-green-700 group-hover:bg-white group-hover:text-violet-600 text-xs font-medium transition-colors">
                                     @if($job->salary_max)
                                         {{ $formatIdr($job->salary_min) }}-{{ $formatIdr($job->salary_max) }}/{{ __('year') }}
                                     @else
@@ -209,7 +206,7 @@
                             @endif
                         </div>
                         <a href="{{ route('jobs.show', $job) }}" 
-                           class="block w-full {{ $isHighlighted ? 'bg-white text-violet-600 hover:bg-violet-50' : 'bg-violet-600 hover:bg-violet-700 text-white' }} font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
+                           class="block w-full bg-violet-600 hover:bg-white text-white hover:text-violet-600 font-semibold rounded-lg px-4 py-2.5 text-sm text-center transition-colors">
                             {{ __('View Details') }}
                         </a>
                     </div>
