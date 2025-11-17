@@ -66,9 +66,19 @@ class JobImportController extends Controller
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
 		$total = DB::table('job_imports')->count();
-		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
-		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
-		Cache::put('import:progress.total', $total);
+
+		// Read existing progress (if any) from cache
+		$progress = Cache::get('import:progress') ?? [];
+		$processedSoFar = (int) ($progress['processed'] ?? 0);
+		$lastId = (int) ($progress['last_id'] ?? 0);
+
+		// Initialize/refresh progress metadata in cache so the UI can show something immediately
+		Cache::put('import:progress', [
+			'processed' => $processedSoFar,
+			'last_id' => $lastId,
+			'total' => $total,
+			'running' => true,
+		], now()->addMinutes(30));
 
 		$processed = 0;
 		$errors = [];
