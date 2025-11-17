@@ -106,21 +106,20 @@ class JobImportController extends Controller
 						$description = (string) ($row->deskripsi ?? '');
 						list($expMin, $expMax) = $this->parseExperience((string) ($row->pengalaman ?? ''));
 
-						$companyAttributes = [
-							'slug' => Str::slug($companyName ?: Str::random(8)),
-							'industry' => $sector ?: null,
-						];
+						$company = Company::firstOrCreate(
+							[
+								'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
+							],
+							[
+								'slug' => Str::slug($companyName ?: Str::random(8)),
+								'industry' => $sector ?: null,
+								'logo_path' => $logo ?: null,
+							]
+						);
 
-						if ($logo) {
-							$companyAttributes['logo_path'] = $logo;
-						}
-
-						$company = Company::firstOrCreate([
-							'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
-						], $companyAttributes);
-
-						// If company already existed without a logo, fill it from import
-						if ($logo && !$company->logo_path) {
+						// If the company already existed and we have a logo from the import,
+						// populate logo_path when it's currently empty.
+						if ($logo !== '' && !$company->logo_path) {
 							$company->logo_path = $logo;
 							$company->save();
 						}
