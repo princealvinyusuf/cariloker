@@ -94,6 +94,7 @@ class JobImportController extends Controller
 						$postedAt = $this->parseDate($row->tanggal_posting ?? null);
 						$validUntil = $this->parseDate($row->tanggal_berakhir ?? null);
 						$url = trim((string) ($row->url ?? ''));
+						$logo = trim((string) ($row->logo ?? ''));
 						$gender = $this->mapGender($row->jenis_kelamin ?? null);
 						$arrangement = $this->mapArrangement($row->kondisi ?? null);
 						$type = $this->mapEmploymentType($row->tipe_pekerjaan ?? null);
@@ -110,7 +111,24 @@ class JobImportController extends Controller
 						], [
 							'slug' => Str::slug($companyName ?: Str::random(8)),
 							'industry' => $sector ?: null,
+							'logo_path' => $logo ?: null,
 						]);
+
+						// If company exists but doesn't have logo, lookup from job_imports table
+						if (!$company->logo_path) {
+							// First try current row logo
+							if ($logo) {
+								$company->logo_path = $logo;
+								$company->save();
+							} else {
+								// If current row doesn't have logo, lookup from other job_imports rows
+								$foundLogo = $this->lookupLogoFromJobImports($companyName);
+								if ($foundLogo) {
+									$company->logo_path = $foundLogo;
+									$company->save();
+								}
+							}
+						}
 
 						$location = null;
 						if ($province || $city) {
@@ -318,6 +336,25 @@ class JobImportController extends Controller
 		$nums = array_map('intval', $m[0]);
 		if (count($nums) >= 2) return [$nums[0], $nums[1]];
 		return [$nums[0], $nums[0]];
+	}
+
+	/**
+	 * Lookup logo from job_imports table for a given company name
+	 * Returns the first non-empty logo found for the company
+	 */
+	private function lookupLogoFromJobImports(string $companyName): ?string
+	{
+		if (empty($companyName)) {
+			return null;
+		}
+
+		$logo = DB::table('job_imports')
+			->where('nama_perusahaan', $companyName)
+			->whereNotNull('logo')
+			->where('logo', '!=', '')
+			->value('logo');
+
+		return $logo ? trim((string) $logo) : null;
 	}
 }
 

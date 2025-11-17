@@ -32,6 +32,7 @@ class JobsImport implements ToCollection, WithHeadingRow
 					$postedAt = $this->parseDate($row['tanggal_posting'] ?? $row['tanggal posting'] ?? null);
 					$validUntil = $this->parseDate($row['tanggal_berakhir'] ?? $row['tanggal berakhir'] ?? null);
 					$url = trim((string) ($row['url'] ?? ''));
+					$logo = trim((string) ($row['logo'] ?? ''));
 					$gender = $this->mapGender($row['jenis_kelamin'] ?? $row['jenis kelamin'] ?? null);
 					$arrangement = $this->mapArrangement($row['kondisi'] ?? null);
 					$type = $this->mapEmploymentType($row['tipe_pekerjaan'] ?? $row['tipe pekerjaan'] ?? null);
@@ -50,7 +51,14 @@ class JobsImport implements ToCollection, WithHeadingRow
 					], [
 						'slug' => Str::slug($companyName ?: Str::random(8)),
 						'industry' => $sector ?: null,
+						'logo_path' => $logo ?: null,
 					]);
+
+					// If company exists but doesn't have logo, and we have one, update it
+					if (!$company->logo_path && $logo) {
+						$company->logo_path = $logo;
+						$company->save();
+					}
 
 					$location = null;
 					if ($province || $city) {

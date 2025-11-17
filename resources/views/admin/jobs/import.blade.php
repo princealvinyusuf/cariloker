@@ -35,6 +35,7 @@
                             <li>Tanggal Posting</li>
                             <li>Tanggal Berakhir</li>
                             <li>URL</li>
+                            <li>Logo (optional)</li>
                         </ul>
                         <ul class="list-disc ms-5">
                             <li>Jenis Kelamin</li>
