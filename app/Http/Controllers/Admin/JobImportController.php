@@ -66,19 +66,9 @@ class JobImportController extends Controller
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
 		$total = DB::table('job_imports')->count();
-
-		// Read existing progress (if any) from cache
-		$progress = Cache::get('import:progress') ?? [];
-		$processedSoFar = (int) ($progress['processed'] ?? 0);
-		$lastId = (int) ($progress['last_id'] ?? 0);
-
-		// Initialize/refresh progress metadata in cache so the UI can show something immediately
-		Cache::put('import:progress', [
-			'processed' => $processedSoFar,
-			'last_id' => $lastId,
-			'total' => $total,
-			'running' => true,
-		], now()->addMinutes(30));
+		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
+		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
+		Cache::put('import:progress.total', $total);
 
 		$processed = 0;
 		$errors = [];
@@ -116,28 +106,23 @@ class JobImportController extends Controller
 						$description = (string) ($row->deskripsi ?? '');
 						list($expMin, $expMax) = $this->parseExperience((string) ($row->pengalaman ?? ''));
 
-						$company = Company::firstOrCreate([
-							'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
-						], [
+						$companyAttributes = [
 							'slug' => Str::slug($companyName ?: Str::random(8)),
 							'industry' => $sector ?: null,
-							'logo_path' => $logo ?: null,
-						]);
+						];
 
-						// If company exists but doesn't have logo, lookup from job_imports table
-						if (!$company->logo_path) {
-							// First try current row logo
-							if ($logo) {
-								$company->logo_path = $logo;
-								$company->save();
-							} else {
-								// If current row doesn't have logo, lookup from other job_imports rows
-								$foundLogo = $this->lookupLogoFromJobImports($companyName);
-								if ($foundLogo) {
-									$company->logo_path = $foundLogo;
-									$company->save();
-								}
-							}
+						if ($logo) {
+							$companyAttributes['logo_path'] = $logo;
+						}
+
+						$company = Company::firstOrCreate([
+							'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
+						], $companyAttributes);
+
+						// If company already existed without a logo, fill it from import
+						if ($logo && !$company->logo_path) {
+							$company->logo_path = $logo;
+							$company->save();
 						}
 
 						$location = null;
@@ -346,25 +331,6 @@ class JobImportController extends Controller
 		$nums = array_map('intval', $m[0]);
 		if (count($nums) >= 2) return [$nums[0], $nums[1]];
 		return [$nums[0], $nums[0]];
-	}
-
-	/**
-	 * Lookup logo from job_imports table for a given company name
-	 * Returns the first non-empty logo found for the company
-	 */
-	private function lookupLogoFromJobImports(string $companyName): ?string
-	{
-		if (empty($companyName)) {
-			return null;
-		}
-
-		$logo = DB::table('job_imports')
-			->where('nama_perusahaan', $companyName)
-			->whereNotNull('logo')
-			->where('logo', '!=', '')
-			->value('logo');
-
-		return $logo ? trim((string) $logo) : null;
 	}
 }
 
