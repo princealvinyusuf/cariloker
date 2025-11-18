@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
@@ -55,40 +54,21 @@ class JobImportController extends Controller
 
 	public function processStaging(Request $request)
 	{
-		try {
-			if (!Auth::user() || Auth::user()->role !== 'admin') {
-				abort(403);
-			}
+		if (!Auth::user() || Auth::user()->role !== 'admin') {
+			abort(403);
+		}
 
-			// Allow long-running chunked processing without timeouts
-			@set_time_limit(0);
-			@ini_set('memory_limit', '1024M');
-			DB::disableQueryLog();
-
-			Log::info('Starting processStaging', [
-				'user_id' => Auth::id(),
-				'batch_size' => $request->integer('batch', 200),
-				'max_rows' => $request->integer('max', 5000),
-			]);
+		// Allow long-running chunked processing without timeouts
+		@set_time_limit(0);
+		@ini_set('memory_limit', '1024M');
+		DB::disableQueryLog();
 
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
 		$total = DB::table('job_imports')->count();
-		$progress = Cache::get('import:progress', []);
-		$processedSoFar = (int) ($progress['processed'] ?? 0);
-		$lastId = (int) ($progress['last_id'] ?? 0);
-
-		// Initialize progress cache if not exists or reset if starting fresh
-		if ($lastId === 0 && $processedSoFar === 0) {
-			// Starting fresh - set running immediately
-			Cache::put('import:progress', [
-				'processed' => 0,
-				'last_id' => 0,
-				'total' => $total,
-				'running' => true,
-			], now()->addMinutes(30));
-			Log::info('Initialized progress cache', ['total' => $total]);
-		}
+		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
+		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
+		Cache::put('import:progress.total', $total);
 
 		$processed = 0;
 		$errors = [];
@@ -114,7 +94,6 @@ class JobImportController extends Controller
 						$postedAt = $this->parseDate($row->tanggal_posting ?? null);
 						$validUntil = $this->parseDate($row->tanggal_berakhir ?? null);
 						$url = trim((string) ($row->url ?? ''));
-						$logo = trim((string) ($row->logo ?? ''));
 						$gender = $this->mapGender($row->jenis_kelamin ?? null);
 						$arrangement = $this->mapArrangement($row->kondisi ?? null);
 						$type = $this->mapEmploymentType($row->tipe_pekerjaan ?? null);
@@ -126,23 +105,12 @@ class JobImportController extends Controller
 						$description = (string) ($row->deskripsi ?? '');
 						list($expMin, $expMax) = $this->parseExperience((string) ($row->pengalaman ?? ''));
 
-						$company = Company::firstOrCreate(
-							[
-								'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
-							],
-							[
-								'slug' => Str::slug($companyName ?: Str::random(8)),
-								'industry' => $sector ?: null,
-								'logo_path' => $logo ?: null,
-							]
-						);
-
-						// If the company already existed and we have a logo from the import,
-						// populate logo_path when it's currently empty.
-						if ($logo !== '' && !$company->logo_path) {
-							$company->logo_path = $logo;
-							$company->save();
-						}
+						$company = Company::firstOrCreate([
+							'name' => $companyName ?: 'Perusahaan Tidak Diketahui',
+						], [
+							'slug' => Str::slug($companyName ?: Str::random(8)),
+							'industry' => $sector ?: null,
+						]);
 
 						$location = null;
 						if ($province || $city) {
@@ -229,67 +197,9 @@ class JobImportController extends Controller
             Cache::forget('import:cancel');
         }
 
-			// Return JSON for AJAX requests, redirect for normal requests
-			if ($request->expectsJson() || $request->wantsJson() || $request->ajax()) {
-				return response()->json([
-					'success' => true,
-					'processed' => $processed,
-					'processed_so_far' => $processedSoFar,
-					'total' => $total,
-					'running' => $hasMore,
-					'message' => "Processed {$processed} staging rows",
-					'errors' => $errors,
-				]);
-			}
-
-			return Redirect::route('admin.jobs.import.create')
-				->with('status', "Processed {$processed} staging rows")
-				->with('import_errors', $errors);
-		} catch (\Throwable $e) {
-			Log::error('Error in processStaging: ' . $e->getMessage(), [
-				'exception' => $e,
-				'trace' => $e->getTraceAsString(),
-				'user_id' => Auth::id(),
-			]);
-			
-			return Redirect::route('admin.jobs.import.create')
-				->with('import_errors', array_merge($errors ?? [], ['Fatal error: ' . $e->getMessage()]));
-		}
-	}
-
-	public function getProgress(Request $request)
-	{
-		try {
-			if (!Auth::user() || Auth::user()->role !== 'admin') {
-				return response()->json([
-					'error' => 'Unauthorized',
-					'message' => 'Admin access required'
-				], 403);
-			}
-
-			$progress = Cache::get('import:progress', []);
-			$total = DB::table('job_imports')->count();
-			
-			return response()->json([
-				'processed' => (int) ($progress['processed'] ?? 0),
-				'total' => $total,
-				'last_id' => (int) ($progress['last_id'] ?? 0),
-				'running' => (bool) ($progress['running'] ?? false),
-				'percent' => $total > 0 ? min(100, round((($progress['processed'] ?? 0) / $total) * 100)) : 0,
-			]);
-		} catch (\Throwable $e) {
-			Log::error('Error in getProgress: ' . $e->getMessage(), [
-				'exception' => $e,
-				'trace' => $e->getTraceAsString()
-			]);
-			
-			return response()->json([
-				'error' => 'Server error',
-				'message' => $e->getMessage(),
-				'file' => $e->getFile(),
-				'line' => $e->getLine(),
-			], 500);
-		}
+		return Redirect::route('admin.jobs.import.create')
+			->with('status', "Processed {$processed} staging rows")
+			->with('import_errors', $errors);
 	}
 
 	public function truncateAll(Request $request)
