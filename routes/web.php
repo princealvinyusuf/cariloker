@@ -29,6 +29,10 @@ Route::middleware('auth')->group(function () {
     // Admin Analytics
     Route::get('/admin/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
         ->name('admin.analytics.index');
+
+    // Admin Job Imports: distribute data from staging table
+    Route::post('/admin/jobs/distribute-from-staging', [\App\Http\Controllers\Admin\JobImportController::class, 'distribute'])
+        ->name('admin.jobs.distribute-from-staging');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
