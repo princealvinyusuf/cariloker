@@ -177,37 +177,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Error Count Card -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 flex h-full flex-col justify-between">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                                    {{ __('Error Count') }}
-                                </p>
-                                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
-                                    {{ number_format($errorCount) }}
-                                </p>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    {{ number_format($uniqueErrors) }} {{ __('unique errors') }}
-                                </p>
-                            </div>
-                            <div class="rounded-full bg-red-100 p-3 dark:bg-red-900">
-                                <svg class="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <button type="button" @click="modal = 'errors'"
-                            class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-600 transition hover:text-violet-700 focus-visible-outline dark:text-violet-400 dark:hover:text-violet-300">
-                            <span>{{ __('View details') }}</span>
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- Back to Dashboard Link -->
@@ -476,59 +445,6 @@
                         </div>
                     @empty
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('No visitor IPs have been recorded yet.') }}</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <!-- Error Count Modal -->
-        <div x-cloak x-show="modal === 'errors'" class="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog" aria-modal="true" x-transition>
-            <div class="relative w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900" @click.stop>
-                <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Error Count Detail') }}</h3>
-                    <button type="button" class="rounded-full p-1 text-gray-500 transition hover:text-gray-700 focus-visible-outline dark:text-gray-400 dark:hover:text-gray-200" @click="modal = null">
-                        <span class="sr-only">{{ __('Close') }}</span>
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="max-h-[28rem] space-y-4 overflow-y-auto px-6 py-5">
-                    @forelse ($recentErrors as $error)
-                        <div class="rounded-lg border border-gray-100 p-4 dark:border-gray-700">
-                            <div class="flex flex-wrap items-start justify-between gap-3">
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-xs font-bold">
-                                            {{ $error->status_code }}
-                                        </span>
-                                        <span class="px-2 py-1 rounded bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-xs font-mono">
-                                            {{ $error->method }}
-                                        </span>
-                                        @if($error->route)
-                                            <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 text-xs">
-                                                {{ $error->route }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 break-all mb-1">
-                                        {{ $error->url }}
-                                    </p>
-                                    @if($error->message)
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                            {{ $error->message }}
-                                        </p>
-                                    @endif
-                                </div>
-                                <div class="text-right text-xs text-gray-500 dark:text-gray-400">
-                                    <p class="font-semibold text-gray-900 dark:text-gray-100">{{ __('Count:') }} {{ number_format($error->count) }}</p>
-                                    <p class="mt-1">{{ __('First:') }} {{ optional($error->first_occurred_at)->format('d M Y H:i') ?? __('N/A') }}</p>
-                                    <p class="mt-1">{{ __('Last:') }} {{ optional($error->last_occurred_at)->format('d M Y H:i') ?? __('N/A') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('No errors have been recorded yet.') }}</p>
                     @endforelse
                 </div>
             </div>
