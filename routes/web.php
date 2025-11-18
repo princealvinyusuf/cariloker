@@ -25,8 +25,6 @@ Route::bind('job', function (string $slug) {
 Route::middleware('auth')->group(function () {
     Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'create'])
         ->name('admin.jobs.import.create');
-    Route::post('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'store'])
-        ->name('admin.jobs.import.store');
     Route::post('/admin/jobs/import/process', [\App\Http\Controllers\Admin\JobImportController::class, 'processStaging'])
         ->name('admin.jobs.import.process');
     Route::get('/admin/jobs/import/progress', [\App\Http\Controllers\Admin\JobImportController::class, 'getProgress'])

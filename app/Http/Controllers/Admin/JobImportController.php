@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Imports\JobsImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -29,27 +28,29 @@ class JobImportController extends Controller
 		return view('admin.jobs.import', ['progress' => $progress, 'total' => $total]);
 	}
 
-	public function store(Request $request)
+	public function getProgress(Request $request)
 	{
 		if (!Auth::user() || Auth::user()->role !== 'admin') {
 			abort(403);
 		}
 
-		$request->validate([
-			'file' => ['required', 'file', 'mimes:xlsx,csv,txt'],
+		$cached = Cache::get('import:progress');
+		$total = DB::table('job_imports')->count();
+
+		if (!is_array($cached)) {
+			return response()->json([
+				'processed' => 0,
+				'total' => $total,
+				'running' => false,
+			]);
+		}
+
+		return response()->json([
+			'processed' => (int) ($cached['processed'] ?? 0),
+			'total' => (int) ($cached['total'] ?? $total),
+			'running' => (bool) ($cached['running'] ?? false),
+			'last_id' => (int) ($cached['last_id'] ?? 0),
 		]);
-
-		$path = $request->file('file')->store('imports');
-
-		$import = new JobsImport;
-		$import->import(storage_path('app/'.$path));
-
-		$successCount = $import->getSuccessCount();
-		$errors = $import->getErrors();
-
-		return Redirect::route('admin.jobs.import.create')
-			->with('status', "Imported {$successCount} rows")
-			->with('import_errors', $errors);
 	}
 
 	public function processStaging(Request $request)
@@ -66,9 +67,13 @@ class JobImportController extends Controller
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
 		$total = DB::table('job_imports')->count();
-		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
-		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
-		Cache::put('import:progress.total', $total);
+		$cached = Cache::get('import:progress');
+		$processedSoFar = 0;
+		$lastId = 0;
+		if (is_array($cached)) {
+			$processedSoFar = (int) ($cached['processed'] ?? 0);
+			$lastId = (int) ($cached['last_id'] ?? 0);
+		}
 
 		$processed = 0;
 		$errors = [];
