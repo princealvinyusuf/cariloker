@@ -177,6 +177,30 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Total Errors Card -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 flex h-full flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                    {{ __('Jumlah Error') }}
+                                </p>
+                                <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ number_format($totalErrors ?? 0) }}
+                                </p>
+                            </div>
+                            <div class="rounded-full bg-red-100 p-3 dark:bg-red-900">
+                                <svg class="h-8 w-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0zM12 9v4m0 4h.01"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="mt-6 text-xs text-gray-500 dark:text-gray-400">
+                            {{ __('Total responses with status code 400 or higher recorded across the site.') }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Back to Dashboard Link -->

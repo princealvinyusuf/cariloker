@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\VisitorIp;
+use App\Models\ErrorLog;
 use Illuminate\Support\Facades\Auth;
 
 class AnalyticsController extends Controller
@@ -97,6 +98,8 @@ class AnalyticsController extends Controller
 
         // Get unique IP visitors count
         $uniqueIpVisitors = VisitorIp::count();
+        // Get total HTTP error count (status_code >= 400)
+        $totalErrors = ErrorLog::where('status_code', '>=', 400)->count();
         $recentVisitors = VisitorIp::orderByDesc('last_visited_at')
             ->limit(20)
             ->get(['id', 'ip_address', 'first_visited_at', 'last_visited_at', 'visit_count']);
@@ -108,6 +111,7 @@ class AnalyticsController extends Controller
             'totalViews' => $totalViews,
             'totalApplicants' => $totalApplicants,
             'uniqueIpVisitors' => $uniqueIpVisitors,
+            'totalErrors' => $totalErrors,
             'activeJobDetails' => $activeJobDetails,
             'inactiveJobDetails' => $inactiveJobDetails,
             'categoryDetails' => $categoryDetails,
