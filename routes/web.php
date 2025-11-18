@@ -31,6 +31,13 @@ Route::middleware('auth')->group(function () {
         ->name('admin.analytics.index');
 
     // Admin Job Imports: distribute data from staging table
+    Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'index'])
+        ->name('admin.jobs.import.index');
+    Route::post('/admin/jobs/import/start', [\App\Http\Controllers\Admin\JobImportController::class, 'start'])
+        ->name('admin.jobs.import.start');
+    Route::get('/admin/jobs/import/progress', [\App\Http\Controllers\Admin\JobImportController::class, 'progress'])
+        ->name('admin.jobs.import.progress');
+    // Legacy route from first iteration: keep but redirect to the new page
     Route::post('/admin/jobs/distribute-from-staging', [\App\Http\Controllers\Admin\JobImportController::class, 'distribute'])
         ->name('admin.jobs.distribute-from-staging');
 });

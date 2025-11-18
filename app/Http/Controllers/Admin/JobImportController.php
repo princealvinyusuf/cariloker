@@ -3,186 +3,96 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Company;
-use App\Models\Job;
-use App\Models\JobCategory;
-use App\Models\Location;
+use App\Jobs\DistributeJobImports;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class JobImportController extends Controller
 {
     /**
-     * Distribute data from the staging table (job_imports) into the main tables.
-     *
-     * This provides a simple, idempotent-ish import that:
-     * - Creates/updates companies
-     * - Creates locations
-     * - Creates categories
-     * - Creates job listings
+     * Legacy redirect from old quick action to the new import page.
      */
     public function distribute(): RedirectResponse
     {
-        $imports = DB::table('job_imports')->get();
-
-        if ($imports->isEmpty()) {
-            return redirect()
-                ->route('dashboard')
-                ->with('status', 'No data found in job_imports staging table.');
-        }
-
-        $createdJobs = 0;
-
-        DB::transaction(function () use ($imports, &$createdJobs) {
-            foreach ($imports as $row) {
-                // Company
-                $companyName = trim((string) ($row->nama_perusahaan ?? ''));
-                if ($companyName === '') {
-                    // Skip rows without company
-                    continue;
-                }
-
-                $companySlug = Str::slug(substr($companyName, 0, 200));
-                if ($companySlug === '') {
-                    $companySlug = Str::uuid()->toString();
-                }
-
-                $company = Company::firstOrCreate(
-                    ['slug' => $companySlug],
-                    [
-                        'name' => $companyName,
-                        'logo_path' => $row->logo ?? null,
-                        'website_url' => null,
-                    ]
-                );
-
-                // Location
-                $city = trim((string) ($row->kab_kota ?? ''));
-                $state = trim((string) ($row->provinsi ?? ''));
-
-                if ($city === '' && $state === '') {
-                    $location = null;
-                } else {
-                    if ($city === '' && $state !== '') {
-                        $city = $state;
-                    }
-                    $location = Location::firstOrCreate(
-                        [
-                            'city' => $city,
-                            'state' => $state ?: null,
-                            'country' => 'ID',
-                        ]
-                    );
-                }
-
-                // Category
-                $categoryName = trim((string) ($row->bidang_pekerjaan ?? ''));
-                $category = null;
-                if ($categoryName !== '') {
-                    $categorySlug = Str::slug(substr($categoryName, 0, 200));
-                    if ($categorySlug === '') {
-                        $categorySlug = Str::uuid()->toString();
-                    }
-                    $category = JobCategory::firstOrCreate(
-                        ['slug' => $categorySlug],
-                        ['name' => $categoryName]
-                    );
-                }
-
-                // Basic mapping from staging fields to job listing
-                $title = trim((string) ($row->jabatan ?? ''));
-                if ($title === '') {
-                    // Ensure we always have a title
-                    $title = $company->name;
-                }
-
-                $slugBase = Str::slug(substr($title, 0, 200));
-                if ($slugBase === '') {
-                    $slugBase = Str::uuid()->toString();
-                }
-                $slug = $slugBase;
-                $suffix = 1;
-                while (Job::where('slug', $slug)->exists()) {
-                    $slug = $slugBase . '-' . $suffix++;
-                }
-
-                $employmentType = $this->mapEmploymentType($row->tipe_pekerjaan ?? null);
-                $workArrangement = $this->mapWorkArrangement($row->kondisi ?? null);
-                $gender = $this->normalizeNullableString($row->jenis_kelamin ?? null);
-                $externalUrl = $this->normalizeNullableString($row->url ?? null);
-
-                $jobData = [
-                    'company_id' => $company->id,
-                    'category_id' => $category?->id,
-                    'location_id' => $location?->id,
-                    'title' => $title,
-                    'slug' => $slug,
-                    'description' => $this->normalizeNullableString($row->deskripsi ?? null),
-                    'employment_type' => $employmentType,
-                    'external_url' => $externalUrl,
-                    'gender' => $gender,
-                    'work_arrangement' => $workArrangement,
-                    'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
-                    'status' => 'published',
-                ];
-
-                Job::create($jobData);
-                $createdJobs++;
-            }
-        });
-
-        return redirect()
-            ->route('dashboard')
-            ->with('status', "Distribute job_imports completed. Created {$createdJobs} job listings.");
+        return redirect()->route('admin.jobs.import.index');
     }
 
-    protected function mapEmploymentType(?string $type): string
+    /**
+     * Show the dedicated admin page for distributing data from staging.
+     */
+    public function index(): \Illuminate\View\View
     {
-        if (!$type) {
-            return 'full_time';
-        }
+        $progress = Cache::get(DistributeJobImports::PROGRESS_KEY, [
+            'total' => DB::table('job_imports')->count(),
+            'processed' => 0,
+            'running' => false,
+            'errors' => [],
+        ]);
 
-        $normalized = Str::of($type)->lower();
-
-        if ($normalized->contains('part')) {
-            return 'part_time';
-        }
-        if ($normalized->contains('contract')) {
-            return 'contract';
-        }
-        if ($normalized->contains('intern')) {
-            return 'internship';
-        }
-        if ($normalized->contains('freelance') || $normalized->contains('project')) {
-            return 'freelance';
-        }
-
-        return 'full_time';
+        return view('admin.jobs.import', [
+            'progress' => $progress,
+        ]);
     }
 
-    protected function mapWorkArrangement(?string $kondisi): ?string
+    /**
+     * Start the distribute job (queued) and initialize progress tracking.
+     */
+    public function start(Request $request): JsonResponse
     {
-        if (!$kondisi) {
-            return null;
+        $total = (int) DB::table('job_imports')->count();
+
+        if ($total === 0) {
+            Cache::put(DistributeJobImports::PROGRESS_KEY, [
+                'total' => 0,
+                'processed' => 0,
+                'running' => false,
+                'errors' => ['No data found in job_imports staging table.'],
+            ], 3600);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No data found in job_imports staging table.',
+            ], 400);
         }
 
-        $normalized = Str::of($kondisi)->lower();
-
-        if ($normalized->contains('remote') || $normalized->contains('wfh')) {
-            return 'remote';
+        $existing = Cache::get(DistributeJobImports::PROGRESS_KEY);
+        if ($existing && !empty($existing['running'])) {
+            return response()->json([
+                'status' => 'already_running',
+                'message' => 'A distribute job is already running.',
+            ]);
         }
-        if ($normalized->contains('onsite') || $normalized->contains('on site') || $normalized->contains('on-site')) {
-            return 'onsite';
-        }
 
-        return null;
+        Cache::put(DistributeJobImports::PROGRESS_KEY, [
+            'total' => $total,
+            'processed' => 0,
+            'running' => true,
+            'errors' => [],
+        ], 3600);
+
+        DistributeJobImports::dispatch();
+
+        return response()->json([
+            'status' => 'started',
+        ]);
     }
 
-    protected function normalizeNullableString(?string $value): ?string
+    /**
+     * Return current progress as JSON for polling.
+     */
+    public function progress(): JsonResponse
     {
-        $value = trim((string) $value);
-        return $value === '' ? null : $value;
+        $progress = Cache::get(DistributeJobImports::PROGRESS_KEY, [
+            'total' => DB::table('job_imports')->count(),
+            'processed' => 0,
+            'running' => false,
+            'errors' => [],
+        ]);
+
+        return response()->json($progress);
     }
 }
 

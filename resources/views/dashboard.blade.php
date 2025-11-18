@@ -40,12 +40,9 @@
                             <a href="{{ route('admin.analytics.index') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Analytics') }} →
                             </a>
-                            <form method="POST" action="{{ route('admin.jobs.distribute-from-staging') }}">
-                                @csrf
-                                <button type="submit" class="block text-violet-600 hover:text-violet-700 font-medium">
-                                    {{ __('Distribute Data From Staging Table') }} →
-                                </button>
-                            </form>
+                            <a href="{{ route('admin.jobs.import.index') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
+                                {{ __('Distribute Data From Staging Table') }} →
+                            </a>
                             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Browse Jobs') }} →
                             </a>
