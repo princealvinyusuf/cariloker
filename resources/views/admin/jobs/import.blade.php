@@ -92,6 +92,11 @@
                         </button>
                     </form>
                     <div id="processingStatus" class="mt-3 hidden text-sm text-gray-600 dark:text-gray-300"></div>
+                    <div id="errorDisplay" class="mt-3 hidden p-3 rounded bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
+                        <div class="font-semibold mb-1">{{ __('Error') }}:</div>
+                        <div id="errorMessage" class="text-sm"></div>
+                        <div id="errorDetails" class="text-xs mt-2 font-mono opacity-75"></div>
+                    </div>
                     <form method="POST" action="{{ route('admin.jobs.truncate') }}" class="mt-3" onsubmit="return confirm('{{ __('This will delete jobs, companies, locations, categories, skills, applications and saved jobs. Continue?') }}')">
                         @csrf
                         <button class="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-semibold">{{ __('Truncate Related Tables') }}</button>
@@ -111,9 +116,32 @@
             const progressContainer = document.getElementById('progressContainer');
             const progressText = document.getElementById('progressText');
             const progressBar = document.getElementById('progressBar');
+            const errorDisplay = document.getElementById('errorDisplay');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorDetails = document.getElementById('errorDetails');
             
             let pollingInterval = null;
             let isProcessing = false;
+
+            function showError(message, details = null) {
+                console.error('Job Import Error:', message, details);
+                if (errorDisplay && errorMessage) {
+                    errorMessage.textContent = message;
+                    if (errorDetails && details) {
+                        errorDetails.textContent = typeof details === 'string' ? details : JSON.stringify(details, null, 2);
+                    }
+                    errorDisplay.classList.remove('hidden');
+                    if (processingStatus) {
+                        processingStatus.classList.add('hidden');
+                    }
+                }
+            }
+
+            function hideError() {
+                if (errorDisplay) {
+                    errorDisplay.classList.add('hidden');
+                }
+            }
 
             // Check if processing is already running on page load
             checkProgress();
@@ -136,7 +164,9 @@
 
                     // Start polling immediately after form submission
                     // The page will reload, but polling will resume on page load
+                    hideError();
                     setTimeout(() => {
+                        console.log('Starting progress polling after form submission');
                         startPolling();
                     }, 1000);
                 });
@@ -160,6 +190,7 @@
 
             async function checkProgress() {
                 try {
+                    console.log('Checking progress...');
                     const response = await fetch('{{ route('admin.jobs.import.progress') }}', {
                         method: 'GET',
                         headers: {
@@ -168,11 +199,22 @@
                         }
                     });
 
+                    console.log('Progress response status:', response.status, response.statusText);
+
                     if (!response.ok) {
-                        throw new Error('Failed to fetch progress');
+                        const errorText = await response.text();
+                        console.error('Progress fetch failed:', {
+                            status: response.status,
+                            statusText: response.statusText,
+                            body: errorText
+                        });
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}\n${errorText}`);
                     }
 
                     const data = await response.json();
+                    console.log('Progress data received:', data);
+                    
+                    hideError(); // Hide any previous errors on successful fetch
                     
                     // Update progress display
                     if (data.total > 0) {
@@ -228,6 +270,8 @@
                     }
                 } catch (error) {
                     console.error('Error checking progress:', error);
+                    console.error('Error stack:', error.stack);
+                    showError('Error checking progress: ' + error.message, error.stack || error.toString());
                     stopPolling();
                     resetButton();
                 }

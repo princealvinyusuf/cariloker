@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
@@ -54,14 +55,21 @@ class JobImportController extends Controller
 
 	public function processStaging(Request $request)
 	{
-		if (!Auth::user() || Auth::user()->role !== 'admin') {
-			abort(403);
-		}
+		try {
+			if (!Auth::user() || Auth::user()->role !== 'admin') {
+				abort(403);
+			}
 
-		// Allow long-running chunked processing without timeouts
-		@set_time_limit(0);
-		@ini_set('memory_limit', '1024M');
-		DB::disableQueryLog();
+			// Allow long-running chunked processing without timeouts
+			@set_time_limit(0);
+			@ini_set('memory_limit', '1024M');
+			DB::disableQueryLog();
+
+			Log::info('Starting processStaging', [
+				'user_id' => Auth::id(),
+				'batch_size' => $request->integer('batch', 200),
+				'max_rows' => $request->integer('max', 5000),
+			]);
 
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
@@ -209,27 +217,54 @@ class JobImportController extends Controller
             Cache::forget('import:cancel');
         }
 
-		return Redirect::route('admin.jobs.import.create')
-			->with('status', "Processed {$processed} staging rows")
-			->with('import_errors', $errors);
+			return Redirect::route('admin.jobs.import.create')
+				->with('status', "Processed {$processed} staging rows")
+				->with('import_errors', $errors);
+		} catch (\Throwable $e) {
+			Log::error('Error in processStaging: ' . $e->getMessage(), [
+				'exception' => $e,
+				'trace' => $e->getTraceAsString(),
+				'user_id' => Auth::id(),
+			]);
+			
+			return Redirect::route('admin.jobs.import.create')
+				->with('import_errors', array_merge($errors ?? [], ['Fatal error: ' . $e->getMessage()]));
+		}
 	}
 
 	public function getProgress(Request $request)
 	{
-		if (!Auth::user() || Auth::user()->role !== 'admin') {
-			abort(403);
-		}
+		try {
+			if (!Auth::user() || Auth::user()->role !== 'admin') {
+				return response()->json([
+					'error' => 'Unauthorized',
+					'message' => 'Admin access required'
+				], 403);
+			}
 
-		$progress = Cache::get('import:progress', []);
-		$total = DB::table('job_imports')->count();
-		
-		return response()->json([
-			'processed' => (int) ($progress['processed'] ?? 0),
-			'total' => $total,
-			'last_id' => (int) ($progress['last_id'] ?? 0),
-			'running' => (bool) ($progress['running'] ?? false),
-			'percent' => $total > 0 ? min(100, round((($progress['processed'] ?? 0) / $total) * 100)) : 0,
-		]);
+			$progress = Cache::get('import:progress', []);
+			$total = DB::table('job_imports')->count();
+			
+			return response()->json([
+				'processed' => (int) ($progress['processed'] ?? 0),
+				'total' => $total,
+				'last_id' => (int) ($progress['last_id'] ?? 0),
+				'running' => (bool) ($progress['running'] ?? false),
+				'percent' => $total > 0 ? min(100, round((($progress['processed'] ?? 0) / $total) * 100)) : 0,
+			]);
+		} catch (\Throwable $e) {
+			Log::error('Error in getProgress: ' . $e->getMessage(), [
+				'exception' => $e,
+				'trace' => $e->getTraceAsString()
+			]);
+			
+			return response()->json([
+				'error' => 'Server error',
+				'message' => $e->getMessage(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+			], 500);
+		}
 	}
 
 	public function truncateAll(Request $request)
