@@ -66,9 +66,9 @@ class JobImportController extends Controller
 		$batchSize = max(50, (int) $request->integer('batch', 200));
 		$maxRows = max(100, (int) $request->integer('max', 5000));
 		$total = DB::table('job_imports')->count();
-		$processedSoFar = (int) (Cache::get('import:progress.processed') ?? 0);
-		$lastId = (int) (Cache::get('import:progress.last_id') ?? 0);
-		Cache::put('import:progress.total', $total);
+		$progress = Cache::get('import:progress', []);
+		$processedSoFar = (int) ($progress['processed'] ?? 0);
+		$lastId = (int) ($progress['last_id'] ?? 0);
 
 		$processed = 0;
 		$errors = [];
@@ -212,6 +212,24 @@ class JobImportController extends Controller
 		return Redirect::route('admin.jobs.import.create')
 			->with('status', "Processed {$processed} staging rows")
 			->with('import_errors', $errors);
+	}
+
+	public function getProgress(Request $request)
+	{
+		if (!Auth::user() || Auth::user()->role !== 'admin') {
+			abort(403);
+		}
+
+		$progress = Cache::get('import:progress', []);
+		$total = DB::table('job_imports')->count();
+		
+		return response()->json([
+			'processed' => (int) ($progress['processed'] ?? 0),
+			'total' => $total,
+			'last_id' => (int) ($progress['last_id'] ?? 0),
+			'running' => (bool) ($progress['running'] ?? false),
+			'percent' => $total > 0 ? min(100, round((($progress['processed'] ?? 0) / $total) * 100)) : 0,
+		]);
 	}
 
 	public function truncateAll(Request $request)

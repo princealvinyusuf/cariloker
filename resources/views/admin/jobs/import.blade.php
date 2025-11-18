@@ -54,36 +54,44 @@
 
                 <hr class="my-8 border-gray-200 dark:border-gray-700">
                 <div class="space-y-3">
-                    @if(isset($total))
-                        @php
-                            $p = $progress['processed'] ?? 0;
-                            $t = $progress['total'] ?? $total;
-                            $running = $progress['running'] ?? false;
-                            $percent = $t > 0 ? min(100, round(($p / $t) * 100)) : 0;
-                        @endphp
-                        <div>
-                            <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
-                                <span>{{ __('Progress') }}</span>
-                                <span>{{ $p }} / {{ $t }} ({{ $percent }}%)</span>
-                            </div>
-                            <div class="mt-1 h-3 bg-gray-100 rounded">
-                                <div class="h-3 bg-emerald-500 rounded" style="width: {{ $percent }}%"></div>
-                            </div>
-                            @if($running)
-                                <p class="mt-1 text-xs text-gray-500">{{ __('Processing is in progress or can be resumed. Click Process again to continue from the last point.') }}</p>
-                            @endif
+                    @php
+                        $p = $progress['processed'] ?? 0;
+                        $t = $progress['total'] ?? ($total ?? 0);
+                        $running = $progress['running'] ?? false;
+                        $percent = $t > 0 ? min(100, round(($p / $t) * 100)) : 0;
+                        $showProgress = isset($total) && $total > 0;
+                    @endphp
+                    <div id="progressContainer" @if(!$showProgress) style="display: none;" @endif>
+                        <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                            <span>{{ __('Progress') }}</span>
+                            <span id="progressText">{{ $p }} / {{ $t }} ({{ $percent }}%)</span>
                         </div>
-                    @endif
+                        <div class="mt-1 h-3 bg-gray-100 rounded">
+                            <div id="progressBar" class="h-3 bg-emerald-500 rounded transition-all duration-300" style="width: {{ $percent }}%"></div>
+                        </div>
+                        @if($running)
+                            <p class="mt-1 text-xs text-gray-500">{{ __('Processing is in progress or can be resumed. Click Process again to continue from the last point.') }}</p>
+                        @endif
+                    </div>
                     <h3 class="font-semibold text-gray-800 dark:text-gray-200">{{ __('Process staging (for DBeaver imports)') }}</h3>
                     <ol class="list-decimal ms-6 text-sm text-gray-600 dark:text-gray-300 space-y-1">
                         <li>{{ __('Run migrations to create table') }}: <code class="px-1 py-0.5 bg-gray-100 rounded">job_imports</code>.</li>
                         <li>{{ __('In DBeaver, import your Excel/CSV into the') }} <code>job_imports</code> {{ __('table (map headers to columns).') }}</li>
                         <li>{{ __('Click the button below to transform into normalized tables.') }}</li>
                     </ol>
-                    <form method="POST" action="{{ route('admin.jobs.import.process') }}">
+                    <form id="processForm" method="POST" action="{{ route('admin.jobs.import.process') }}">
                         @csrf
-                        <button class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold">{{ __('Process Staging Data') }}</button>
+                        <button id="processButton" type="submit" class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="buttonText">{{ __('Process Staging Data') }}</span>
+                            <span id="buttonSpinner" class="hidden inline-block ml-2">
+                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
                     </form>
+                    <div id="processingStatus" class="mt-3 hidden text-sm text-gray-600 dark:text-gray-300"></div>
                     <form method="POST" action="{{ route('admin.jobs.truncate') }}" class="mt-3" onsubmit="return confirm('{{ __('This will delete jobs, companies, locations, categories, skills, applications and saved jobs. Continue?') }}')">
                         @csrf
                         <button class="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-semibold">{{ __('Truncate Related Tables') }}</button>
@@ -92,6 +100,147 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const processForm = document.getElementById('processForm');
+            const processButton = document.getElementById('processButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            const processingStatus = document.getElementById('processingStatus');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            
+            let pollingInterval = null;
+            let isProcessing = false;
+
+            // Check if processing is already running on page load
+            checkProgress();
+
+            // Handle form submission
+            if (processForm) {
+                processForm.addEventListener('submit', function(e) {
+                    if (isProcessing) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    isProcessing = true;
+                    processButton.disabled = true;
+                    buttonSpinner.classList.remove('hidden');
+                    buttonText.textContent = '{{ __('Processing...') }}';
+                    processingStatus.classList.remove('hidden');
+                    processingStatus.textContent = '{{ __('Starting processing...') }}';
+                    processingStatus.className = 'mt-3 text-sm text-blue-600 dark:text-blue-400';
+
+                    // Start polling immediately after form submission
+                    // The page will reload, but polling will resume on page load
+                    setTimeout(() => {
+                        startPolling();
+                    }, 1000);
+                });
+            }
+
+            function startPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+                pollingInterval = setInterval(checkProgress, 2000); // Poll every 2 seconds
+                checkProgress(); // Check immediately
+            }
+
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+            }
+
+            async function checkProgress() {
+                try {
+                    const response = await fetch('{{ route('admin.jobs.import.progress') }}', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch progress');
+                    }
+
+                    const data = await response.json();
+                    
+                    // Update progress display
+                    if (data.total > 0) {
+                        // Ensure progress container is visible
+                        if (progressContainer) {
+                            progressContainer.style.display = 'block';
+                        }
+                        
+                        if (progressText && progressBar) {
+                            const percent = Math.min(100, Math.round((data.processed / data.total) * 100));
+                            progressText.textContent = `${data.processed} / ${data.total} (${percent}%)`;
+                            progressBar.style.width = `${percent}%`;
+                        }
+                    }
+
+                    // Update status message
+                    if (processingStatus) {
+                        if (data.running) {
+                            processingStatus.textContent = `{{ __('Processing...') }} ${data.processed} / ${data.total} rows completed`;
+                            processingStatus.className = 'mt-3 text-sm text-blue-600 dark:text-blue-400';
+                            processingStatus.classList.remove('hidden');
+                            
+                            if (!isProcessing && processButton) {
+                                isProcessing = true;
+                                processButton.disabled = true;
+                                if (buttonSpinner) buttonSpinner.classList.remove('hidden');
+                                if (buttonText) buttonText.textContent = '{{ __('Processing...') }}';
+                            }
+                            
+                            // Keep polling
+                            if (!pollingInterval) {
+                                startPolling();
+                            }
+                        } else {
+                            if (data.processed >= data.total) {
+                                processingStatus.textContent = '{{ __('Processing completed!') }}';
+                                processingStatus.className = 'mt-3 text-sm text-green-600 dark:text-green-400';
+                                stopPolling();
+                                resetButton();
+                                
+                                // Refresh page after 2 seconds to show final status
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                stopPolling();
+                                resetButton();
+                                if (processingStatus) {
+                                    processingStatus.classList.add('hidden');
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking progress:', error);
+                    stopPolling();
+                    resetButton();
+                }
+            }
+
+            function resetButton() {
+                isProcessing = false;
+                if (processButton) processButton.disabled = false;
+                if (buttonSpinner) buttonSpinner.classList.add('hidden');
+                if (buttonText) buttonText.textContent = '{{ __('Process Staging Data') }}';
+            }
+        });
+    </script>
 </x-app-layout>
 
 
