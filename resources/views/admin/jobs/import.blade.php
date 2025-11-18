@@ -55,9 +55,9 @@
                 <hr class="my-8 border-gray-200 dark:border-gray-700">
                 <div class="space-y-3">
                     @php
-                        $p = $progress['processed'] ?? 0;
-                        $t = $progress['total'] ?? ($total ?? 0);
-                        $running = $progress['running'] ?? false;
+                        $p = (is_array($progress) && isset($progress['processed'])) ? $progress['processed'] : 0;
+                        $t = (is_array($progress) && isset($progress['total'])) ? $progress['total'] : ($total ?? 0);
+                        $running = (is_array($progress) && isset($progress['running'])) ? $progress['running'] : false;
                         $percent = $t > 0 ? min(100, round(($p / $t) * 100)) : 0;
                         $showProgress = isset($total) && $total > 0;
                     @endphp
