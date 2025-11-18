@@ -78,6 +78,18 @@ class JobImportController extends Controller
 		$processedSoFar = (int) ($progress['processed'] ?? 0);
 		$lastId = (int) ($progress['last_id'] ?? 0);
 
+		// Initialize progress cache if not exists or reset if starting fresh
+		if ($lastId === 0 && $processedSoFar === 0) {
+			// Starting fresh - set running immediately
+			Cache::put('import:progress', [
+				'processed' => 0,
+				'last_id' => 0,
+				'total' => $total,
+				'running' => true,
+			], now()->addMinutes(30));
+			Log::info('Initialized progress cache', ['total' => $total]);
+		}
+
 		$processed = 0;
 		$errors = [];
 

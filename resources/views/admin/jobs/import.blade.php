@@ -148,9 +148,10 @@
 
             // Handle form submission
             if (processForm) {
-                processForm.addEventListener('submit', function(e) {
+                processForm.addEventListener('submit', async function(e) {
+                    e.preventDefault(); // Prevent default form submission
+                    
                     if (isProcessing) {
-                        e.preventDefault();
                         return;
                     }
 
@@ -161,14 +162,49 @@
                     processingStatus.classList.remove('hidden');
                     processingStatus.textContent = '{{ __('Starting processing...') }}';
                     processingStatus.className = 'mt-3 text-sm text-blue-600 dark:text-blue-400';
-
-                    // Start polling immediately after form submission
-                    // The page will reload, but polling will resume on page load
                     hideError();
-                    setTimeout(() => {
-                        console.log('Starting progress polling after form submission');
+
+                    try {
+                        console.log('Submitting form to:', processForm.action);
+                        const formData = new FormData(processForm);
+                        
+                        // Start polling immediately - don't wait for response
                         startPolling();
-                    }, 1000);
+                        
+                        const response = await fetch(processForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                            // Don't follow redirects automatically
+                            redirect: 'manual'
+                        });
+
+                        console.log('Form submission response:', response.status, response.statusText);
+                        
+                        // If redirect, it means processing started successfully
+                        if (response.status >= 300 && response.status < 400) {
+                            console.log('Processing started successfully');
+                            // Continue polling - progress will update
+                        } else if (response.ok) {
+                            // Response was OK but no redirect
+                            const data = await response.json().catch(() => null);
+                            console.log('Response data:', data);
+                        } else {
+                            // Error response
+                            const errorText = await response.text();
+                            console.error('Form submission error:', response.status, errorText);
+                            showError('Error starting processing: HTTP ' + response.status, errorText);
+                            stopPolling();
+                            resetButton();
+                        }
+                    } catch (error) {
+                        console.error('Form submission exception:', error);
+                        showError('Error submitting form: ' + error.message, error.stack);
+                        stopPolling();
+                        resetButton();
+                    }
                 });
             }
 
@@ -249,7 +285,9 @@
                                 startPolling();
                             }
                         } else {
-                            if (data.processed >= data.total) {
+                            // Not running anymore
+                            if (data.processed >= data.total && data.total > 0) {
+                                // Completed
                                 processingStatus.textContent = '{{ __('Processing completed!') }}';
                                 processingStatus.className = 'mt-3 text-sm text-green-600 dark:text-green-400';
                                 stopPolling();
@@ -259,7 +297,14 @@
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 2000);
+                            } else if (data.total === 0) {
+                                // No data to process
+                                processingStatus.textContent = '{{ __('No data to process. Please import data first.') }}';
+                                processingStatus.className = 'mt-3 text-sm text-yellow-600 dark:text-yellow-400';
+                                stopPolling();
+                                resetButton();
                             } else {
+                                // Stopped but not complete
                                 stopPolling();
                                 resetButton();
                                 if (processingStatus) {
