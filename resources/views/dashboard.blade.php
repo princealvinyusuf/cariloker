@@ -40,9 +40,6 @@
                             <a href="{{ route('admin.analytics.index') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Analytics') }} →
                             </a>
-                            <a href="{{ route('admin.jobs.import.create') }}" class="block text-violet-600 hover:text-violet-700 font-medium">
-                                {{ __('Job Staging & Import') }} →
-                            </a>
                             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block text-violet-600 hover:text-violet-700 font-medium">
                                 {{ __('Browse Jobs') }} →
                             </a>

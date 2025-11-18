@@ -21,17 +21,8 @@ Route::bind('job', function (string $slug) {
         ->firstOrFail();
 });
 
-// Admin: Bulk job import (auth required)
+// Admin: backend management (auth required)
 Route::middleware('auth')->group(function () {
-    Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'create'])
-        ->name('admin.jobs.import.create');
-    Route::post('/admin/jobs/import/process', [\App\Http\Controllers\Admin\JobImportController::class, 'processStaging'])
-        ->name('admin.jobs.import.process');
-    Route::get('/admin/jobs/import/progress', [\App\Http\Controllers\Admin\JobImportController::class, 'getProgress'])
-        ->name('admin.jobs.import.progress');
-    Route::post('/admin/jobs/truncate', [\App\Http\Controllers\Admin\JobImportController::class, 'truncateAll'])
-        ->name('admin.jobs.truncate');
-    
     // Admin Blog Management
     Route::resource('admin/blog', \App\Http\Controllers\Admin\BlogController::class)->names('admin.blog');
     
