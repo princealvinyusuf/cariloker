@@ -229,6 +229,19 @@ class JobImportController extends Controller
             Cache::forget('import:cancel');
         }
 
+			// Return JSON for AJAX requests, redirect for normal requests
+			if ($request->expectsJson() || $request->wantsJson() || $request->ajax()) {
+				return response()->json([
+					'success' => true,
+					'processed' => $processed,
+					'processed_so_far' => $processedSoFar,
+					'total' => $total,
+					'running' => $hasMore,
+					'message' => "Processed {$processed} staging rows",
+					'errors' => $errors,
+				]);
+			}
+
 			return Redirect::route('admin.jobs.import.create')
 				->with('status', "Processed {$processed} staging rows")
 				->with('import_errors', $errors);

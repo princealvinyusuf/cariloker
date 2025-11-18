@@ -168,6 +168,12 @@
                         console.log('Submitting form to:', processForm.action);
                         const formData = new FormData(processForm);
                         
+                        // Get CSRF token from meta tag or form
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                        if (csrfToken) {
+                            formData.append('_token', csrfToken);
+                        }
+                        
                         // Start polling immediately - don't wait for response
                         startPolling();
                         
@@ -176,24 +182,33 @@
                             body: formData,
                             headers: {
                                 'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
                             },
-                            // Don't follow redirects automatically
-                            redirect: 'manual'
+                            credentials: 'same-origin',
                         });
 
                         console.log('Form submission response:', response.status, response.statusText);
                         
-                        // If redirect, it means processing started successfully
-                        if (response.status >= 300 && response.status < 400) {
-                            console.log('Processing started successfully');
+                        if (response.ok) {
+                            try {
+                                const data = await response.json();
+                                console.log('Processing started successfully:', data);
+                                if (data.message) {
+                                    processingStatus.textContent = data.message;
+                                }
+                                // Continue polling - progress will update
+                            } catch (e) {
+                                // Not JSON, might be HTML redirect page
+                                console.log('Response is not JSON, assuming processing started');
+                                // Continue polling anyway
+                            }
+                        } else if (response.status >= 300 && response.status < 400) {
+                            // Redirect response - processing started
+                            console.log('Processing started (redirect response)');
                             // Continue polling - progress will update
-                        } else if (response.ok) {
-                            // Response was OK but no redirect
-                            const data = await response.json().catch(() => null);
-                            console.log('Response data:', data);
                         } else {
                             // Error response
-                            const errorText = await response.text();
+                            const errorText = await response.text().catch(() => 'Unknown error');
                             console.error('Form submission error:', response.status, errorText);
                             showError('Error starting processing: HTTP ' + response.status, errorText);
                             stopPolling();
@@ -201,7 +216,12 @@
                         }
                     } catch (error) {
                         console.error('Form submission exception:', error);
-                        showError('Error submitting form: ' + error.message, error.stack);
+                        console.error('Error details:', {
+                            message: error.message,
+                            stack: error.stack,
+                            name: error.name
+                        });
+                        showError('Error submitting form: ' + error.message, error.stack || error.toString());
                         stopPolling();
                         resetButton();
                     }
