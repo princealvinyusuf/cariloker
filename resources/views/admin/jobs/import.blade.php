@@ -192,9 +192,18 @@
                         if (response.ok) {
                             try {
                                 const data = await response.json();
-                                console.log('Processing started successfully:', data);
+                                console.log('Processing response:', data);
                                 if (data.message) {
                                     processingStatus.textContent = data.message;
+                                }
+                                // Update progress immediately from response if available
+                                if (data.total !== undefined && progressContainer) {
+                                    progressContainer.style.display = 'block';
+                                    if (progressText && progressBar) {
+                                        const percent = data.total > 0 ? Math.min(100, Math.round((data.total_processed / data.total) * 100)) : 0;
+                                        progressText.textContent = `${data.total_processed} / ${data.total} (${percent}%)`;
+                                        progressBar.style.width = `${percent}%`;
+                                    }
                                 }
                                 // Continue polling - progress will update
                             } catch (e) {

@@ -190,17 +190,33 @@ class JobImportController extends Controller
 			}
 			}, 'id');
 
+		// Recalculate total in case it changed during processing
+		$currentTotal = DB::table('job_imports')->count();
 		$hasMore = DB::table('job_imports')->where('id', '>', $lastId)->exists();
 		Cache::put('import:progress', [
 			'processed' => $processedSoFar,
 			'last_id' => $lastId,
-			'total' => $total,
+			'total' => $currentTotal,
 			'running' => $hasMore,
 		], now()->addMinutes(30));
         // clear cancel flag if set
         if (!$hasMore) {
             Cache::forget('import:cancel');
         }
+
+		// Return JSON for AJAX requests, redirect for regular form submissions
+		if ($request->expectsJson() || $request->wantsJson() || $request->ajax()) {
+			return response()->json([
+				'success' => true,
+				'message' => "Processed {$processed} staging rows",
+				'processed' => $processed,
+				'total_processed' => $processedSoFar,
+				'total' => $currentTotal,
+				'has_more' => $hasMore,
+				'running' => $hasMore,
+				'errors' => $errors,
+			]);
+		}
 
 		return Redirect::route('admin.jobs.import.create')
 			->with('status', "Processed {$processed} staging rows")
