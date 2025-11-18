@@ -117,14 +117,22 @@ class JobImportController extends Controller
 							'industry' => $sector ?: null,
 						]);
 
-						$location = null;
-						if ($province || $city) {
-							$location = Location::firstOrCreate([
-								'city' => $city ?: null,
-								'state' => $province ?: null,
-								'country' => 'ID',
-							]);
-						}
+					$location = null;
+					// Location requires city to be NOT NULL, so only create if city exists
+					if ($city) {
+						$location = Location::firstOrCreate([
+							'city' => $city,
+							'state' => $province ?: null,
+							'country' => 'ID',
+						]);
+					} elseif ($province) {
+						// If only province exists, use province as city (fallback)
+						$location = Location::firstOrCreate([
+							'city' => $province,
+							'state' => null,
+							'country' => 'ID',
+						]);
+					}
 
 						$category = null;
 						if ($categoryName) {
