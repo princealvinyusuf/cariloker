@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    body {
+        @apply bg-slate-50 text-slate-800;
+    }
+
+    .dark body {
+        @apply bg-slate-950 text-slate-100;
+    }
+}
+
+@layer components {
+    .surface-card {
+        @apply rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900;
+    }
+
+    .section-container {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-primary-300 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-primary-500 dark:hover:text-primary-300 dark:focus-visible:ring-offset-slate-950;
+    }
+}
+
 [x-cloak] {
     display: none !important;
 }
@@ -11,21 +39,21 @@
 }
 
 .sticky-search-active {
-    box-shadow: 0 20px 45px rgba(76, 29, 149, 0.15);
+    box-shadow: 0 22px 50px rgba(31, 123, 255, 0.16);
     border-radius: 1rem;
 }
 
 .focus-visible-outline:focus-visible {
-    outline: 2px solid rgb(124 58 237 / 0.7);
+    outline: 2px solid rgb(31 123 255 / 0.7);
     outline-offset: 2px;
 }
 
 .prose a {
-    @apply text-violet-600 underline hover:text-violet-700;
+    @apply text-primary-600 underline hover:text-primary-700;
 }
 
 .dark .prose a {
-    @apply text-violet-400 hover:text-violet-300;
+    @apply text-primary-300 hover:text-primary-200;
 }
 
 .prose p {

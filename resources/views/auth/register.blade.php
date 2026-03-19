@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ __('Create your account') }}</h1>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ __('Start applying to jobs and track your career opportunities.') }}</p>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -40,7 +45,7 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800" href="{{ route('login') }}">
+            <a class="text-sm text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 

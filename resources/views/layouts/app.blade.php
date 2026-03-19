@@ -43,20 +43,20 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script src="{{ asset('js/sticky-search.js') }}" defer></script>
     </head>
-    <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900">
+    <body class="font-sans antialiased bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
         @include('layouts.navigation')
 
         <!-- Page Heading -->
         @isset($header)
-            <header class="bg-white dark:bg-gray-800 shadow-sm">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
+                <div class="section-container py-6">
                     {{ $header }}
                 </div>
             </header>
         @endisset
 
         <!-- Page Content -->
-        <main>
+        <main class="min-h-[65vh]">
             {{ $slot }}
         </main>
 

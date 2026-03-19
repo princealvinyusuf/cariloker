@@ -49,15 +49,15 @@
     <div class="space-y-6">
         <!-- Salary Range -->
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Salary Range') }}</h3>
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">{{ __('Salary Range') }}</h3>
             <div class="space-y-2">
                 @foreach($salaryRanges as $key => $label)
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" name="salary_range[]" value="{{ $key }}" form="{{ $formId }}"
                                @checked(is_array($selectedSalary) && in_array($key, $selectedSalary) || $selectedSalary === $key)
                                onchange="document.getElementById('{{ $formId }}').submit()"
-                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                               class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ $label }}</span>
                     </label>
                 @endforeach
             </div>
@@ -65,15 +65,15 @@
 
         <!-- Experience -->
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Experience') }}</h3>
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">{{ __('Experience') }}</h3>
             <div class="space-y-2">
                 @foreach($experienceLevels as $key => $label)
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" name="experience[]" value="{{ $key }}" form="{{ $formId }}"
                                @checked(in_array($key, $selectedExpArray))
                                onchange="document.getElementById('{{ $formId }}').submit()"
-                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                               class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ $label }}</span>
                     </label>
                 @endforeach
             </div>
@@ -81,15 +81,15 @@
 
         <!-- Date Posted -->
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Date Posted') }}</h3>
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">{{ __('Date Posted') }}</h3>
             <div class="space-y-2">
                 @foreach($dateRanges as $key => $label)
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" name="date_posted[]" value="{{ $key }}" form="{{ $formId }}"
                                @checked(is_array($selectedDate) && in_array($key, $selectedDate) || $selectedDate === $key)
                                onchange="document.getElementById('{{ $formId }}').submit()"
-                               class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                               class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ $label }}</span>
                     </label>
                 @endforeach
             </div>
@@ -97,22 +97,22 @@
 
         <!-- Employment Type -->
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Job Type') }}</h3>
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">{{ __('Job Type') }}</h3>
             <div class="space-y-2">
                 <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="radio" name="type" value="" form="{{ $formId }}"
                            @checked(!$selectedType)
                            onchange="document.getElementById('{{ $formId }}').submit()"
-                           class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
-                    <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Any Type') }}</span>
+                           class="w-4 h-4 text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer">
+                    <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ __('Any Type') }}</span>
                 </label>
                 @foreach($employmentTypes as $key => $label)
                     <label class="flex items-center gap-3 cursor-pointer group">
                         <input type="radio" name="type" value="{{ $key }}" form="{{ $formId }}"
                                @checked($selectedType === $key)
                                onchange="document.getElementById('{{ $formId }}').submit()"
-                               class="w-4 h-4 text-violet-600 border-gray-300 focus:ring-violet-500 cursor-pointer">
-                        <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ $label }}</span>
+                               class="w-4 h-4 text-primary-600 border-slate-300 focus:ring-primary-500 cursor-pointer">
+                        <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ $label }}</span>
                     </label>
                 @endforeach
             </div>
@@ -120,28 +120,28 @@
 
         <!-- Work Arrangement -->
         <div>
-            <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ __('Work Arrangement') }}</h3>
+            <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3">{{ __('Work Arrangement') }}</h3>
             <div class="space-y-2">
                 <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" name="work_arrangement[]" value="onsite" form="{{ $formId }}"
                            @checked(is_array(request('work_arrangement')) && in_array('onsite', request('work_arrangement')) || request('work_arrangement') === 'onsite')
                            onchange="document.getElementById('{{ $formId }}').submit()"
-                           class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                    <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Office') }}</span>
+                           class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                    <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ __('Work From Office') }}</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" name="work_arrangement[]" value="remote" form="{{ $formId }}"
                            @checked(is_array(request('work_arrangement')) && in_array('remote', request('work_arrangement')) || request('work_arrangement') === 'remote' || request('remote'))
                            onchange="document.getElementById('{{ $formId }}').submit()"
-                           class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                    <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Work From Home') }}</span>
+                           class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                    <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ __('Work From Home') }}</span>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer group">
                     <input type="checkbox" name="work_arrangement[]" value="remote_check" form="{{ $formId }}"
                            @checked(request('remote'))
                            onchange="document.getElementById('{{ $formId }}').submit()"
-                           class="w-4 h-4 text-violet-600 border-gray-300 rounded focus:ring-violet-500 cursor-pointer">
-                    <span class="text-sm text-gray-700 group-hover:text-violet-600">{{ __('Remote') }}</span>
+                           class="w-4 h-4 text-primary-600 border-slate-300 rounded focus:ring-primary-500 cursor-pointer">
+                    <span class="text-sm text-slate-700 dark:text-slate-300 group-hover:text-primary-600">{{ __('Remote') }}</span>
                 </label>
             </div>
         </div>

@@ -43,16 +43,33 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script src="{{ asset('js/sticky-search.js') }}" defer></script>
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-primary-50 dark:bg-primary-500">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
-            </div>
+    <body class="font-sans antialiased">
+        <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 px-4 py-10 dark:bg-slate-950">
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(31,123,255,0.14),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(34,211,238,0.14),transparent_45%)]"></div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-primary-100 shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+            <div class="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+                <div class="grid md:grid-cols-2">
+                    <div class="hidden md:flex flex-col justify-between bg-gradient-to-br from-primary-700 via-primary-600 to-accent-600 p-10 text-white">
+                        <a href="{{ route('beranda') }}" class="inline-flex items-center gap-2 text-xl font-bold tracking-tight">
+                            <span>Cari Loker</span>
+                        </a>
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">{{ __('Karier') }}</p>
+                            <h1 class="mt-3 text-3xl font-bold leading-tight">{{ __('Temukan pekerjaan yang relevan dengan tujuanmu.') }}</h1>
+                            <p class="mt-4 text-sm text-white/85">{{ __('Jelajahi lowongan terbaru, bandingkan perusahaan, dan kirim lamaran lebih cepat.') }}</p>
+                        </div>
+                        <p class="text-sm text-white/70">{{ __('Trusted by job seekers across Indonesia') }}</p>
+                    </div>
+
+                    <div class="px-6 py-8 sm:px-10 sm:py-10">
+                        <div class="mb-6 md:hidden">
+                            <a href="{{ route('beranda') }}" class="inline-flex items-center gap-2 text-lg font-bold text-primary-700 dark:text-primary-300">
+                                <span>Cari Loker</span>
+                            </a>
+                        </div>
+                        {{ $slot }}
+                    </div>
+                </div>
             </div>
         </div>
     </body>
