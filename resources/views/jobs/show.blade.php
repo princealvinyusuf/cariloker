@@ -77,7 +77,7 @@
 
 <x-app-layout>
     @if(($isExpired ?? false))
-        <div id="expired-job-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 px-4">
+        <div id="expired-job-modal" class="fixed inset-0 flex items-center justify-center bg-slate-900/70 px-4" style="z-index: 9999;">
             <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
                 <div class="mb-2 flex items-center gap-2 text-amber-600 dark:text-amber-300">
                     <i class="fa-solid fa-triangle-exclamation"></i>
