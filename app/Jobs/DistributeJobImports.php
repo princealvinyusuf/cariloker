@@ -9,10 +9,12 @@ use App\Models\Location;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Database\QueryException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -30,6 +32,19 @@ class DistributeJobImports implements ShouldQueue
      */
     public int $timeout = 7200;
     public int $tries = 1;
+    private const CHUNK_SIZE = 200;
+
+    /** @var array<string, int> */
+    protected array $companyIdBySlug = [];
+
+    /** @var array<string, int> */
+    protected array $categoryIdBySlug = [];
+
+    /** @var array<string, int> */
+    protected array $locationIdByKey = [];
+
+    /** @var array<string, true> */
+    protected array $seenSourceHashes = [];
 
     public function failed(Throwable $exception): void
     {
@@ -66,28 +81,31 @@ class DistributeJobImports implements ShouldQueue
         $failed = 0;
         $skipped = 0;
         $errors = [];
+        $startedAt = microtime(true);
 
         try {
             DB::table('job_imports')
                 ->orderBy('id')
-                ->chunkById(200, function ($rows) use (&$processed, &$succeeded, &$failed, &$skipped, $total, &$errors) {
-                    foreach ($rows as $row) {
-                        try {
-                            $result = $this->processRow($row);
-                            if ($result === 'skipped') {
-                                $skipped++;
-                            } else {
-                                $succeeded++;
-                            }
-                        } catch (\Throwable $e) {
-                            $failed++;
-                            if (count($errors) < 20) {
-                                $errors[] = $e->getMessage();
-                            }
+                ->chunkById(self::CHUNK_SIZE, function ($rows) use (&$processed, &$succeeded, &$failed, &$skipped, $total, &$errors, $startedAt) {
+                    $chunkStartedAt = microtime(true);
+                    $result = $this->processChunk($rows);
+                    $processed += $result['processed'];
+                    $succeeded += $result['succeeded'];
+                    $failed += $result['failed'];
+                    $skipped += $result['skipped'];
+                    if (!empty($result['errors'])) {
+                        $remaining = max(0, 20 - count($errors));
+                        if ($remaining > 0) {
+                            $errors = array_merge($errors, array_slice($result['errors'], 0, $remaining));
                         }
-
-                        $processed++;
                     }
+
+                    $elapsedSeconds = max(0.001, microtime(true) - $startedAt);
+                    $chunkElapsedSeconds = max(0.001, microtime(true) - $chunkStartedAt);
+                    $rowsPerSecond = round($processed / $elapsedSeconds, 2);
+                    $chunkRowsPerSecond = round($result['processed'] / $chunkElapsedSeconds, 2);
+                    $remainingRows = max(0, $total - $processed);
+                    $etaSeconds = $rowsPerSecond > 0 ? (int) ceil($remainingRows / $rowsPerSecond) : null;
 
                     // Update progress once per chunk to avoid cache write hotspot.
                     Cache::put(self::PROGRESS_KEY, [
@@ -97,10 +115,29 @@ class DistributeJobImports implements ShouldQueue
                         'failed' => $failed,
                         'skipped' => $skipped,
                         'running' => true,
+                        'elapsed_seconds' => (int) floor($elapsedSeconds),
+                        'eta_seconds' => $etaSeconds,
+                        'rows_per_second' => $rowsPerSecond,
+                        'chunk_rows_per_second' => $chunkRowsPerSecond,
                         'errors' => $errors,
                     ], self::PROGRESS_TTL_SECONDS);
+
+                    Log::info('job_imports chunk processed', [
+                        'chunk_size' => $result['processed'],
+                        'processed' => $processed,
+                        'total' => $total,
+                        'succeeded' => $succeeded,
+                        'failed' => $failed,
+                        'skipped' => $skipped,
+                        'rows_per_second' => $rowsPerSecond,
+                        'chunk_rows_per_second' => $chunkRowsPerSecond,
+                        'elapsed_seconds' => (int) floor($elapsedSeconds),
+                        'eta_seconds' => $etaSeconds,
+                    ]);
                 });
         } finally {
+            $elapsedSeconds = max(0.001, microtime(true) - $startedAt);
+            $rowsPerSecond = round($processed / $elapsedSeconds, 2);
             Cache::put(self::PROGRESS_KEY, [
                 'total' => $total,
                 'processed' => $processed,
@@ -108,104 +145,443 @@ class DistributeJobImports implements ShouldQueue
                 'failed' => $failed,
                 'skipped' => $skipped,
                 'running' => false,
+                'elapsed_seconds' => (int) floor($elapsedSeconds),
+                'eta_seconds' => 0,
+                'rows_per_second' => $rowsPerSecond,
+                'chunk_rows_per_second' => null,
                 'errors' => $errors,
             ], self::PROGRESS_TTL_SECONDS);
             Cache::forget(self::LOCK_KEY);
         }
     }
 
-    protected function processRow(object $row): string
+    /**
+     * @param iterable<int, object> $rows
+     * @return array{processed:int,succeeded:int,failed:int,skipped:int,errors:array<int,string>}
+     */
+    protected function processChunk(iterable $rows): array
     {
-        $companyName = trim((string) ($row->nama_perusahaan ?? ''));
-        if ($companyName === '') {
-            return 'skipped';
+        $stats = [
+            'processed' => 0,
+            'succeeded' => 0,
+            'failed' => 0,
+            'skipped' => 0,
+            'errors' => [],
+        ];
+
+        $preparedRows = [];
+        foreach ($rows as $row) {
+            $preparedRows[] = $this->prepareRow($row);
         }
 
-        return DB::transaction(function () use ($row, $companyName) {
-            $companySlug = Str::slug(substr($companyName, 0, 200));
-            if ($companySlug === '') {
-                $companySlug = Str::uuid()->toString();
+        $this->primeCompanies($preparedRows);
+        $this->primeCategories($preparedRows);
+        $this->primeLocations($preparedRows);
+        $existingHashSet = $this->loadExistingSourceHashSet($preparedRows);
+
+        foreach ($preparedRows as $row) {
+            $stats['processed']++;
+
+            if ($row['is_skippable']) {
+                $stats['skipped']++;
+                continue;
             }
 
-            $company = Company::firstOrCreate(
-                ['slug' => $companySlug],
-                [
-                    'name' => $companyName,
-                    'logo_path' => $row->logo ?? null,
+            $sourceHash = $row['source_hash'];
+            if (isset($this->seenSourceHashes[$sourceHash]) || isset($existingHashSet[$sourceHash])) {
+                $stats['skipped']++;
+                continue;
+            }
+
+            try {
+                $result = $this->createJobFromPrepared($row);
+                if ($result === 'succeeded') {
+                    $stats['succeeded']++;
+                    $this->seenSourceHashes[$sourceHash] = true;
+                } else {
+                    $stats['skipped']++;
+                }
+            } catch (Throwable $e) {
+                $stats['failed']++;
+                if (count($stats['errors']) < 20) {
+                    $stats['errors'][] = $e->getMessage();
+                }
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $preparedRows
+     */
+    protected function primeCompanies(array $preparedRows): void
+    {
+        $candidates = [];
+        foreach ($preparedRows as $row) {
+            if ($row['is_skippable']) {
+                continue;
+            }
+            $slug = $row['company_slug'];
+            if (isset($this->companyIdBySlug[$slug])) {
+                continue;
+            }
+            if (!isset($candidates[$slug])) {
+                $candidates[$slug] = [
+                    'slug' => $slug,
+                    'name' => $row['company_name'],
+                    'logo_path' => $row['logo_path'],
                     'website_url' => null,
-                ]
-            );
-
-            $city = trim((string) ($row->kab_kota ?? ''));
-            $state = trim((string) ($row->provinsi ?? ''));
-
-            if ($city === '' && $state === '') {
-                $location = null;
-            } else {
-                if ($city === '' && $state !== '') {
-                    $city = $state;
-                }
-                $location = Location::firstOrCreate(
-                    [
-                        'city' => $city,
-                        'state' => $state ?: null,
-                        'country' => 'ID',
-                    ]
-                );
+                ];
             }
+        }
 
-            $categoryName = trim((string) ($row->bidang_pekerjaan ?? ''));
-            $category = null;
-            if ($categoryName !== '') {
-                $categorySlug = Str::slug(substr($categoryName, 0, 200));
-                if ($categorySlug === '') {
-                    $categorySlug = Str::uuid()->toString();
-                }
-                $category = JobCategory::firstOrCreate(
-                    ['slug' => $categorySlug],
-                    ['name' => $categoryName]
-                );
+        if ($candidates === []) {
+            return;
+        }
+
+        $slugs = array_keys($candidates);
+        $existing = Company::query()->whereIn('slug', $slugs)->pluck('id', 'slug')->all();
+        foreach ($existing as $slug => $id) {
+            $this->companyIdBySlug[$slug] = (int) $id;
+            unset($candidates[$slug]);
+        }
+
+        if ($candidates !== []) {
+            $now = now();
+            $insertRows = [];
+            foreach ($candidates as $row) {
+                $row['created_at'] = $now;
+                $row['updated_at'] = $now;
+                $insertRows[] = $row;
             }
+            DB::table('companies')->insertOrIgnore($insertRows);
 
-            $title = trim((string) ($row->jabatan ?? ''));
-            if ($title === '') {
-                $title = $company->name;
+            $newlyExisting = Company::query()->whereIn('slug', array_keys($candidates))->pluck('id', 'slug')->all();
+            foreach ($newlyExisting as $slug => $id) {
+                $this->companyIdBySlug[$slug] = (int) $id;
             }
+        }
+    }
 
-            $employmentType = $this->mapEmploymentType($row->tipe_pekerjaan ?? null);
-            $workArrangement = $this->mapWorkArrangement($row->kondisi ?? null);
-            $gender = $this->normalizeNullableString($row->jenis_kelamin ?? null);
-            $externalUrl = $this->normalizeNullableString($row->url ?? null);
-            $description = $this->normalizeNullableString($row->deskripsi ?? null);
-            $educationLevel = $this->normalizeNullableString($row->pendidikan ?? null);
-            $sourceHash = $this->buildSourceHash($companyName, $title, $externalUrl, $description, $city ?? null, $state ?? null);
-
-            if (Job::withoutGlobalScope('notExpired')->where('source_hash', $sourceHash)->exists()) {
-                return 'skipped';
+    /**
+     * @param array<int, array<string, mixed>> $preparedRows
+     */
+    protected function primeCategories(array $preparedRows): void
+    {
+        $candidates = [];
+        foreach ($preparedRows as $row) {
+            if ($row['is_skippable'] || $row['category_slug'] === null) {
+                continue;
             }
+            $slug = $row['category_slug'];
+            if (isset($this->categoryIdBySlug[$slug])) {
+                continue;
+            }
+            if (!isset($candidates[$slug])) {
+                $candidates[$slug] = [
+                    'slug' => $slug,
+                    'name' => $row['category_name'],
+                ];
+            }
+        }
 
-            $slug = $this->buildUniqueSlug($title);
+        if ($candidates === []) {
+            return;
+        }
 
+        $slugs = array_keys($candidates);
+        $existing = JobCategory::query()->whereIn('slug', $slugs)->pluck('id', 'slug')->all();
+        foreach ($existing as $slug => $id) {
+            $this->categoryIdBySlug[$slug] = (int) $id;
+            unset($candidates[$slug]);
+        }
+
+        if ($candidates !== []) {
+            $now = now();
+            $insertRows = [];
+            foreach ($candidates as $row) {
+                $row['created_at'] = $now;
+                $row['updated_at'] = $now;
+                $insertRows[] = $row;
+            }
+            DB::table('job_categories')->insertOrIgnore($insertRows);
+
+            $newlyExisting = JobCategory::query()->whereIn('slug', array_keys($candidates))->pluck('id', 'slug')->all();
+            foreach ($newlyExisting as $slug => $id) {
+                $this->categoryIdBySlug[$slug] = (int) $id;
+            }
+        }
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $preparedRows
+     */
+    protected function primeLocations(array $preparedRows): void
+    {
+        $candidates = [];
+        foreach ($preparedRows as $row) {
+            if ($row['is_skippable'] || $row['location'] === null) {
+                continue;
+            }
+            $location = $row['location'];
+            $key = $this->locationKey($location['city'], $location['state'], $location['country']);
+            if (isset($this->locationIdByKey[$key])) {
+                continue;
+            }
+            $candidates[$key] = $location;
+        }
+
+        if ($candidates === []) {
+            return;
+        }
+
+        $tuples = array_values($candidates);
+        foreach (array_chunk($tuples, 100) as $tupleChunk) {
+            $existingChunk = Location::query()
+                ->where(function ($query) use ($tupleChunk) {
+                    foreach ($tupleChunk as $tuple) {
+                        $query->orWhere(function ($sub) use ($tuple) {
+                            $sub->where('city', $tuple['city'])
+                                ->where('country', $tuple['country']);
+                            if ($tuple['state'] === null) {
+                                $sub->whereNull('state');
+                            } else {
+                                $sub->where('state', $tuple['state']);
+                            }
+                        });
+                    }
+                })
+                ->get(['id', 'city', 'state', 'country']);
+
+            foreach ($existingChunk as $location) {
+                $key = $this->locationKey($location->city, $location->state, $location->country);
+                $this->locationIdByKey[$key] = (int) $location->id;
+            }
+        }
+
+        foreach ($candidates as $key => $location) {
+            if (isset($this->locationIdByKey[$key])) {
+                continue;
+            }
+        }
+
+        $toInsert = [];
+        foreach ($candidates as $key => $location) {
+            if (!isset($this->locationIdByKey[$key])) {
+                $toInsert[] = $location;
+            }
+        }
+
+        if ($toInsert !== []) {
+            $now = now();
+            $insertRows = [];
+            foreach ($toInsert as $location) {
+                $insertRows[] = [
+                    'city' => $location['city'],
+                    'state' => $location['state'],
+                    'country' => $location['country'],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            DB::table('locations')->insertOrIgnore($insertRows);
+        }
+
+        // Finalize unresolved keys via batched reload.
+        $unresolved = [];
+        foreach ($candidates as $key => $location) {
+            if (!isset($this->locationIdByKey[$key])) {
+                $unresolved[] = $location;
+            }
+        }
+
+        foreach (array_chunk($unresolved, 100) as $tupleChunk) {
+            $resolvedChunk = Location::query()
+                ->where(function ($query) use ($tupleChunk) {
+                    foreach ($tupleChunk as $tuple) {
+                        $query->orWhere(function ($sub) use ($tuple) {
+                            $sub->where('city', $tuple['city'])
+                                ->where('country', $tuple['country']);
+                            if ($tuple['state'] === null) {
+                                $sub->whereNull('state');
+                            } else {
+                                $sub->where('state', $tuple['state']);
+                            }
+                        });
+                    }
+                })
+                ->get(['id', 'city', 'state', 'country']);
+
+            foreach ($resolvedChunk as $location) {
+                $key = $this->locationKey($location->city, $location->state, $location->country);
+                $this->locationIdByKey[$key] = (int) $location->id;
+            }
+        }
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $preparedRows
+     * @return array<string, true>
+     */
+    protected function loadExistingSourceHashSet(array $preparedRows): array
+    {
+        $hashes = [];
+        foreach ($preparedRows as $row) {
+            if ($row['is_skippable']) {
+                continue;
+            }
+            $hash = $row['source_hash'];
+            if (!isset($this->seenSourceHashes[$hash])) {
+                $hashes[$hash] = true;
+            }
+        }
+
+        if ($hashes === []) {
+            return [];
+        }
+
+        $existingHashes = Job::withoutGlobalScope('notExpired')
+            ->whereIn('source_hash', array_keys($hashes))
+            ->pluck('source_hash')
+            ->all();
+
+        return array_fill_keys($existingHashes, true);
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    protected function createJobFromPrepared(array $row): string
+    {
+        $companyId = $this->companyIdBySlug[$row['company_slug']] ?? null;
+        if ($companyId === null) {
+            throw new \RuntimeException('Company mapping missing for slug: ' . $row['company_slug']);
+        }
+
+        $categoryId = null;
+        if ($row['category_slug'] !== null) {
+            $categoryId = $this->categoryIdBySlug[$row['category_slug']] ?? null;
+        }
+
+        $locationId = null;
+        if ($row['location'] !== null) {
+            $location = $row['location'];
+            $locationKey = $this->locationKey($location['city'], $location['state'], $location['country']);
+            $locationId = $this->locationIdByKey[$locationKey] ?? null;
+        }
+
+        $baseSlug = $this->buildDeterministicSlug($row['title'], $row['source_hash']);
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $slug = $attempt === 0 ? $baseSlug : $baseSlug . '-' . ($attempt + 1);
             $jobData = [
-                'company_id' => $company->id,
-                'category_id' => $category?->id,
-                'location_id' => $location?->id,
-                'title' => $title,
+                'company_id' => $companyId,
+                'category_id' => $categoryId,
+                'location_id' => $locationId,
+                'title' => $row['title'],
                 'slug' => $slug,
-                'source_hash' => $sourceHash,
-                'description' => $description,
-                'employment_type' => $employmentType,
-                'external_url' => $externalUrl,
-                'gender' => $gender,
-                'work_arrangement' => $workArrangement,
-                'education_level' => $educationLevel,
+                'source_hash' => $row['source_hash'],
+                'description' => $row['description'],
+                'employment_type' => $row['employment_type'],
+                'external_url' => $row['external_url'],
+                'gender' => $row['gender'],
+                'work_arrangement' => $row['work_arrangement'],
+                'education_level' => $row['education_level'],
                 'status' => 'published',
             ];
 
-            Job::create($jobData);
+            try {
+                Job::create($jobData);
+                return 'succeeded';
+            } catch (QueryException $e) {
+                if (!$this->isDuplicateConstraintViolation($e)) {
+                    throw $e;
+                }
+                if (Job::withoutGlobalScope('notExpired')->where('source_hash', $row['source_hash'])->exists()) {
+                    return 'skipped';
+                }
+            }
+        }
 
-            return 'succeeded';
-        }, 3);
+        throw new \RuntimeException('Unable to generate unique slug for source hash: ' . $row['source_hash']);
+    }
+
+    protected function isDuplicateConstraintViolation(QueryException $e): bool
+    {
+        $sqlState = (string) ($e->errorInfo[0] ?? '');
+        return $sqlState === '23000' || $sqlState === '23505';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function prepareRow(object $row): array
+    {
+        $companyName = trim((string) ($row->nama_perusahaan ?? ''));
+        if ($companyName === '') {
+            return ['is_skippable' => true];
+        }
+
+        $companySlug = Str::slug(substr($companyName, 0, 200));
+        if ($companySlug === '') {
+            $companySlug = Str::uuid()->toString();
+        }
+
+        $city = trim((string) ($row->kab_kota ?? ''));
+        $state = trim((string) ($row->provinsi ?? ''));
+        if ($city === '' && $state !== '') {
+            $city = $state;
+        }
+        $location = null;
+        if ($city !== '' || $state !== '') {
+            $location = [
+                'city' => $city,
+                'state' => $state !== '' ? $state : null,
+                'country' => 'ID',
+            ];
+        }
+
+        $categoryName = trim((string) ($row->bidang_pekerjaan ?? ''));
+        $categorySlug = null;
+        if ($categoryName !== '') {
+            $categorySlug = Str::slug(substr($categoryName, 0, 200));
+            if ($categorySlug === '') {
+                $categorySlug = Str::uuid()->toString();
+            }
+        }
+
+        $title = trim((string) ($row->jabatan ?? ''));
+        if ($title === '') {
+            $title = $companyName;
+        }
+
+        $externalUrl = $this->normalizeNullableString($row->url ?? null);
+        $description = $this->normalizeNullableString($row->deskripsi ?? null);
+
+        return [
+            'is_skippable' => false,
+            'company_name' => $companyName,
+            'company_slug' => $companySlug,
+            'logo_path' => $row->logo ?? null,
+            'location' => $location,
+            'category_name' => $categoryName !== '' ? $categoryName : null,
+            'category_slug' => $categorySlug,
+            'title' => $title,
+            'employment_type' => $this->mapEmploymentType($row->tipe_pekerjaan ?? null),
+            'work_arrangement' => $this->mapWorkArrangement($row->kondisi ?? null),
+            'gender' => $this->normalizeNullableString($row->jenis_kelamin ?? null),
+            'external_url' => $externalUrl,
+            'description' => $description,
+            'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
+            'source_hash' => $this->buildSourceHash(
+                $companyName,
+                $title,
+                $externalUrl,
+                $description,
+                $location['city'] ?? null,
+                $location['state'] ?? null
+            ),
+        ];
     }
 
     protected function mapEmploymentType(?string $type): string
@@ -253,20 +629,14 @@ class DistributeJobImports implements ShouldQueue
         return null;
     }
 
-    protected function buildUniqueSlug(string $title): string
+    protected function buildDeterministicSlug(string $title, string $sourceHash): string
     {
-        $slugBase = Str::slug(substr($title, 0, 200));
+        $slugBase = Str::slug(substr($title, 0, 180));
         if ($slugBase === '') {
-            return Str::uuid()->toString();
+            $slugBase = 'job';
         }
 
-        $slug = $slugBase;
-        $suffix = 1;
-        while (Job::withoutGlobalScope('notExpired')->where('slug', $slug)->exists()) {
-            $slug = $slugBase . '-' . $suffix++;
-        }
-
-        return $slug;
+        return $slugBase . '-' . substr($sourceHash, 0, 12);
     }
 
     protected function buildSourceHash(
@@ -293,6 +663,11 @@ class DistributeJobImports implements ShouldQueue
     {
         $value = trim((string) $value);
         return $value === '' ? null : $value;
+    }
+
+    protected function locationKey(string $city, ?string $state, string $country): string
+    {
+        return Str::lower($city) . '|' . Str::lower((string) $state) . '|' . Str::lower($country);
     }
 }
 

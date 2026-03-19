@@ -55,6 +55,12 @@
                             • {{ __('Failed') }}: <span id="failed-count">{{ $progress['failed'] ?? 0 }}</span>
                             • {{ __('Skipped') }}: <span id="skipped-count">{{ $progress['skipped'] ?? 0 }}</span>
                         </p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                            {{ __('Rows/s') }}: <span id="rows-per-second">{{ $progress['rows_per_second'] ?? 0 }}</span>
+                            • {{ __('Chunk Rows/s') }}: <span id="chunk-rows-per-second">{{ $progress['chunk_rows_per_second'] ?? 0 }}</span>
+                            • {{ __('Elapsed') }}: <span id="elapsed-seconds">{{ $progress['elapsed_seconds'] ?? 0 }}</span>s
+                            • {{ __('ETA') }}: <span id="eta-seconds">{{ $progress['eta_seconds'] ?? '-' }}</span>
+                        </p>
                         <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
                             @php
                                 $total = max((int) ($progress['total'] ?? 0), 1);
@@ -90,6 +96,10 @@
             const succeededCount = document.getElementById('succeeded-count');
             const failedCount = document.getElementById('failed-count');
             const skippedCount = document.getElementById('skipped-count');
+            const rowsPerSecond = document.getElementById('rows-per-second');
+            const chunkRowsPerSecond = document.getElementById('chunk-rows-per-second');
+            const elapsedSeconds = document.getElementById('elapsed-seconds');
+            const etaSeconds = document.getElementById('eta-seconds');
             const progressBar = document.getElementById('progress-bar');
             const errorsContainer = document.getElementById('errors-container');
 
@@ -103,12 +113,20 @@
                 const succeeded = data.succeeded ?? 0;
                 const failed = data.failed ?? 0;
                 const skipped = data.skipped ?? 0;
+                const rps = data.rows_per_second ?? 0;
+                const chunkRps = data.chunk_rows_per_second ?? 0;
+                const elapsed = data.elapsed_seconds ?? 0;
+                const eta = data.eta_seconds;
 
                 totalRowsEl.textContent = total;
                 progressText.textContent = processed + ' / ' + total;
                 succeededCount.textContent = succeeded;
                 failedCount.textContent = failed;
                 skippedCount.textContent = skipped;
+                rowsPerSecond.textContent = rps;
+                chunkRowsPerSecond.textContent = chunkRps;
+                elapsedSeconds.textContent = elapsed;
+                etaSeconds.textContent = eta === null ? '-' : eta + 's';
 
                 const denom = total > 0 ? total : 1;
                 const percentage = Math.min(100, Math.floor((processed / denom) * 100));
@@ -183,6 +201,10 @@
                                 succeeded: data.succeeded ?? 0,
                                 failed: data.failed ?? 0,
                                 skipped: data.skipped ?? 0,
+                                rows_per_second: data.rows_per_second ?? 0,
+                                chunk_rows_per_second: data.chunk_rows_per_second ?? 0,
+                                elapsed_seconds: data.elapsed_seconds ?? 0,
+                                eta_seconds: data.eta_seconds ?? null,
                                 running: false,
                                 errors: [data.message || 'Failed to start distribution.'],
                             });
@@ -201,6 +223,10 @@
                             succeeded: 0,
                             failed: 1,
                             skipped: 0,
+                            rows_per_second: 0,
+                            chunk_rows_per_second: 0,
+                            elapsed_seconds: 0,
+                            eta_seconds: null,
                             running: false,
                             errors: ['Unexpected error starting distribution.'],
                         });

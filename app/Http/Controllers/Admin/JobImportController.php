@@ -35,6 +35,10 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => false,
+            'elapsed_seconds' => 0,
+            'eta_seconds' => null,
+            'rows_per_second' => 0,
+            'chunk_rows_per_second' => 0,
             'errors' => [],
         ]);
 
@@ -59,6 +63,10 @@ class JobImportController extends Controller
                 'failed' => 0,
                 'skipped' => 0,
                 'running' => false,
+                'elapsed_seconds' => 0,
+                'eta_seconds' => null,
+                'rows_per_second' => 0,
+                'chunk_rows_per_second' => 0,
                 'errors' => ['No data found in job_imports staging table.'],
             ], 21600);
 
@@ -82,6 +90,10 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => true,
+            'elapsed_seconds' => 0,
+            'eta_seconds' => null,
+            'rows_per_second' => 0,
+            'chunk_rows_per_second' => 0,
             'errors' => [],
         ], 21600);
 
@@ -95,6 +107,10 @@ class JobImportController extends Controller
                 'failed' => 1,
                 'skipped' => 0,
                 'running' => false,
+                'elapsed_seconds' => 0,
+                'eta_seconds' => null,
+                'rows_per_second' => 0,
+                'chunk_rows_per_second' => 0,
                 'errors' => ['Failed to dispatch import job: ' . $e->getMessage()],
             ], 21600);
             Cache::forget(DistributeJobImports::LOCK_KEY);
@@ -123,6 +139,10 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => false,
+            'elapsed_seconds' => 0,
+            'eta_seconds' => null,
+            'rows_per_second' => 0,
+            'chunk_rows_per_second' => 0,
             'errors' => [],
         ]);
 
