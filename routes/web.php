@@ -72,6 +72,9 @@ Route::get('/lowongan/kategori/{category:slug}', [JobController::class, 'byCateg
 Route::get('/lowongan/lokasi/{locationSlug}', [JobController::class, 'byLocation'])
     ->middleware(['throttle:job-listing'])
     ->name('jobs.by-location');
+Route::get('/lowongan/kategori/{category:slug}/lokasi/{locationSlug}', [JobController::class, 'byCategoryAndLocation'])
+    ->middleware(['throttle:job-listing'])
+    ->name('jobs.by-category-location');
 
 Route::resource('jobs', JobController::class)->except(['index']);
 
@@ -132,6 +135,38 @@ Route::get('/sitemap.xml', function () {
             'lastmod' => optional($location->updated_at ?? $location->created_at)->toAtomString(),
         ]);
 
+    $categoryLocationUrls = \App\Models\JobCategory::query()
+        ->withCount(['jobs' => fn ($q) => $q->where('status', 'published')])
+        ->having('jobs_count', '>', 0)
+        ->orderByDesc('jobs_count')
+        ->limit(8)
+        ->get()
+        ->flatMap(function ($category) {
+            $locations = \App\Models\Location::query()
+                ->whereNotNull('city')
+                ->whereHas('jobs', function ($q) use ($category) {
+                    $q->where('status', 'published')
+                        ->where('category_id', $category->id);
+                })
+                ->withCount(['jobs' => function ($q) use ($category) {
+                    $q->where('status', 'published')
+                        ->where('category_id', $category->id);
+                }])
+                ->orderByDesc('jobs_count')
+                ->limit(8)
+                ->get();
+
+            return $locations->map(fn ($location) => [
+                'loc' => route('jobs.by-category-location', [
+                    'category' => $category,
+                    'locationSlug' => \Illuminate\Support\Str::slug((string) $location->city),
+                ]),
+                'lastmod' => optional($location->updated_at ?? $location->created_at)->toAtomString(),
+            ]);
+        })
+        ->take(120)
+        ->values();
+
     $blogUrls = BlogPost::query()
         ->where('status', 'published')
         ->whereNotNull('published_at')
@@ -148,6 +183,7 @@ Route::get('/sitemap.xml', function () {
         ->merge($companyUrls)
         ->merge($categoryUrls)
         ->merge($locationUrls)
+        ->merge($categoryLocationUrls)
         ->merge($blogUrls)
         ->values();
 

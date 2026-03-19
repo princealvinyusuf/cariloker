@@ -23,6 +23,7 @@
 
             $metaTitle = trim($__env->yieldContent('meta_title')) ?: $computedTitle;
             $metaDescription = trim($__env->yieldContent('meta_description')) ?: $baseMetaDescription;
+            $metaKeywords = trim($__env->yieldContent('meta_keywords')) ?: 'lowongan kerja, cari loker, job portal indonesia, peluang karier';
             $canonicalUrl = trim($__env->yieldContent('canonical_url')) ?: url()->current();
             $ogImage = trim($__env->yieldContent('og_image')) ?: asset('image/cariloker.png');
             $ogType = trim($__env->yieldContent('og_type')) ?: 'website';
@@ -58,6 +59,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="google-adsense-account" content="ca-pub-6811930762522149">
         <meta name="description" content="{{ $metaDescription }}">
+        <meta name="keywords" content="{{ $metaKeywords }}">
         <meta name="robots" content="{{ $metaRobots }}">
         <meta name="author" content="Cari Loker">
         <meta name="language" content="{{ app()->getLocale() === 'id' ? 'Indonesian' : 'English' }}">
@@ -80,6 +82,7 @@
         <title>{{ $metaTitle }}</title>
 
         <script type="application/ld+json">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        @yield('head_tags')
         @yield('structured_data')
 
         <!-- Google tag (gtag.js) -->

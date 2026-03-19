@@ -118,10 +118,76 @@ class JobController extends Controller
     }
 
     /**
+     * SEO landing page for category + city combination.
+     */
+    public function byCategoryAndLocation(Request $request, JobCategory $category, string $locationSlug)
+    {
+        $locations = Location::query()
+            ->whereNotNull('city')
+            ->select('city')
+            ->distinct()
+            ->get();
+
+        $matchedCity = $locations
+            ->first(fn ($location) => str($location->city)->slug() === $locationSlug)
+            ?->city;
+
+        abort_unless($matchedCity, 404);
+
+        $request->merge([
+            'category' => $category->slug,
+            'location' => $matchedCity,
+        ]);
+
+        return $this->renderListingPage(
+            $request,
+            [
+                'metaTitle' => sprintf('Lowongan Kerja %s di %s - Cari Loker', $category->name, $matchedCity),
+                'metaDescription' => sprintf('Temukan lowongan kerja %s terbaru di %s dari perusahaan terbaik dan posisi paling relevan.', $category->name, $matchedCity),
+                'pageHeading' => sprintf('Lowongan %s di %s', $category->name, $matchedCity),
+                'pageSubheading' => sprintf('Kumpulan peluang kerja %s terbaru khusus area %s.', $category->name, $matchedCity),
+                'seoContentTitle' => sprintf('Peluang Karier %s di %s', $category->name, $matchedCity),
+                'seoContentBody' => sprintf(
+                    'Halaman ini menampilkan lowongan %s aktif di %s. Gunakan filter tambahan untuk menyeleksi posisi berdasarkan pengalaman, tipe kerja, dan rentang gaji.',
+                    $category->name,
+                    $matchedCity
+                ),
+                'seoFaqs' => [
+                    [
+                        'question' => sprintf('Bagaimana cara melamar lowongan %s di %s?', $category->name, $matchedCity),
+                        'answer' => 'Pilih posisi yang sesuai, cek persyaratan, lalu lanjutkan proses aplikasi pada detail lowongan.',
+                    ],
+                    [
+                        'question' => sprintf('Apakah tersedia lowongan remote untuk %s di %s?', $category->name, $matchedCity),
+                        'answer' => 'Gunakan filter work arrangement untuk memilih opsi remote, hybrid, atau onsite sesuai preferensi.',
+                    ],
+                ],
+                'breadcrumbItems' => [
+                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Jobs', 'url' => route('jobs.index')],
+                    ['name' => $category->name, 'url' => route('jobs.by-category', $category)],
+                    ['name' => $matchedCity, 'url' => route('jobs.by-category-location', ['category' => $category, 'locationSlug' => $locationSlug])],
+                ],
+            ]
+        );
+    }
+
+    /**
      * Shared listing renderer for jobs index and SEO landing pages.
      */
     private function renderListingPage(Request $request, array $seoOverrides = [])
     {
+        $queryCategory = trim((string) $request->input('category'));
+        $queryLocation = trim((string) $request->input('location'));
+        $queryKeyword = trim((string) $request->input('q'));
+
+        $resolvedCategoryName = null;
+        if ($queryCategory !== '') {
+            $resolvedCategoryName = JobCategory::query()
+                ->where('slug', $queryCategory)
+                ->value('name');
+        }
+
         $query = Job::query()
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
@@ -269,14 +335,49 @@ class JobController extends Controller
                 ->get();
         });
 
+        $searchCombos = collect();
+        $comboCategories = $categories->take(4);
+        $comboLocations = $popularLocations->take(4);
+        foreach ($comboCategories as $categoryItem) {
+            foreach ($comboLocations as $locationItem) {
+                $searchCombos->push([
+                    'label' => sprintf('Lowongan %s di %s', $categoryItem->name, $locationItem->city),
+                    'url' => route('jobs.by-category-location', [
+                        'category' => $categoryItem,
+                        'locationSlug' => str((string) $locationItem->city)->slug(),
+                    ]),
+                ]);
+                if ($searchCombos->count() >= 12) {
+                    break 2;
+                }
+            }
+        }
+
+        $derivedMetaTitle = 'Lowongan Kerja Terbaru - Cari Loker';
+        $derivedMetaDescription = 'Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.';
+        if ($queryKeyword !== '' && $queryLocation !== '') {
+            $derivedMetaTitle = sprintf('Lowongan %s di %s Terbaru - Cari Loker', $queryKeyword, $queryLocation);
+            $derivedMetaDescription = sprintf('Temukan lowongan %s terbaru di %s. Filter posisi, gaji, dan pengalaman sesuai profilmu.', $queryKeyword, $queryLocation);
+        } elseif ($queryKeyword !== '') {
+            $derivedMetaTitle = sprintf('Lowongan %s Terbaru - Cari Loker', $queryKeyword);
+            $derivedMetaDescription = sprintf('Cari lowongan %s terbaru dari berbagai perusahaan terverifikasi di Indonesia.', $queryKeyword);
+        } elseif ($queryLocation !== '') {
+            $derivedMetaTitle = sprintf('Lowongan Kerja di %s Terbaru - Cari Loker', $queryLocation);
+            $derivedMetaDescription = sprintf('Jelajahi lowongan kerja terbaru di %s dengan filter gaji, pengalaman, dan tipe pekerjaan.', $queryLocation);
+        } elseif ($resolvedCategoryName) {
+            $derivedMetaTitle = sprintf('Lowongan Kerja %s Terbaru - Cari Loker', $resolvedCategoryName);
+            $derivedMetaDescription = sprintf('Temukan lowongan kerja %s terbaru dari perusahaan aktif di Indonesia.', $resolvedCategoryName);
+        }
+
         return view('jobs.index', [
             'jobs' => $jobs,
             'categories' => $categories,
             'popularCompanies' => $popularCompanies,
             'educationLevels' => $educationLevels,
             'popularLocations' => $popularLocations,
-            'seoMetaTitle' => $seoOverrides['metaTitle'] ?? null,
-            'seoMetaDescription' => $seoOverrides['metaDescription'] ?? null,
+            'seoSearchCombos' => $searchCombos,
+            'seoMetaTitle' => $seoOverrides['metaTitle'] ?? $derivedMetaTitle,
+            'seoMetaDescription' => $seoOverrides['metaDescription'] ?? $derivedMetaDescription,
             'pageHeading' => $seoOverrides['pageHeading'] ?? null,
             'pageSubheading' => $seoOverrides['pageSubheading'] ?? null,
             'breadcrumbItems' => $seoOverrides['breadcrumbItems'] ?? null,
