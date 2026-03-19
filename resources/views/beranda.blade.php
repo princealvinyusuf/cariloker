@@ -34,7 +34,9 @@
     $formatIdr = fn($n) => 'Rp ' . number_format((int)$n, 0, ',', '.');
 @endphp
 
+@section('meta_title', __('Cari Loker - Portal Lowongan Kerja Terbaru di Indonesia'))
 @section('meta_description', __('beranda.meta'))
+@section('og_type', 'website')
 
 <x-app-layout>
     <section class="relative overflow-hidden border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">

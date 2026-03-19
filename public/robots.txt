@@ -1,2 +1,20 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /about/edit
+Disallow: /faq/edit
+Disallow: /cookie-policy/edit
+Disallow: /terms-of-service/edit
+Disallow: /privacy-policy/edit
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /confirm-password
+Disallow: /verify-email
+Disallow: /locale/
+
+Allow: /
+
+Sitemap: /sitemap.xml

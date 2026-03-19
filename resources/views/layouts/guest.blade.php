@@ -1,14 +1,33 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        @php
+            $metaTitle = trim($__env->yieldContent('meta_title')) ?: 'Masuk - Cari Loker';
+            $metaDescription = trim($__env->yieldContent('meta_description')) ?: 'Masuk ke Cari Loker untuk melamar pekerjaan dan mengelola akun Anda.';
+            $canonicalUrl = trim($__env->yieldContent('canonical_url')) ?: url()->current();
+            $ogImage = trim($__env->yieldContent('og_image')) ?: asset('image/cariloker.png');
+        @endphp
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="google-adsense-account" content="ca-pub-6811930762522149">
-        <meta name="description" content="@yield('meta_description', 'Cari Loker - Temukan peluang kerja terbaik dan wujudkan impian karier Anda. Update info lowongan terbaru dengan cepat, mudah, dan terpercaya.')">
+        <meta name="description" content="{{ $metaDescription }}">
+        <meta name="robots" content="noindex,nofollow">
+        <link rel="canonical" href="{{ $canonicalUrl }}">
 
-        <title>Cari Loker: Temukan Impianmu</title>
+        <meta property="og:site_name" content="Cari Loker">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{ $metaTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        <meta property="og:image" content="{{ $ogImage }}">
 
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $metaTitle }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
+        <meta name="twitter:image" content="{{ $ogImage }}">
+
+        <title>{{ $metaTitle }}</title>
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CC928GJ6D0"></script>
         <script>

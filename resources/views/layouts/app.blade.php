@@ -1,13 +1,86 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        @php
+            $routeName = \Illuminate\Support\Facades\Route::currentRouteName();
+            $baseMetaDescription = 'Cari Loker - Temukan peluang kerja terbaik dan wujudkan impian karier Anda. Update info lowongan terbaru dengan cepat, mudah, dan terpercaya.';
+
+            $computedTitle = match ($routeName) {
+                'beranda' => 'Cari Loker - Portal Lowongan Kerja Terbaru di Indonesia',
+                'jobs.index' => 'Lowongan Kerja Terbaru - Cari Loker',
+                'jobs.show' => isset($job) ? ($job->title . ' - ' . ($job->company->name ?? 'Cari Loker')) : 'Detail Lowongan Kerja - Cari Loker',
+                'companies.index' => 'Daftar Perusahaan Terbaik - Cari Loker',
+                'companies.show' => isset($company) ? ($company->name . ' - Profil Perusahaan') : 'Profil Perusahaan - Cari Loker',
+                'blog.index' => 'Blog Karier & Tips Kerja - Cari Loker',
+                'blog.show' => isset($blogPost) ? ($blogPost->title . ' - Blog Cari Loker') : 'Artikel Karier - Cari Loker',
+                'about' => 'Tentang Kami - Cari Loker',
+                'faq' => 'FAQ - Cari Loker',
+                'terms-of-service' => 'Syarat & Ketentuan - Cari Loker',
+                'privacy-policy' => 'Kebijakan Privasi - Cari Loker',
+                'cookie-policy' => 'Kebijakan Cookie - Cari Loker',
+                default => config('app.name', 'Cari Loker'),
+            };
+
+            $metaTitle = trim($__env->yieldContent('meta_title')) ?: $computedTitle;
+            $metaDescription = trim($__env->yieldContent('meta_description')) ?: $baseMetaDescription;
+            $canonicalUrl = trim($__env->yieldContent('canonical_url')) ?: url()->current();
+            $ogImage = trim($__env->yieldContent('og_image')) ?: asset('image/cariloker.png');
+            $ogType = trim($__env->yieldContent('og_type')) ?: 'website';
+
+            $queryWithoutPage = request()->except(['page']);
+            $isFilteredDirectoryPage = in_array($routeName, ['jobs.index', 'companies.index'], true) && !empty($queryWithoutPage);
+            $isPaginatedPage = request()->integer('page', 1) > 1;
+
+            if ($isFilteredDirectoryPage) {
+                $canonicalUrl = in_array($routeName, ['jobs.index', 'companies.index'], true)
+                    ? route($routeName)
+                    : $canonicalUrl;
+            }
+
+            $defaultRobots = 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1';
+            $metaRobots = trim($__env->yieldContent('meta_robots')) ?: (($isFilteredDirectoryPage || $isPaginatedPage) ? 'noindex,follow' : $defaultRobots);
+
+            $websiteJsonLd = [
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => 'Cari Loker',
+                'url' => rtrim(config('app.url'), '/'),
+                'inLanguage' => app()->getLocale() === 'id' ? 'id-ID' : 'en-US',
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => route('jobs.index') . '?q={search_term_string}',
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ];
+        @endphp
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="google-adsense-account" content="ca-pub-6811930762522149">
-        <meta name="description" content="@yield('meta_description', 'Cari Loker - Temukan peluang kerja terbaik dan wujudkan impian karier Anda. Update info lowongan terbaru dengan cepat, mudah, dan terpercaya.')">
+        <meta name="description" content="{{ $metaDescription }}">
+        <meta name="robots" content="{{ $metaRobots }}">
+        <meta name="author" content="Cari Loker">
+        <meta name="language" content="{{ app()->getLocale() === 'id' ? 'Indonesian' : 'English' }}">
 
-        <title>Cari Loker: Temukan Impianmu</title>
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+
+        <meta property="og:site_name" content="Cari Loker">
+        <meta property="og:locale" content="{{ app()->getLocale() === 'id' ? 'id_ID' : 'en_US' }}">
+        <meta property="og:type" content="{{ $ogType }}">
+        <meta property="og:title" content="{{ $metaTitle }}">
+        <meta property="og:description" content="{{ $metaDescription }}">
+        <meta property="og:url" content="{{ $canonicalUrl }}">
+        <meta property="og:image" content="{{ $ogImage }}">
+
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $metaTitle }}">
+        <meta name="twitter:description" content="{{ $metaDescription }}">
+        <meta name="twitter:image" content="{{ $ogImage }}">
+
+        <title>{{ $metaTitle }}</title>
+
+        <script type="application/ld+json">{!! json_encode($websiteJsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+        @yield('structured_data')
 
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CC928GJ6D0"></script>

@@ -1,3 +1,7 @@
+@section('meta_title', __('Lowongan Kedaluwarsa - Cari Loker'))
+@section('meta_description', __('Lowongan ini sudah tidak aktif. Temukan lowongan terbaru lainnya di Cari Loker.'))
+@section('meta_robots', 'noindex,follow')
+
 <x-app-layout>
     <div class="max-w-5xl mx-auto px-4 py-16 text-center">
         <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-rose-50 text-rose-600 shadow ring-1 ring-rose-100">

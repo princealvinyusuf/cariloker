@@ -1,3 +1,30 @@
+@section('meta_title', $company->name . ' - ' . __('Profil Perusahaan') . ' - Cari Loker')
+@section('meta_description', str(strip_tags((string) $company->description))->limit(155, ''))
+@section('og_type', 'website')
+@if($company->logo_path)
+    @section('og_image', url(Storage::url($company->logo_path)))
+@endif
+@section('structured_data')
+    @php
+        $companySchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Organization',
+            'name' => $company->name,
+            'url' => route('companies.show', $company),
+            'logo' => $company->logo_path ? url(Storage::url($company->logo_path)) : null,
+            'description' => strip_tags((string) $company->description),
+            'sameAs' => $company->website_url ? [$company->website_url] : [],
+            'address' => [
+                '@type' => 'PostalAddress',
+                'addressLocality' => $company->location?->city,
+                'addressRegion' => $company->location?->state,
+                'addressCountry' => $company->location?->country ?: 'ID',
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($companySchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endsection
+
 <x-app-layout>
     <div class="bg-primary-dark text-white py-10">
         <div class="max-w-5xl mx-auto px-4">

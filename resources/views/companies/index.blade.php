@@ -1,3 +1,7 @@
+@section('meta_title', __('Daftar Perusahaan Terbaik - Cari Loker'))
+@section('meta_description', __('Jelajahi profil perusahaan terbaik dan temukan lowongan kerja dari employer terpercaya di seluruh Indonesia.'))
+@section('og_type', 'website')
+
 <x-app-layout>
     <section class="border-b border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-950">
         <div class="section-container">

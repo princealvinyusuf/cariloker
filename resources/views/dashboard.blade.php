@@ -1,3 +1,6 @@
+@section('meta_title', __('Dashboard - Cari Loker'))
+@section('meta_robots', 'noindex,nofollow')
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-slate-900 dark:text-white">

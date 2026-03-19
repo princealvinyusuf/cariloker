@@ -13,6 +13,9 @@ use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SavedJobController;
 use App\Http\Controllers\TermsOfServiceController;
+use App\Models\BlogPost;
+use App\Models\Company;
+use App\Models\Job;
 use Illuminate\Support\Facades\Route;
 
 // Bind job route parameter without the notExpired global scope to allow expired detail page
@@ -62,6 +65,61 @@ Route::get('/jobs', [JobController::class, 'index'])
 Route::resource('jobs', JobController::class)->except(['index']);
 
 Route::get('/hello', fn() => 'world');
+
+Route::get('/sitemap.xml', function () {
+    $staticUrls = collect([
+        route('beranda'),
+        route('jobs.index'),
+        route('companies.index'),
+        route('categories.index'),
+        route('blog.index'),
+        route('about'),
+        route('faq'),
+        route('privacy-policy'),
+        route('terms-of-service'),
+        route('cookie-policy'),
+    ])->map(fn ($url) => ['loc' => $url, 'lastmod' => now()->toAtomString()]);
+
+    $jobUrls = Job::query()
+        ->where('status', 'published')
+        ->latest('updated_at')
+        ->limit(5000)
+        ->get()
+        ->map(fn ($job) => [
+            'loc' => route('jobs.show', $job),
+            'lastmod' => optional($job->updated_at ?? $job->created_at)->toAtomString(),
+        ]);
+
+    $companyUrls = Company::query()
+        ->latest('updated_at')
+        ->limit(2000)
+        ->get()
+        ->map(fn ($company) => [
+            'loc' => route('companies.show', $company),
+            'lastmod' => optional($company->updated_at ?? $company->created_at)->toAtomString(),
+        ]);
+
+    $blogUrls = BlogPost::query()
+        ->where('status', 'published')
+        ->whereNotNull('published_at')
+        ->latest('published_at')
+        ->limit(3000)
+        ->get()
+        ->map(fn ($post) => [
+            'loc' => route('blog.show', $post),
+            'lastmod' => optional($post->updated_at ?? $post->published_at)->toAtomString(),
+        ]);
+
+    $urls = $staticUrls
+        ->merge($jobUrls)
+        ->merge($companyUrls)
+        ->merge($blogUrls)
+        ->values();
+
+    return response()
+        ->view('sitemap.xml', ['urls' => $urls])
+        ->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('sitemap');
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/about/edit', [AboutController::class, 'edit'])->middleware('auth')->name('about.edit');

@@ -1,4 +1,6 @@
+@section('meta_title', __('Blog Karier & Tips Kerja - Cari Loker'))
 @section('meta_description', __('blog.meta_description'))
+@section('og_type', 'website')
 <x-app-layout>
     <div class="bg-white py-12 dark:bg-slate-950">
         <div class="section-container">

@@ -1,3 +1,54 @@
+@section('meta_title', $job->title . ' - ' . ($job->company->name ?? 'Cari Loker'))
+@section('meta_description', str(strip_tags($job->description))->limit(155, ''))
+@section('og_type', 'article')
+@if($job->company?->logo_path)
+    @section('og_image', url(Storage::url($job->company->logo_path)))
+@endif
+@section('structured_data')
+    @php
+        $jobSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'JobPosting',
+            'title' => $job->title,
+            'description' => strip_tags((string) $job->description),
+            'datePosted' => optional($job->posted_at ?? $job->created_at)->toAtomString(),
+            'validThrough' => optional($job->valid_until)->toAtomString(),
+            'employmentType' => str((string) $job->employment_type)->replace('_', ' ')->upper()->toString(),
+            'hiringOrganization' => [
+                '@type' => 'Organization',
+                'name' => $job->company?->name,
+                'sameAs' => $job->company?->website_url,
+                'logo' => $job->company?->logo_path ? url(Storage::url($job->company->logo_path)) : null,
+            ],
+            'jobLocation' => [
+                '@type' => 'Place',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'addressLocality' => $job->location?->city,
+                    'addressRegion' => $job->location?->state,
+                    'addressCountry' => $job->location?->country ?: 'ID',
+                ],
+            ],
+            'directApply' => (bool) $job->external_url,
+            'url' => route('jobs.show', $job),
+        ];
+
+        if ($job->salary_min) {
+            $jobSchema['baseSalary'] = [
+                '@type' => 'MonetaryAmount',
+                'currency' => $job->salary_currency ?: 'IDR',
+                'value' => [
+                    '@type' => 'QuantitativeValue',
+                    'minValue' => (float) $job->salary_min,
+                    'maxValue' => (float) ($job->salary_max ?: $job->salary_min),
+                    'unitText' => 'YEAR',
+                ],
+            ];
+        }
+    @endphp
+    <script type="application/ld+json">{!! json_encode($jobSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endsection
+
 <x-app-layout>
     <section class="border-b border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
         <div class="section-container">

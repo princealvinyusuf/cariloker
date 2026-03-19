@@ -1,3 +1,6 @@
+@section('meta_title', __('Kategori Lowongan Kerja - Cari Loker'))
+@section('meta_description', __('Lihat semua kategori lowongan kerja dan temukan bidang karier yang paling sesuai untukmu.'))
+
 <x-app-layout>
     <div class="bg-gray-50 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

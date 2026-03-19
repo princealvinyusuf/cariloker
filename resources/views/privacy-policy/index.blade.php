@@ -1,3 +1,6 @@
+@section('meta_title', __('Kebijakan Privasi - Cari Loker'))
+@section('meta_description', __('Pelajari bagaimana Cari Loker mengumpulkan, menggunakan, dan melindungi data pribadi pengguna.'))
+
 <x-app-layout>
     <!-- Hero Section -->
     <div class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white py-16 border-b border-gray-200">

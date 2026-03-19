@@ -1,4 +1,37 @@
+@section('meta_title', $blogPost->title . ' - Blog Cari Loker')
 @section('meta_description', str($blogPost->excerpt ?? strip_tags($blogPost->content))->limit(150, ''))
+@section('og_type', 'article')
+@if($blogPost->featured_image)
+    @section('og_image', url(Storage::url($blogPost->featured_image)))
+@endif
+@section('structured_data')
+    @php
+        $articleSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Article',
+            'headline' => $blogPost->title,
+            'description' => str($blogPost->excerpt ?? strip_tags($blogPost->content))->limit(155, '')->toString(),
+            'author' => [
+                '@type' => 'Person',
+                'name' => $blogPost->user->name ?? 'Cari Loker',
+            ],
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => 'Cari Loker',
+                'logo' => [
+                    '@type' => 'ImageObject',
+                    'url' => asset('image/cariloker.png'),
+                ],
+            ],
+            'mainEntityOfPage' => route('blog.show', $blogPost),
+            'datePublished' => optional($blogPost->published_at)->toAtomString(),
+            'dateModified' => optional($blogPost->updated_at ?? $blogPost->published_at)->toAtomString(),
+            'image' => $blogPost->featured_image ? [url(Storage::url($blogPost->featured_image))] : [asset('image/cariloker.png')],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($articleSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endsection
+
 <x-app-layout>
     <!-- Header -->
     <div class="bg-white border-b border-gray-200">

@@ -8,7 +8,9 @@
     ];
 @endphp
 
+@section('meta_title', __('Lowongan Kerja Terbaru - Cari Loker'))
 @section('meta_description', __('Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.'))
+@section('og_type', 'website')
 
 <x-app-layout>
     <section class="border-b border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-950">

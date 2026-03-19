@@ -1,3 +1,6 @@
+@section('meta_title', __('Syarat dan Ketentuan - Cari Loker'))
+@section('meta_description', __('Baca syarat dan ketentuan penggunaan platform Cari Loker untuk pencari kerja dan perusahaan.'))
+
 <x-app-layout>
     <!-- Hero Section -->
     <div class="bg-gradient-to-br from-violet-50 via-fuchsia-50 to-white py-16 border-b border-gray-200">
