@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class JobImportController extends Controller
@@ -35,12 +36,15 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => false,
+            'started_at' => null,
             'elapsed_seconds' => 0,
             'eta_seconds' => null,
             'rows_per_second' => 0,
             'chunk_rows_per_second' => 0,
+            'queue_warning' => null,
             'errors' => [],
         ]);
+        $progress['queue_warning'] = $this->detectQueueStallWarning($progress);
 
         return view('admin.jobs.import', [
             'progress' => $progress,
@@ -63,10 +67,12 @@ class JobImportController extends Controller
                 'failed' => 0,
                 'skipped' => 0,
                 'running' => false,
+                'started_at' => null,
                 'elapsed_seconds' => 0,
                 'eta_seconds' => null,
                 'rows_per_second' => 0,
                 'chunk_rows_per_second' => 0,
+                'queue_warning' => null,
                 'errors' => ['No data found in job_imports staging table.'],
             ], 21600);
 
@@ -90,10 +96,12 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => true,
+            'started_at' => now()->timestamp,
             'elapsed_seconds' => 0,
             'eta_seconds' => null,
             'rows_per_second' => 0,
             'chunk_rows_per_second' => 0,
+            'queue_warning' => null,
             'errors' => [],
         ], 21600);
 
@@ -107,10 +115,12 @@ class JobImportController extends Controller
                 'failed' => 1,
                 'skipped' => 0,
                 'running' => false,
+                'started_at' => null,
                 'elapsed_seconds' => 0,
                 'eta_seconds' => null,
                 'rows_per_second' => 0,
                 'chunk_rows_per_second' => 0,
+                'queue_warning' => null,
                 'errors' => ['Failed to dispatch import job: ' . $e->getMessage()],
             ], 21600);
             Cache::forget(DistributeJobImports::LOCK_KEY);
@@ -139,12 +149,15 @@ class JobImportController extends Controller
             'failed' => 0,
             'skipped' => 0,
             'running' => false,
+            'started_at' => null,
             'elapsed_seconds' => 0,
             'eta_seconds' => null,
             'rows_per_second' => 0,
             'chunk_rows_per_second' => 0,
+            'queue_warning' => null,
             'errors' => [],
         ]);
+        $progress['queue_warning'] = $this->detectQueueStallWarning($progress);
 
         return response()->json($progress);
     }
@@ -181,10 +194,12 @@ class JobImportController extends Controller
                 'failed' => 0,
                 'skipped' => 0,
                 'running' => false,
+                'started_at' => null,
                 'elapsed_seconds' => 0,
                 'eta_seconds' => null,
                 'rows_per_second' => 0,
                 'chunk_rows_per_second' => 0,
+                'queue_warning' => null,
                 'errors' => [],
             ], 21600);
 
@@ -383,6 +398,46 @@ class JobImportController extends Controller
     protected function authorizeAdmin(): void
     {
         abort_unless(auth()->user()?->role === 'admin', 403);
+    }
+
+    /**
+     * @param array<string, mixed> $progress
+     */
+    protected function detectQueueStallWarning(array $progress): ?string
+    {
+        if (empty($progress['running'])) {
+            return null;
+        }
+
+        $startedAt = $progress['started_at'] ?? null;
+        if (!is_numeric($startedAt)) {
+            return null;
+        }
+
+        $elapsed = now()->timestamp - (int) $startedAt;
+        if ($elapsed < 90) {
+            return null;
+        }
+
+        if (!Schema::hasTable('jobs')) {
+            return null;
+        }
+
+        $pendingImportJob = DB::table('jobs')
+            ->whereNull('reserved_at')
+            ->where('payload', 'like', '%DistributeJobImports%')
+            ->exists();
+
+        $processed = (int) ($progress['processed'] ?? 0);
+        if ($processed === 0 && $pendingImportJob) {
+            return 'Queue appears stalled: import job is pending and not reserved. Start a queue worker (php artisan queue:work).';
+        }
+
+        if ($processed === 0 && $elapsed > 300) {
+            return 'Import has no progress for over 5 minutes. Check queue worker and failed_jobs.';
+        }
+
+        return null;
     }
 }
 

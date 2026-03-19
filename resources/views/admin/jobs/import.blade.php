@@ -82,6 +82,11 @@
                     </div>
 
                     <div>
+                        <h3 class="text-sm font-semibold mb-2">{{ __('Queue Warning') }}</h3>
+                        <div id="warning-container" class="text-xs space-y-1 max-h-40 overflow-y-auto"></div>
+                    </div>
+
+                    <div>
                         <h3 class="text-sm font-semibold mb-2">{{ __('Result') }}</h3>
                         <div id="result-container" class="text-xs space-y-1 max-h-40 overflow-y-auto"></div>
                     </div>
@@ -114,6 +119,7 @@
             const elapsedSeconds = document.getElementById('elapsed-seconds');
             const etaSeconds = document.getElementById('eta-seconds');
             const progressBar = document.getElementById('progress-bar');
+            const warningContainer = document.getElementById('warning-container');
             const resultContainer = document.getElementById('result-container');
             const errorsContainer = document.getElementById('errors-container');
 
@@ -137,6 +143,7 @@
                 const elapsed = data.elapsed_seconds ?? 0;
                 const eta = data.eta_seconds;
                 const successMessage = data.success_message ?? '';
+                const queueWarning = data.queue_warning ?? '';
 
                 totalRowsEl.textContent = total;
                 progressText.textContent = processed + ' / ' + total;
@@ -154,6 +161,14 @@
                     p.className = 'text-emerald-500';
                     p.textContent = '• ' + successMessage;
                     resultContainer.appendChild(p);
+                }
+
+                warningContainer.innerHTML = '';
+                if (queueWarning) {
+                    const p = document.createElement('p');
+                    p.className = 'text-amber-400';
+                    p.textContent = '• ' + queueWarning;
+                    warningContainer.appendChild(p);
                 }
 
                 const denom = total > 0 ? total : 1;
@@ -234,6 +249,7 @@
                                 elapsed_seconds: data.elapsed_seconds ?? 0,
                                 eta_seconds: data.eta_seconds ?? null,
                                 running: false,
+                                queue_warning: data.queue_warning ?? null,
                                 success_message: '',
                                 errors: [data.message || 'Failed to start distribution.'],
                             });
@@ -257,6 +273,7 @@
                             elapsed_seconds: 0,
                             eta_seconds: null,
                             running: false,
+                            queue_warning: null,
                             success_message: '',
                             errors: ['Unexpected error starting distribution.'],
                         });
@@ -296,6 +313,7 @@
                                 elapsed_seconds: 0,
                                 eta_seconds: null,
                                 running: false,
+                                queue_warning: data.queue_warning ?? null,
                                 success_message: '',
                                 errors: [data.message || 'Failed to clean related data.'],
                             });
@@ -315,6 +333,7 @@
                             elapsed_seconds: 0,
                             eta_seconds: null,
                             running: false,
+                            queue_warning: null,
                             success_message:
                                 (data.message || 'Cleanup completed.') +
                                     ' jobs=' + (counts.jobs_deleted ?? 0) +
@@ -338,6 +357,7 @@
                             elapsed_seconds: 0,
                             eta_seconds: null,
                             running: false,
+                            queue_warning: null,
                             success_message: '',
                             errors: ['Unexpected error while cleaning related data.'],
                         });

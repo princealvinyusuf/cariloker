@@ -57,6 +57,10 @@ class DistributeJobImports implements ShouldQueue
     public function handle(): void
     {
         $total = (int) DB::table('job_imports')->count();
+        $existing = Cache::get(self::PROGRESS_KEY, []);
+        $startedAtTimestamp = is_array($existing) && !empty($existing['started_at'])
+            ? (int) $existing['started_at']
+            : now()->timestamp;
 
         $state = [
             'total' => $total,
@@ -65,6 +69,8 @@ class DistributeJobImports implements ShouldQueue
             'failed' => 0,
             'skipped' => 0,
             'running' => true,
+            'started_at' => $startedAtTimestamp,
+            'queue_warning' => null,
             'errors' => [],
         ];
         Cache::put(self::PROGRESS_KEY, $state, self::PROGRESS_TTL_SECONDS);
@@ -115,10 +121,12 @@ class DistributeJobImports implements ShouldQueue
                         'failed' => $failed,
                         'skipped' => $skipped,
                         'running' => true,
+                        'started_at' => $startedAtTimestamp,
                         'elapsed_seconds' => (int) floor($elapsedSeconds),
                         'eta_seconds' => $etaSeconds,
                         'rows_per_second' => $rowsPerSecond,
                         'chunk_rows_per_second' => $chunkRowsPerSecond,
+                        'queue_warning' => null,
                         'errors' => $errors,
                     ], self::PROGRESS_TTL_SECONDS);
 
@@ -145,10 +153,12 @@ class DistributeJobImports implements ShouldQueue
                 'failed' => $failed,
                 'skipped' => $skipped,
                 'running' => false,
+                'started_at' => null,
                 'elapsed_seconds' => (int) floor($elapsedSeconds),
                 'eta_seconds' => 0,
                 'rows_per_second' => $rowsPerSecond,
                 'chunk_rows_per_second' => null,
+                'queue_warning' => null,
                 'errors' => $errors,
             ], self::PROGRESS_TTL_SECONDS);
             Cache::forget(self::LOCK_KEY);
