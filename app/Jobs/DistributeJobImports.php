@@ -483,6 +483,7 @@ class DistributeJobImports implements ShouldQueue
 
         $baseSlug = $this->buildSlugBase($row['title']);
         $hashSuffix = substr((string) $row['source_hash'], 0, 20);
+        $description = $row['description'] ?? '';
         for ($attempt = 0; $attempt < 100; $attempt++) {
             $slug = $this->buildSlugCandidate($baseSlug, $hashSuffix, $attempt);
             $jobData = [
@@ -492,7 +493,7 @@ class DistributeJobImports implements ShouldQueue
                 'title' => $row['title'],
                 'slug' => $slug,
                 'source_hash' => $row['source_hash'],
-                'description' => $row['description'],
+                'description' => $description,
                 'employment_type' => $row['employment_type'],
                 'external_url' => $row['external_url'],
                 'gender' => $row['gender'],
@@ -522,7 +523,7 @@ class DistributeJobImports implements ShouldQueue
             'title' => $row['title'],
             'slug' => substr($baseSlug . '-' . Str::lower(Str::uuid()->toString()), 0, 255),
             'source_hash' => $row['source_hash'],
-            'description' => $row['description'],
+            'description' => $description,
             'employment_type' => $row['employment_type'],
             'external_url' => $row['external_url'],
             'gender' => $row['gender'],
