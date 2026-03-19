@@ -33,6 +33,7 @@ class DistributeJobImports implements ShouldQueue
     public int $timeout = 7200;
     public int $tries = 1;
     private const CHUNK_SIZE = 200;
+    private const MAX_ERROR_MESSAGES = 20;
 
     /** @var array<string, int> */
     protected array $companyIdBySlug = [];
@@ -48,6 +49,40 @@ class DistributeJobImports implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
+        $state = Cache::get(self::PROGRESS_KEY, []);
+        if (!is_array($state)) {
+            $state = [];
+        }
+
+        $errors = $state['errors'] ?? [];
+        if (!is_array($errors)) {
+            $errors = [];
+        }
+        if (count($errors) < self::MAX_ERROR_MESSAGES) {
+            $errors[] = 'Queue job failed: ' . $exception->getMessage();
+        }
+
+        Cache::put(self::PROGRESS_KEY, [
+            'total' => (int) ($state['total'] ?? 0),
+            'processed' => (int) ($state['processed'] ?? 0),
+            'succeeded' => (int) ($state['succeeded'] ?? 0),
+            'failed' => max(1, (int) ($state['failed'] ?? 0)),
+            'skipped' => (int) ($state['skipped'] ?? 0),
+            'running' => false,
+            'started_at' => null,
+            'elapsed_seconds' => (int) ($state['elapsed_seconds'] ?? 0),
+            'eta_seconds' => 0,
+            'rows_per_second' => (float) ($state['rows_per_second'] ?? 0),
+            'chunk_rows_per_second' => null,
+            'queue_warning' => null,
+            'errors' => $errors,
+        ], self::PROGRESS_TTL_SECONDS);
+
+        Log::error('DistributeJobImports failed', [
+            'message' => $exception->getMessage(),
+            'exception' => get_class($exception),
+        ]);
+
         Cache::forget(self::LOCK_KEY);
     }
 
@@ -100,7 +135,7 @@ class DistributeJobImports implements ShouldQueue
                     $failed += $result['failed'];
                     $skipped += $result['skipped'];
                     if (!empty($result['errors'])) {
-                        $remaining = max(0, 20 - count($errors));
+                        $remaining = max(0, self::MAX_ERROR_MESSAGES - count($errors));
                         if ($remaining > 0) {
                             $errors = array_merge($errors, array_slice($result['errors'], 0, $remaining));
                         }
@@ -143,6 +178,16 @@ class DistributeJobImports implements ShouldQueue
                         'eta_seconds' => $etaSeconds,
                     ]);
                 });
+        } catch (Throwable $e) {
+            $failed = max(1, $failed);
+            if (count($errors) < self::MAX_ERROR_MESSAGES) {
+                $errors[] = 'Fatal import error: ' . $e->getMessage();
+            }
+            Log::error('DistributeJobImports fatal error', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+            ]);
+            throw $e;
         } finally {
             $elapsedSeconds = max(0.001, microtime(true) - $startedAt);
             $rowsPerSecond = round($processed / $elapsedSeconds, 2);
@@ -213,7 +258,7 @@ class DistributeJobImports implements ShouldQueue
                 }
             } catch (Throwable $e) {
                 $stats['failed']++;
-                if (count($stats['errors']) < 20) {
+                if (count($stats['errors']) < self::MAX_ERROR_MESSAGES) {
                     $stats['errors'][] = $e->getMessage();
                 }
             }
