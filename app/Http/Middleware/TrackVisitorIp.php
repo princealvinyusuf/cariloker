@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\VisitorIp;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class TrackVisitorIp
@@ -18,6 +19,11 @@ class TrackVisitorIp
     {
         // Skip tracking for admin routes and API routes
         if ($request->is('admin/*') || $request->is('api/*')) {
+            return $next($request);
+        }
+
+        // Skip Google crawlers so analytics reflects human visitors.
+        if ($this->isGoogleCrawler($request)) {
             return $next($request);
         }
 
@@ -45,5 +51,33 @@ class TrackVisitorIp
         }
 
         return $next($request);
+    }
+
+    private function isGoogleCrawler(Request $request): bool
+    {
+        $userAgent = Str::lower((string) $request->userAgent());
+
+        if ($userAgent === '') {
+            return false;
+        }
+
+        $googleCrawlerSignatures = [
+            'googlebot',
+            'adsbot-google',
+            'apis-google',
+            'mediapartners-google',
+            'feedfetcher-google',
+            'google-read-aloud',
+            'storebot-google',
+            'inspectiontool',
+        ];
+
+        foreach ($googleCrawlerSignatures as $signature) {
+            if (Str::contains($userAgent, $signature)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
