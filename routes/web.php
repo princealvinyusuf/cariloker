@@ -94,7 +94,7 @@ Route::get('/sitemap.xml', function () {
         route('cookie-policy'),
     ])->map(fn ($url) => ['loc' => $url, 'lastmod' => now()->toAtomString()]);
 
-    $jobUrls = Job::query()
+    $jobUrls = Job::withoutGlobalScope('notExpired')
         ->where('status', 'published')
         ->latest('updated_at')
         ->limit(5000)

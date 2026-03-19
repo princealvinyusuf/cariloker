@@ -294,6 +294,13 @@ class JobController extends Controller
             });
 
         $sort = $request->string('sort', 'date');
+        $query->orderByRaw("
+            CASE
+                WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
+                ELSE 0
+            END ASC
+        ", [now()->toDateString()]);
+
         if ($sort === 'salary') {
             $query->orderByDesc('salary_max');
         } else {
@@ -569,6 +576,12 @@ class JobController extends Controller
         $featuredJobs = Job::withoutGlobalScope('notExpired')
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
+            ->orderByRaw("
+                CASE
+                    WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
+                    ELSE 0
+                END ASC
+            ", [now()->toDateString()])
             ->latest()
             ->limit(6)
             ->get();
@@ -577,6 +590,12 @@ class JobController extends Controller
         $topJobs = Job::withoutGlobalScope('notExpired')
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
+            ->orderByRaw("
+                CASE
+                    WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
+                    ELSE 0
+                END ASC
+            ", [now()->toDateString()])
             ->orderByDesc('views')
             ->orderByDesc('created_at')
             ->limit(6)
