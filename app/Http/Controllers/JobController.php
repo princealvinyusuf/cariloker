@@ -353,6 +353,64 @@ class JobController extends Controller
             }
         }
 
+        $relatedCategoryLinks = collect();
+        $relatedLocationLinks = collect();
+
+        if ($resolvedCategoryName) {
+            $relatedLocationLinks = Location::query()
+                ->whereNotNull('city')
+                ->whereHas('jobs', function ($q) use ($queryCategory) {
+                    $q->where('status', 'published')
+                        ->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('slug', $queryCategory));
+                })
+                ->withCount(['jobs' => function ($q) use ($queryCategory) {
+                    $q->where('status', 'published')
+                        ->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('slug', $queryCategory));
+                }])
+                ->orderByDesc('jobs_count')
+                ->limit(8)
+                ->get()
+                ->map(fn ($location) => [
+                    'label' => sprintf('%s di %s', $resolvedCategoryName, $location->city),
+                    'url' => route('jobs.by-category-location', [
+                        'category' => $queryCategory,
+                        'locationSlug' => str((string) $location->city)->slug(),
+                    ]),
+                ]);
+        }
+
+        if ($queryLocation !== '') {
+            $relatedCategoryLinks = JobCategory::query()
+                ->whereHas('jobs', function ($q) use ($queryLocation) {
+                    $term = '%' . $queryLocation . '%';
+                    $q->where('status', 'published')
+                        ->whereHas('location', function ($locationQuery) use ($term) {
+                            $locationQuery->where('city', 'like', $term)
+                                ->orWhere('state', 'like', $term)
+                                ->orWhere('country', 'like', $term);
+                        });
+                })
+                ->withCount(['jobs' => function ($q) use ($queryLocation) {
+                    $term = '%' . $queryLocation . '%';
+                    $q->where('status', 'published')
+                        ->whereHas('location', function ($locationQuery) use ($term) {
+                            $locationQuery->where('city', 'like', $term)
+                                ->orWhere('state', 'like', $term)
+                                ->orWhere('country', 'like', $term);
+                        });
+                }])
+                ->orderByDesc('jobs_count')
+                ->limit(8)
+                ->get()
+                ->map(fn ($category) => [
+                    'label' => sprintf('%s di %s', $category->name, $queryLocation),
+                    'url' => route('jobs.by-category-location', [
+                        'category' => $category,
+                        'locationSlug' => str($queryLocation)->slug(),
+                    ]),
+                ]);
+        }
+
         $derivedMetaTitle = 'Lowongan Kerja Terbaru - Cari Loker';
         $derivedMetaDescription = 'Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.';
         if ($queryKeyword !== '' && $queryLocation !== '') {
@@ -384,6 +442,8 @@ class JobController extends Controller
             'seoContentTitle' => $seoOverrides['seoContentTitle'] ?? null,
             'seoContentBody' => $seoOverrides['seoContentBody'] ?? null,
             'seoFaqs' => $seoOverrides['seoFaqs'] ?? [],
+            'relatedCategoryLinks' => $relatedCategoryLinks,
+            'relatedLocationLinks' => $relatedLocationLinks,
         ]);
     }
 

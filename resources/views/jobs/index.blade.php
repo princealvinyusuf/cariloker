@@ -32,6 +32,8 @@
 
     $seoFaqs = collect($seoFaqs ?? [])->filter(fn ($faq) => !empty($faq['question']) && !empty($faq['answer']))->values();
     $seoSearchCombos = collect($seoSearchCombos ?? []);
+    $relatedCategoryLinks = collect($relatedCategoryLinks ?? []);
+    $relatedLocationLinks = collect($relatedLocationLinks ?? []);
 
     $metaKeywordParts = collect([
         'lowongan kerja',
@@ -53,14 +55,39 @@
             ],
         ])->all(),
     ] : null;
+
+    $jobsItemListSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => $seoMetaTitle,
+        'itemListOrder' => 'https://schema.org/ItemListOrderAscending',
+        'numberOfItems' => $jobs->count(),
+        'itemListElement' => $jobs->values()->map(function ($job, $index) {
+            return [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'url' => route('jobs.show', $job),
+                'name' => $job->title,
+            ];
+        })->all(),
+    ];
 @endphp
 
 @section('meta_title', $seoMetaTitle)
 @section('meta_description', $seoMetaDescription)
 @section('meta_keywords', $metaKeywordParts->implode(', '))
 @section('og_type', 'website')
+@section('head_tags')
+    @if($jobs->previousPageUrl())
+        <link rel="prev" href="{{ $jobs->previousPageUrl() }}">
+    @endif
+    @if($jobs->nextPageUrl())
+        <link rel="next" href="{{ $jobs->nextPageUrl() }}">
+    @endif
+@endsection
 @section('structured_data')
     <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json">{!! json_encode($jobsItemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @if($faqSchema)
         <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @endif
@@ -268,6 +295,40 @@
                         </a>
                     @endforeach
                 </div>
+            </div>
+        </section>
+    @endif
+
+    @if($relatedCategoryLinks->isNotEmpty() || $relatedLocationLinks->isNotEmpty())
+        <section class="section-container pb-12">
+            <div class="grid gap-6 lg:grid-cols-2">
+                @if($relatedCategoryLinks->isNotEmpty())
+                    <div class="surface-card p-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('Kategori Terkait untuk Lokasi Ini') }}</h2>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ __('Jelajahi kombinasi kategori + lokasi yang paling sering dicari pengguna.') }}</p>
+                        <div class="mt-4 space-y-2">
+                            @foreach($relatedCategoryLinks as $item)
+                                <a href="{{ $item['url'] }}" class="block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                                    {{ $item['label'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if($relatedLocationLinks->isNotEmpty())
+                    <div class="surface-card p-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('Lokasi Terkait untuk Kategori Ini') }}</h2>
+                        <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ __('Temukan kota lain dengan peluang kerja tinggi di kategori yang sama.') }}</p>
+                        <div class="mt-4 space-y-2">
+                            @foreach($relatedLocationLinks as $item)
+                                <a href="{{ $item['url'] }}" class="block rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                                    {{ $item['label'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </section>
     @endif

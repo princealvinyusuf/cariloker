@@ -1,6 +1,74 @@
-@section('meta_title', __('Daftar Perusahaan Terbaik - Cari Loker'))
-@section('meta_description', __('Jelajahi profil perusahaan terbaik dan temukan lowongan kerja dari employer terpercaya di seluruh Indonesia.'))
+@php
+    $queryCompany = trim((string) request('q'));
+    $queryLocation = trim((string) request('location'));
+    $queryIndustry = trim((string) request('industry'));
+
+    $companiesMetaTitle = __('Daftar Perusahaan Terbaik - Cari Loker');
+    $companiesMetaDescription = __('Jelajahi profil perusahaan terbaik dan temukan lowongan kerja dari employer terpercaya di seluruh Indonesia.');
+
+    if ($queryIndustry !== '' && $queryLocation !== '') {
+        $companiesMetaTitle = sprintf('Perusahaan %s di %s - Cari Loker', $queryIndustry, $queryLocation);
+        $companiesMetaDescription = sprintf('Lihat daftar perusahaan %s terbaik di %s beserta lowongan kerja aktifnya.', $queryIndustry, $queryLocation);
+    } elseif ($queryIndustry !== '') {
+        $companiesMetaTitle = sprintf('Perusahaan %s Terbaik - Cari Loker', $queryIndustry);
+        $companiesMetaDescription = sprintf('Temukan profil perusahaan %s terbaik dan peluang kerja terbarunya di Indonesia.', $queryIndustry);
+    } elseif ($queryLocation !== '') {
+        $companiesMetaTitle = sprintf('Perusahaan di %s - Cari Loker', $queryLocation);
+        $companiesMetaDescription = sprintf('Jelajahi perusahaan terbaik di %s dan temukan peluang karier yang sesuai.', $queryLocation);
+    } elseif ($queryCompany !== '') {
+        $companiesMetaTitle = sprintf('Hasil Pencarian Perusahaan "%s" - Cari Loker', $queryCompany);
+        $companiesMetaDescription = sprintf('Temukan profil perusahaan untuk kata kunci "%s" di Cari Loker.', $queryCompany);
+    }
+
+    $companiesKeywords = collect([
+        'perusahaan',
+        'profil perusahaan',
+        'cari loker',
+        $queryCompany,
+        $queryLocation,
+        $queryIndustry,
+    ])->filter()->unique()->implode(', ');
+
+    $companiesBreadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => __('Beranda'), 'item' => route('beranda')],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => __('Companies'), 'item' => route('companies.index')],
+        ],
+    ];
+
+    $companiesItemListSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'ItemList',
+        'name' => $companiesMetaTitle,
+        'itemListOrder' => 'https://schema.org/ItemListOrderAscending',
+        'numberOfItems' => $companies->count(),
+        'itemListElement' => $companies->values()->map(fn ($company, $index) => [
+            '@type' => 'ListItem',
+            'position' => $index + 1,
+            'url' => route('companies.show', $company),
+            'name' => $company->name,
+        ])->all(),
+    ];
+@endphp
+
+@section('meta_title', $companiesMetaTitle)
+@section('meta_description', $companiesMetaDescription)
+@section('meta_keywords', $companiesKeywords)
 @section('og_type', 'website')
+@section('head_tags')
+    @if($companies->previousPageUrl())
+        <link rel="prev" href="{{ $companies->previousPageUrl() }}">
+    @endif
+    @if($companies->nextPageUrl())
+        <link rel="next" href="{{ $companies->nextPageUrl() }}">
+    @endif
+@endsection
+@section('structured_data')
+    <script type="application/ld+json">{!! json_encode($companiesBreadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json">{!! json_encode($companiesItemListSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endsection
 
 <x-app-layout>
     <section class="border-b border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-950">
