@@ -188,7 +188,7 @@ class JobController extends Controller
                 ->value('name');
         }
 
-        $query = Job::query()
+        $query = Job::withoutGlobalScope('notExpired')
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
             ->when($request->filled('q'), function ($q) use ($request) {
@@ -311,7 +311,7 @@ class JobController extends Controller
         });
         // Cache education levels
         $educationLevels = Cache::remember('education_levels:distinct', 600, function() {
-            return Job::query()
+            return Job::withoutGlobalScope('notExpired')
                 ->whereNotNull('education_level')
                 ->where('status', 'published')
                 ->select('education_level')
@@ -419,7 +419,7 @@ class JobController extends Controller
                 $queryLocation
             ));
             $seoIntroParagraphs->push(sprintf(
-                'Tersedia %s lowongan aktif untuk kombinasi %s di %s. Gunakan filter tambahan untuk menemukan posisi yang paling relevan dengan profil kariermu.',
+                'Tersedia %s lowongan untuk kombinasi %s di %s. Gunakan filter tambahan untuk menemukan posisi yang paling relevan dengan profil kariermu.',
                 number_format($jobs->total()),
                 $resolvedCategoryName,
                 $queryLocation
@@ -430,7 +430,7 @@ class JobController extends Controller
                 $resolvedCategoryName
             ));
             $seoIntroParagraphs->push(sprintf(
-                'Saat ini tersedia %s lowongan aktif dalam kategori %s di Cari Loker.',
+                'Saat ini tersedia %s lowongan dalam kategori %s di Cari Loker.',
                 number_format($jobs->total()),
                 $resolvedCategoryName
             ));
@@ -440,23 +440,23 @@ class JobController extends Controller
                 $queryLocation
             ));
             $seoIntroParagraphs->push(sprintf(
-                'Ada %s lowongan aktif di %s saat ini, termasuk opsi onsite, hybrid, dan remote.',
+                'Ada %s lowongan di %s saat ini, termasuk opsi onsite, hybrid, dan remote.',
                 number_format($jobs->total()),
                 $queryLocation
             ));
         } elseif ($queryKeyword !== '') {
             $seoIntroParagraphs->push(sprintf(
-                'Hasil pencarian untuk "%s" menampilkan lowongan kerja terbaru dari perusahaan yang sedang rekrut aktif. Sesuaikan lokasi dan rentang gaji untuk mendapatkan hasil yang lebih presisi.',
+                'Hasil pencarian untuk "%s" menampilkan lowongan kerja terbaru dari berbagai perusahaan. Sesuaikan lokasi dan rentang gaji untuk mendapatkan hasil yang lebih presisi.',
                 $queryKeyword
             ));
             $seoIntroParagraphs->push(sprintf(
-                'Ditemukan %s lowongan aktif berdasarkan kata kunci "%s".',
+                'Ditemukan %s lowongan berdasarkan kata kunci "%s".',
                 number_format($jobs->total()),
                 $queryKeyword
             ));
         } else {
             $seoIntroParagraphs->push('Cari Loker membantu kandidat menemukan lowongan kerja terbaru di Indonesia dengan filter yang lengkap, mulai dari lokasi, kategori, pengalaman, hingga salary range.');
-            $seoIntroParagraphs->push(sprintf('Saat ini tersedia %s lowongan aktif yang bisa kamu telusuri dan lamar langsung.', number_format($jobs->total())));
+            $seoIntroParagraphs->push(sprintf('Saat ini tersedia %s lowongan yang bisa kamu telusuri dan lamar langsung.', number_format($jobs->total())));
         }
 
         $seoTopicLinks = collect();
@@ -566,7 +566,7 @@ class JobController extends Controller
         });
 
         // Get featured/latest jobs
-        $featuredJobs = Job::query()
+        $featuredJobs = Job::withoutGlobalScope('notExpired')
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
             ->latest()
@@ -574,7 +574,7 @@ class JobController extends Controller
             ->get();
 
         // Get top jobs (by views or most recent)
-        $topJobs = Job::query()
+        $topJobs = Job::withoutGlobalScope('notExpired')
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
             ->orderByDesc('views')
@@ -613,31 +613,12 @@ class JobController extends Controller
     {
         $job->load(['company', 'location', 'category', 'skills']);
 
-        // If expired, show dedicated expired page with related jobs
         $isExpired = $job->valid_until && $job->valid_until->lt(now()->startOfDay());
-        if ($isExpired) {
-            $relatedJobs = Job::query()
-                ->with(['company', 'location'])
-                ->where('status', 'published')
-                ->where('id', '!=', $job->id)
-                ->where(function ($q) use ($job) {
-                    $q->where('company_id', $job->company_id);
-                    if ($job->category_id) {
-                        $q->orWhere('category_id', $job->category_id);
-                    }
-                })
-                ->latest()
-                ->limit(6)
-                ->get();
-
-            return view('jobs.expired', [
-                'job' => $job,
-                'relatedJobs' => $relatedJobs,
-            ]);
-        }
 
         // Increment views count for active listings
-        $job->increment('views');
+        if (! $isExpired) {
+            $job->increment('views');
+        }
 
         $relatedJobs = Job::query()
             ->with(['company', 'location'])
@@ -659,6 +640,7 @@ class JobController extends Controller
             'job' => $job,
             'relatedJobs' => $relatedJobs,
             'totalApplicants' => $totalApplicants,
+            'isExpired' => $isExpired,
         ]);
     }
 

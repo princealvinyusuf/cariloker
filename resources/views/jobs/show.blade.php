@@ -76,6 +76,27 @@
 @endsection
 
 <x-app-layout>
+    @if(($isExpired ?? false))
+        <div id="expired-job-modal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/70 px-4">
+            <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-900">
+                <div class="mb-2 flex items-center gap-2 text-amber-600 dark:text-amber-300">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <p class="text-sm font-semibold uppercase tracking-wide">{{ __('Informasi') }}</p>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('Lamaran ini telah expired') }}</h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    {{ __('Posisi ini sudah melewati batas waktu lamaran. Kamu masih bisa membaca detail pekerjaan dan melihat rekomendasi lowongan serupa di bawah.') }}
+                </p>
+                <div class="mt-5 flex flex-col gap-2 sm:flex-row">
+                    <a href="#related-jobs" class="btn-primary w-full text-center">{{ __('Lihat rekomendasi lowongan') }}</a>
+                    <button type="button" onclick="document.getElementById('expired-job-modal')?.remove()" class="w-full rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:text-slate-200 dark:hover:text-primary-300">
+                        {{ __('Tutup') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <section class="border-b border-slate-200 bg-white py-10 dark:border-slate-800 dark:bg-slate-950">
         <div class="section-container">
             <a href="{{ route('jobs.index', ['list' => 1]) }}" class="text-sm font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300">← {{ __('Back to search') }}</a>
@@ -93,9 +114,12 @@
                         @if($job->salary_min)
                             <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">{{ number_format($job->salary_min) }}{{ $job->salary_max ? ' - '.number_format($job->salary_max) : '' }} {{ $job->salary_currency }}</span>
                         @endif
+                        @if(($isExpired ?? false))
+                            <span class="rounded-full bg-rose-50 px-2.5 py-1 font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">{{ __('Expired') }}</span>
+                        @endif
                     </div>
                 </div>
-                @if($job->external_url)
+                @if($job->external_url && !($isExpired ?? false))
                     <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" class="btn-primary">{{ __('Apply Now') }}</a>
                 @endif
             </div>
@@ -229,7 +253,7 @@
                     <div class="font-medium text-slate-900 dark:text-white">{{ number_format($job->views) }}</div>
                 </div>
 
-                @if($job->external_url)
+                @if($job->external_url && !($isExpired ?? false))
                     <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" class="btn-primary w-full">{{ __('Apply Now') }}</a>
                 @endif
             </div>
@@ -237,7 +261,7 @@
     </div>
 
     @if(isset($relatedJobs) && $relatedJobs->count())
-        <div class="section-container pb-12">
+        <div id="related-jobs" class="section-container pb-12">
             <h2 class="mb-4 text-xl font-semibold text-slate-900 dark:text-white">{{ __('More like this') }}</h2>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($relatedJobs as $related)
@@ -277,7 +301,7 @@
     @endif
 
     <!-- Floating Apply Button -->
-    @if($job->external_url)
+    @if($job->external_url && !($isExpired ?? false))
         <div class="fixed bottom-6 right-6 z-50">
             <a href="{{ route('jobs.apply.external', $job) }}" target="_blank" rel="noopener" 
                class="flex items-center gap-2 rounded-full bg-primary-600 px-6 py-4 font-semibold text-white shadow-glow transition hover:bg-primary-700">

@@ -242,6 +242,9 @@
 
                 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     @foreach($jobs as $job)
+                        @php
+                            $jobIsExpired = $job->valid_until && $job->valid_until->lt(now()->startOfDay());
+                        @endphp
                         <article class="surface-card relative p-5 transition hover:-translate-y-0.5 hover:border-primary-300">
                             @auth
                                 <form method="POST" action="{{ route('jobs.save', $job) }}" class="absolute right-4 top-4">
@@ -274,6 +277,11 @@
                                 <span class="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
                                     {{ $employmentTypes[$job->employment_type] ?? str($job->employment_type)->replace('_', ' ')->title() }}
                                 </span>
+                                @if($jobIsExpired)
+                                    <span class="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+                                        {{ __('Expired') }}
+                                    </span>
+                                @endif
                             </div>
 
                             <a href="{{ route('jobs.show', $job) }}" class="btn-primary mt-5 w-full">{{ __('View Details') }}</a>

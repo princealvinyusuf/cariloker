@@ -107,6 +107,9 @@
 
         <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             @foreach($allJobs as $job)
+                @php
+                    $jobIsExpired = $job->valid_until && $job->valid_until->lt(now()->startOfDay());
+                @endphp
                 <article class="surface-card p-6 transition hover:-translate-y-0.5 hover:border-primary-300">
                     <div class="mb-4 flex items-start gap-3">
                         @if($job->company->logo_path)
@@ -128,6 +131,11 @@
                         @if($job->salary_min)
                             <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
                                 {{ $formatIdr($job->salary_min) }}{{ $job->salary_max ? ' - '.$formatIdr($job->salary_max) : '' }}
+                            </span>
+                        @endif
+                        @if($jobIsExpired)
+                            <span class="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+                                {{ __('Expired') }}
                             </span>
                         @endif
                     </div>
