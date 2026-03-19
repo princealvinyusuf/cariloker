@@ -29,6 +29,20 @@
             ];
         })->all(),
     ];
+
+    $seoFaqs = collect($seoFaqs ?? [])->filter(fn ($faq) => !empty($faq['question']) && !empty($faq['answer']))->values();
+    $faqSchema = $seoFaqs->isNotEmpty() ? [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => $seoFaqs->map(fn ($faq) => [
+            '@type' => 'Question',
+            'name' => $faq['question'],
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => $faq['answer'],
+            ],
+        ])->all(),
+    ] : null;
 @endphp
 
 @section('meta_title', $seoMetaTitle)
@@ -36,6 +50,9 @@
 @section('og_type', 'website')
 @section('structured_data')
     <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @if($faqSchema)
+        <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @endif
 @endsection
 
 <x-app-layout>
@@ -227,4 +244,30 @@
             </div>
         </div>
     </section>
+
+    @if(!empty($seoContentTitle) || !empty($seoContentBody) || $seoFaqs->isNotEmpty())
+        <section class="section-container pb-12">
+            <div class="surface-card p-6 md:p-8">
+                @if(!empty($seoContentTitle))
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white">{{ $seoContentTitle }}</h2>
+                @endif
+                @if(!empty($seoContentBody))
+                    <p class="mt-3 text-slate-600 dark:text-slate-300">{{ $seoContentBody }}</p>
+                @endif
+
+                @if($seoFaqs->isNotEmpty())
+                    <div class="mt-6 space-y-3">
+                        @foreach($seoFaqs as $faq)
+                            <details class="rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
+                                <summary class="cursor-pointer text-sm font-semibold text-slate-900 dark:text-white">
+                                    {{ $faq['question'] }}
+                                </summary>
+                                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">{{ $faq['answer'] }}</p>
+                            </details>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </section>
+    @endif
 </x-app-layout>

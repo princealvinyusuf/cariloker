@@ -41,6 +41,21 @@ class JobController extends Controller
                 'metaDescription' => sprintf('Temukan lowongan kerja %s terbaru dari berbagai perusahaan terbaik di Indonesia.', $category->name),
                 'pageHeading' => sprintf('Lowongan Kerja %s', $category->name),
                 'pageSubheading' => sprintf('Jelajahi peluang karier %s yang relevan dengan keahlianmu.', $category->name),
+                'seoContentTitle' => sprintf('Panduan Mencari Lowongan Kerja %s', $category->name),
+                'seoContentBody' => sprintf(
+                    'Kategori %s di Cari Loker menampilkan peluang terbaru dari perusahaan aktif di Indonesia. Gunakan filter gaji, pengalaman, dan tipe kerja untuk menemukan posisi yang paling relevan dengan profilmu.',
+                    $category->name
+                ),
+                'seoFaqs' => [
+                    [
+                        'question' => sprintf('Bagaimana cara menemukan lowongan %s yang sesuai?', $category->name),
+                        'answer' => 'Gunakan filter lokasi, pengalaman, dan salary range untuk mempersempit hasil, lalu simpan lowongan yang paling cocok.',
+                    ],
+                    [
+                        'question' => sprintf('Seberapa sering lowongan %s diperbarui?', $category->name),
+                        'answer' => 'Lowongan diupdate berkala setiap hari sesuai data terbaru dari perusahaan yang aktif merekrut.',
+                    ],
+                ],
                 'breadcrumbItems' => [
                     ['name' => 'Beranda', 'url' => route('beranda')],
                     ['name' => 'Jobs', 'url' => route('jobs.index')],
@@ -78,6 +93,21 @@ class JobController extends Controller
                 'metaDescription' => sprintf('Cari lowongan kerja terbaru di %s. Temukan pekerjaan terbaik sesuai bidang dan pengalamanmu.', $matchedCity),
                 'pageHeading' => sprintf('Lowongan Kerja di %s', $matchedCity),
                 'pageSubheading' => sprintf('Peluang karier terbaru dari perusahaan terbaik di %s.', $matchedCity),
+                'seoContentTitle' => sprintf('Tips Melamar Kerja di %s', $matchedCity),
+                'seoContentBody' => sprintf(
+                    'Halaman ini menampilkan lowongan aktif di %s dari berbagai industri. Perbarui CV, sesuaikan kata kunci pada profilmu, dan kirim lamaran ke posisi yang paling relevan.',
+                    $matchedCity
+                ),
+                'seoFaqs' => [
+                    [
+                        'question' => sprintf('Apakah lowongan di %s selalu terbaru?', $matchedCity),
+                        'answer' => 'Ya, kami menampilkan lowongan aktif dan memperbaruinya secara berkala agar kandidat melihat peluang terbaru.',
+                    ],
+                    [
+                        'question' => sprintf('Bisakah saya menemukan pekerjaan remote dari %s?', $matchedCity),
+                        'answer' => 'Bisa. Gunakan filter work arrangement untuk memilih remote, hybrid, atau onsite sesuai kebutuhan.',
+                    ],
+                ],
                 'breadcrumbItems' => [
                     ['name' => 'Beranda', 'url' => route('beranda')],
                     ['name' => 'Jobs', 'url' => route('jobs.index')],
@@ -250,6 +280,9 @@ class JobController extends Controller
             'pageHeading' => $seoOverrides['pageHeading'] ?? null,
             'pageSubheading' => $seoOverrides['pageSubheading'] ?? null,
             'breadcrumbItems' => $seoOverrides['breadcrumbItems'] ?? null,
+            'seoContentTitle' => $seoOverrides['seoContentTitle'] ?? null,
+            'seoContentBody' => $seoOverrides['seoContentBody'] ?? null,
+            'seoFaqs' => $seoOverrides['seoFaqs'] ?? [],
         ]);
     }
 

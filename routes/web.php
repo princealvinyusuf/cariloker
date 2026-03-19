@@ -18,6 +18,11 @@ use App\Models\Company;
 use App\Models\Job;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/googlea0b66707fe911939.html', function () {
+    return response('google-site-verification: googlea0b66707fe911939.html')
+        ->header('Content-Type', 'text/html; charset=UTF-8');
+})->name('google.site-verification');
+
 // Bind job route parameter without the notExpired global scope to allow expired detail page
 Route::bind('job', function (string $slug) {
     return \App\Models\Job::withoutGlobalScope('notExpired')
