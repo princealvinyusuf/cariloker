@@ -265,7 +265,7 @@
             });
 
             cleanButton.addEventListener('click', function () {
-                const confirmed = window.confirm('Clean ALL job listings and related orphaned companies/categories/locations? This will NOT delete rows in job_imports.');
+                const confirmed = window.confirm('FAST MODE: clean ALL job listings and related orphaned companies/categories/locations? This will NOT delete rows in job_imports.');
                 if (!confirmed) {
                     return;
                 }
@@ -280,7 +280,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify({ mode: 'fast' })
                 })
                     .then(async (response) => {
                         const data = await response.json().catch(() => ({}));

@@ -155,6 +155,10 @@ class JobImportController extends Controller
     public function clean(Request $request): JsonResponse
     {
         $this->authorizeAdmin();
+        $mode = $request->input('mode', 'safe');
+        if (!in_array($mode, ['safe', 'fast'], true)) {
+            $mode = 'safe';
+        }
 
         if (!Cache::add(DistributeJobImports::LOCK_KEY, now()->timestamp, 600)) {
             return response()->json([
@@ -164,41 +168,11 @@ class JobImportController extends Controller
         }
 
         try {
-            $counts = DB::transaction(function () {
-                $companyIds = DB::table('job_listings')
-                    ->whereNotNull('company_id')
-                    ->distinct()
-                    ->pluck('company_id')
-                    ->map(fn ($id) => (int) $id)
-                    ->all();
-
-                $categoryIds = DB::table('job_listings')
-                    ->whereNotNull('category_id')
-                    ->distinct()
-                    ->pluck('category_id')
-                    ->map(fn ($id) => (int) $id)
-                    ->all();
-
-                $locationIds = DB::table('job_listings')
-                    ->whereNotNull('location_id')
-                    ->distinct()
-                    ->pluck('location_id')
-                    ->map(fn ($id) => (int) $id)
-                    ->all();
-
-                $jobsDeleted = DB::table('job_listings')->delete();
-
-                $companiesDeleted = $this->deleteOrphanedCompanies($companyIds);
-                $categoriesDeleted = $this->deleteOrphanedCategories($categoryIds);
-                $locationsDeleted = $this->deleteOrphanedLocations($locationIds);
-
-                return [
-                    'jobs_deleted' => $jobsDeleted,
-                    'companies_deleted' => $companiesDeleted,
-                    'categories_deleted' => $categoriesDeleted,
-                    'locations_deleted' => $locationsDeleted,
-                ];
-            });
+            if ($mode === 'fast') {
+                $counts = $this->cleanFastMode();
+            } else {
+                $counts = $this->cleanSafeMode();
+            }
 
             Cache::put(DistributeJobImports::PROGRESS_KEY, [
                 'total' => DB::table('job_imports')->count(),
@@ -216,8 +190,11 @@ class JobImportController extends Controller
 
             return response()->json([
                 'status' => 'cleaned',
-                'message' => 'Related job data has been cleaned. job_imports data remains untouched.',
+                'message' => $mode === 'fast'
+                    ? 'Fast cleanup completed. job_imports data remains untouched.'
+                    : 'Safe cleanup completed. job_imports data remains untouched.',
                 'counts' => $counts,
+                'mode' => $mode,
             ]);
         } catch (Throwable $e) {
             return response()->json([
@@ -227,6 +204,103 @@ class JobImportController extends Controller
         } finally {
             Cache::forget(DistributeJobImports::LOCK_KEY);
         }
+    }
+
+    protected function cleanSafeMode(): array
+    {
+        return DB::transaction(function () {
+            $companyIds = DB::table('job_listings')
+                ->whereNotNull('company_id')
+                ->distinct()
+                ->pluck('company_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            $categoryIds = DB::table('job_listings')
+                ->whereNotNull('category_id')
+                ->distinct()
+                ->pluck('category_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            $locationIds = DB::table('job_listings')
+                ->whereNotNull('location_id')
+                ->distinct()
+                ->pluck('location_id')
+                ->map(fn ($id) => (int) $id)
+                ->all();
+
+            $jobsDeleted = DB::table('job_listings')->delete();
+
+            $companiesDeleted = $this->deleteOrphanedCompanies($companyIds);
+            $categoriesDeleted = $this->deleteOrphanedCategories($categoryIds);
+            $locationsDeleted = $this->deleteOrphanedLocations($locationIds);
+
+            return [
+                'jobs_deleted' => $jobsDeleted,
+                'companies_deleted' => $companiesDeleted,
+                'categories_deleted' => $categoriesDeleted,
+                'locations_deleted' => $locationsDeleted,
+            ];
+        });
+    }
+
+    protected function cleanFastMode(): array
+    {
+        $companyIds = DB::table('job_listings')
+            ->whereNotNull('company_id')
+            ->distinct()
+            ->pluck('company_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $categoryIds = DB::table('job_listings')
+            ->whereNotNull('category_id')
+            ->distinct()
+            ->pluck('category_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $locationIds = DB::table('job_listings')
+            ->whereNotNull('location_id')
+            ->distinct()
+            ->pluck('location_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        $jobsDeleted = (int) DB::table('job_listings')->count();
+
+        $driver = DB::getDriverName();
+        if ($driver === 'mysql') {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            try {
+                DB::table('job_listing_skill')->truncate();
+                DB::table('applications')->truncate();
+                DB::table('saved_jobs')->truncate();
+                DB::table('job_listings')->truncate();
+            } finally {
+                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+        } elseif ($driver === 'pgsql') {
+            DB::statement('TRUNCATE TABLE job_listing_skill, applications, saved_jobs, job_listings RESTART IDENTITY CASCADE');
+        } else {
+            // SQLite/others fallback to bulk delete when TRUNCATE is unavailable.
+            DB::table('job_listing_skill')->delete();
+            DB::table('applications')->delete();
+            DB::table('saved_jobs')->delete();
+            DB::table('job_listings')->delete();
+        }
+
+        $companiesDeleted = $this->deleteOrphanedCompanies($companyIds);
+        $categoriesDeleted = $this->deleteOrphanedCategories($categoryIds);
+        $locationsDeleted = $this->deleteOrphanedLocations($locationIds);
+
+        return [
+            'jobs_deleted' => $jobsDeleted,
+            'companies_deleted' => $companiesDeleted,
+            'categories_deleted' => $categoriesDeleted,
+            'locations_deleted' => $locationsDeleted,
+        ];
     }
 
     /**
