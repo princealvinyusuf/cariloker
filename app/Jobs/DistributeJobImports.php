@@ -481,9 +481,10 @@ class DistributeJobImports implements ShouldQueue
             $locationId = $this->locationIdByKey[$locationKey] ?? null;
         }
 
-        $baseSlug = $this->buildDeterministicSlug($row['title'], $row['source_hash']);
-        for ($attempt = 0; $attempt < 3; $attempt++) {
-            $slug = $attempt === 0 ? $baseSlug : $baseSlug . '-' . ($attempt + 1);
+        $baseSlug = $this->buildSlugBase($row['title']);
+        $hashSuffix = substr((string) $row['source_hash'], 0, 20);
+        for ($attempt = 0; $attempt < 100; $attempt++) {
+            $slug = $this->buildSlugCandidate($baseSlug, $hashSuffix, $attempt);
             $jobData = [
                 'company_id' => $companyId,
                 'category_id' => $categoryId,
@@ -513,7 +514,33 @@ class DistributeJobImports implements ShouldQueue
             }
         }
 
-        throw new \RuntimeException('Unable to generate unique slug for source hash: ' . $row['source_hash']);
+        // Extremely rare fallback to guarantee forward progress even under heavy collisions.
+        $fallbackData = [
+            'company_id' => $companyId,
+            'category_id' => $categoryId,
+            'location_id' => $locationId,
+            'title' => $row['title'],
+            'slug' => substr($baseSlug . '-' . Str::lower(Str::uuid()->toString()), 0, 255),
+            'source_hash' => $row['source_hash'],
+            'description' => $row['description'],
+            'employment_type' => $row['employment_type'],
+            'external_url' => $row['external_url'],
+            'gender' => $row['gender'],
+            'work_arrangement' => $row['work_arrangement'],
+            'education_level' => $row['education_level'],
+            'status' => 'published',
+        ];
+
+        try {
+            Job::create($fallbackData);
+            return 'succeeded';
+        } catch (QueryException $e) {
+            if ($this->isDuplicateConstraintViolation($e)
+                && Job::withoutGlobalScope('notExpired')->where('source_hash', $row['source_hash'])->exists()) {
+                return 'skipped';
+            }
+            throw $e;
+        }
     }
 
     protected function isDuplicateConstraintViolation(QueryException $e): bool
@@ -639,14 +666,24 @@ class DistributeJobImports implements ShouldQueue
         return null;
     }
 
-    protected function buildDeterministicSlug(string $title, string $sourceHash): string
+    protected function buildSlugBase(string $title): string
     {
-        $slugBase = Str::slug(substr($title, 0, 180));
+        $slugBase = Str::slug(substr($title, 0, 160));
         if ($slugBase === '') {
             $slugBase = 'job';
         }
 
-        return $slugBase . '-' . substr($sourceHash, 0, 12);
+        return $slugBase;
+    }
+
+    protected function buildSlugCandidate(string $baseSlug, string $hashSuffix, int $attempt): string
+    {
+        $candidate = $baseSlug . '-' . $hashSuffix;
+        if ($attempt > 0) {
+            $candidate .= '-' . base_convert((string) $attempt, 10, 36);
+        }
+
+        return substr($candidate, 0, 255);
     }
 
     protected function buildSourceHash(
