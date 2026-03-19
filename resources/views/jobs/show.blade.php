@@ -116,7 +116,27 @@
                         <p class="text-sm text-slate-600 dark:text-slate-300">{{ $job->location?->city ?? __('Remote') }}</p>
                     </div>
                 </div>
-                <div class="prose mt-6 max-w-none">{!! nl2br(e($job->description)) !!}</div>
+                @php
+                    $decodedDescription = html_entity_decode((string) $job->description, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $descriptionWithoutStyles = preg_replace('/\sstyle=(["\']).*?\1/i', '', $decodedDescription);
+                    $descriptionWithoutAttrs = preg_replace('/\s(?:class|id|dir|lang)=(["\']).*?\1/i', '', $descriptionWithoutStyles);
+                    $descriptionWithAllowedTags = strip_tags(
+                        (string) $descriptionWithoutAttrs,
+                        '<p><br><ul><ol><li><strong><b><em><i><u><h2><h3><h4><blockquote>'
+                    );
+                    $sanitizedHtmlDescription = preg_replace('/<([a-z0-9]+)\b[^>]*>/i', '<$1>', (string) $descriptionWithAllowedTags);
+                    $sanitizedHtmlDescription = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', (string) $sanitizedHtmlDescription);
+                    $sanitizedHtmlDescription = trim((string) $sanitizedHtmlDescription);
+                    $descriptionHasHtml = $sanitizedHtmlDescription !== strip_tags($sanitizedHtmlDescription);
+                @endphp
+
+                <div class="prose mt-6 max-w-none">
+                    @if($descriptionHasHtml)
+                        {!! $sanitizedHtmlDescription !!}
+                    @else
+                        {!! nl2br(e(trim(strip_tags($decodedDescription)))) !!}
+                    @endif
+                </div>
             </div>
 
             <div class="surface-card p-6">
