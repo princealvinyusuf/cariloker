@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class JobImportController extends Controller
 {
@@ -17,6 +18,7 @@ class JobImportController extends Controller
      */
     public function distribute(): RedirectResponse
     {
+        $this->authorizeAdmin();
         return redirect()->route('admin.jobs.import.index');
     }
 
@@ -25,9 +27,13 @@ class JobImportController extends Controller
      */
     public function index(): \Illuminate\View\View
     {
+        $this->authorizeAdmin();
         $progress = Cache::get(DistributeJobImports::PROGRESS_KEY, [
             'total' => DB::table('job_imports')->count(),
             'processed' => 0,
+            'succeeded' => 0,
+            'failed' => 0,
+            'skipped' => 0,
             'running' => false,
             'errors' => [],
         ]);
@@ -42,15 +48,19 @@ class JobImportController extends Controller
      */
     public function start(Request $request): JsonResponse
     {
+        $this->authorizeAdmin();
         $total = (int) DB::table('job_imports')->count();
 
         if ($total === 0) {
             Cache::put(DistributeJobImports::PROGRESS_KEY, [
                 'total' => 0,
                 'processed' => 0,
+                'succeeded' => 0,
+                'failed' => 0,
+                'skipped' => 0,
                 'running' => false,
                 'errors' => ['No data found in job_imports staging table.'],
-            ], 3600);
+            ], 21600);
 
             return response()->json([
                 'status' => 'error',
@@ -58,8 +68,7 @@ class JobImportController extends Controller
             ], 400);
         }
 
-        $existing = Cache::get(DistributeJobImports::PROGRESS_KEY);
-        if ($existing && !empty($existing['running'])) {
+        if (!Cache::add(DistributeJobImports::LOCK_KEY, now()->timestamp, 21600)) {
             return response()->json([
                 'status' => 'already_running',
                 'message' => 'A distribute job is already running.',
@@ -69,11 +78,32 @@ class JobImportController extends Controller
         Cache::put(DistributeJobImports::PROGRESS_KEY, [
             'total' => $total,
             'processed' => 0,
+            'succeeded' => 0,
+            'failed' => 0,
+            'skipped' => 0,
             'running' => true,
             'errors' => [],
-        ], 3600);
+        ], 21600);
 
-        DistributeJobImports::dispatch();
+        try {
+            DistributeJobImports::dispatch();
+        } catch (Throwable $e) {
+            Cache::put(DistributeJobImports::PROGRESS_KEY, [
+                'total' => $total,
+                'processed' => 0,
+                'succeeded' => 0,
+                'failed' => 1,
+                'skipped' => 0,
+                'running' => false,
+                'errors' => ['Failed to dispatch import job: ' . $e->getMessage()],
+            ], 21600);
+            Cache::forget(DistributeJobImports::LOCK_KEY);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to dispatch import job.',
+            ], 500);
+        }
 
         return response()->json([
             'status' => 'started',
@@ -85,14 +115,23 @@ class JobImportController extends Controller
      */
     public function progress(): JsonResponse
     {
+        $this->authorizeAdmin();
         $progress = Cache::get(DistributeJobImports::PROGRESS_KEY, [
             'total' => DB::table('job_imports')->count(),
             'processed' => 0,
+            'succeeded' => 0,
+            'failed' => 0,
+            'skipped' => 0,
             'running' => false,
             'errors' => [],
         ]);
 
         return response()->json($progress);
+    }
+
+    protected function authorizeAdmin(): void
+    {
+        abort_unless(auth()->user()?->role === 'admin', 403);
     }
 }
 

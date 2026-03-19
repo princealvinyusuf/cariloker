@@ -50,6 +50,11 @@
                                 {{ $progress['processed'] ?? 0 }} / {{ $progress['total'] ?? 0 }}
                             </span>
                         </p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                            {{ __('Succeeded') }}: <span id="succeeded-count">{{ $progress['succeeded'] ?? 0 }}</span>
+                            • {{ __('Failed') }}: <span id="failed-count">{{ $progress['failed'] ?? 0 }}</span>
+                            • {{ __('Skipped') }}: <span id="skipped-count">{{ $progress['skipped'] ?? 0 }}</span>
+                        </p>
                         <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700">
                             @php
                                 $total = max((int) ($progress['total'] ?? 0), 1);
@@ -82,6 +87,9 @@
             const statusLabel = document.getElementById('status-label');
             const totalRowsEl = document.getElementById('total-rows');
             const progressText = document.getElementById('progress-text');
+            const succeededCount = document.getElementById('succeeded-count');
+            const failedCount = document.getElementById('failed-count');
+            const skippedCount = document.getElementById('skipped-count');
             const progressBar = document.getElementById('progress-bar');
             const errorsContainer = document.getElementById('errors-container');
 
@@ -92,9 +100,15 @@
                 const processed = data.processed ?? 0;
                 const running = !!data.running;
                 const errors = Array.isArray(data.errors) ? data.errors : [];
+                const succeeded = data.succeeded ?? 0;
+                const failed = data.failed ?? 0;
+                const skipped = data.skipped ?? 0;
 
                 totalRowsEl.textContent = total;
                 progressText.textContent = processed + ' / ' + total;
+                succeededCount.textContent = succeeded;
+                failedCount.textContent = failed;
+                skippedCount.textContent = skipped;
 
                 const denom = total > 0 ? total : 1;
                 const percentage = Math.min(100, Math.floor((processed / denom) * 100));
@@ -166,6 +180,9 @@
                             updateUI({
                                 total: data.total ?? 0,
                                 processed: data.processed ?? 0,
+                                succeeded: data.succeeded ?? 0,
+                                failed: data.failed ?? 0,
+                                skipped: data.skipped ?? 0,
                                 running: false,
                                 errors: [data.message || 'Failed to start distribution.'],
                             });
@@ -181,6 +198,9 @@
                         updateUI({
                             total: 0,
                             processed: 0,
+                            succeeded: 0,
+                            failed: 1,
+                            skipped: 0,
                             running: false,
                             errors: ['Unexpected error starting distribution.'],
                         });

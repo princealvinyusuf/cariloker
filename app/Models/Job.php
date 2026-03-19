@@ -20,6 +20,7 @@ class Job extends Model
         'location_id',
         'title',
         'slug',
+        'source_hash',
         'description',
         'employment_type',
         'openings',
