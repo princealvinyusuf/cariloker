@@ -1,5 +1,5 @@
 @section('meta_title', $job->title . ' - ' . ($job->company->name ?? 'Cari Loker'))
-@section('meta_description', str(strip_tags($job->description))->limit(155, ''))
+@section('meta_description', str($job->plain_description_text)->limit(155, ''))
 @section('og_type', 'article')
 @if($job->company?->logo_path)
     @section('og_image', url(Storage::url($job->company->logo_path)))
@@ -35,7 +35,7 @@
             '@context' => 'https://schema.org',
             '@type' => 'JobPosting',
             'title' => $job->title,
-            'description' => strip_tags((string) $job->description),
+            'description' => $job->plain_description_text,
             'datePosted' => optional($job->posted_at ?? $job->created_at)->toAtomString(),
             'validThrough' => optional($job->valid_until)->toAtomString(),
             'employmentType' => str((string) $job->employment_type)->replace('_', ' ')->upper()->toString(),
@@ -117,16 +117,7 @@
                     </div>
                 </div>
                 @php
-                    $decodedDescription = html_entity_decode((string) $job->description, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                    $descriptionWithoutStyles = preg_replace('/\sstyle=(["\']).*?\1/i', '', $decodedDescription);
-                    $descriptionWithoutAttrs = preg_replace('/\s(?:class|id|dir|lang)=(["\']).*?\1/i', '', $descriptionWithoutStyles);
-                    $descriptionWithAllowedTags = strip_tags(
-                        (string) $descriptionWithoutAttrs,
-                        '<p><br><ul><ol><li><strong><b><em><i><u><h2><h3><h4><blockquote>'
-                    );
-                    $sanitizedHtmlDescription = preg_replace('/<([a-z0-9]+)\b[^>]*>/i', '<$1>', (string) $descriptionWithAllowedTags);
-                    $sanitizedHtmlDescription = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', (string) $sanitizedHtmlDescription);
-                    $sanitizedHtmlDescription = trim((string) $sanitizedHtmlDescription);
+                    $sanitizedHtmlDescription = $job->sanitized_description_html;
                     $descriptionHasHtml = $sanitizedHtmlDescription !== strip_tags($sanitizedHtmlDescription);
                 @endphp
 
@@ -134,7 +125,7 @@
                     @if($descriptionHasHtml)
                         {!! $sanitizedHtmlDescription !!}
                     @else
-                        {!! nl2br(e(trim(strip_tags($decodedDescription)))) !!}
+                        {!! nl2br(e($job->plain_description_text)) !!}
                     @endif
                 </div>
             </div>

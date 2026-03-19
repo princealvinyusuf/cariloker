@@ -122,7 +122,7 @@
                         </div>
                     </div>
                     <a href="{{ route('jobs.show', $job) }}" class="block text-lg font-bold text-slate-900 transition hover:text-primary-700 dark:text-white dark:hover:text-primary-300">{{ $job->title }}</a>
-                    <p class="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{{ str($job->description)->stripTags()->limit(110) }}</p>
+                    <p class="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{{ str($job->plain_description_text)->limit(110) }}</p>
                     <div class="mt-4 flex flex-wrap gap-2">
                         <span class="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $employmentTypes[$job->employment_type] ?? str($job->employment_type)->replace('_', ' ')->title() }}</span>
                         @if($job->salary_min)

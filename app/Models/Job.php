@@ -96,4 +96,26 @@ class Job extends Model
             });
         });
     }
+
+    public function getSanitizedDescriptionHtmlAttribute(): string
+    {
+        $decodedDescription = html_entity_decode((string) $this->description, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $descriptionWithoutStyles = preg_replace('/\sstyle=(["\']).*?\1/i', '', $decodedDescription);
+        $descriptionWithoutAttrs = preg_replace('/\s(?:class|id|dir|lang)=(["\']).*?\1/i', '', (string) $descriptionWithoutStyles);
+        $descriptionWithAllowedTags = strip_tags(
+            (string) $descriptionWithoutAttrs,
+            '<p><br><ul><ol><li><strong><b><em><i><u><h2><h3><h4><blockquote>'
+        );
+        $sanitizedHtmlDescription = preg_replace('/<([a-z0-9]+)\b[^>]*>/i', '<$1>', (string) $descriptionWithAllowedTags);
+        $sanitizedHtmlDescription = preg_replace('/(<br\s*\/?>\s*){3,}/i', '<br><br>', (string) $sanitizedHtmlDescription);
+
+        return trim((string) $sanitizedHtmlDescription);
+    }
+
+    public function getPlainDescriptionTextAttribute(): string
+    {
+        $decodedDescription = html_entity_decode((string) $this->description, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return trim(strip_tags($decodedDescription));
+    }
 }

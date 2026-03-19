@@ -262,7 +262,7 @@
                             </div>
 
                             <a href="{{ route('jobs.show', $job) }}" class="line-clamp-2 text-lg font-bold text-slate-900 transition hover:text-primary-700 dark:text-white dark:hover:text-primary-300">{{ $job->title }}</a>
-                            <p class="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{{ str($job->description)->limit(90) }}</p>
+                            <p class="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{{ str($job->plain_description_text)->limit(90) }}</p>
 
                             <div class="mt-4 flex flex-wrap gap-2">
                                 @if($job->salary_min)
