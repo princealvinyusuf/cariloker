@@ -34,6 +34,9 @@
     $seoSearchCombos = collect($seoSearchCombos ?? []);
     $relatedCategoryLinks = collect($relatedCategoryLinks ?? []);
     $relatedLocationLinks = collect($relatedLocationLinks ?? []);
+    $seoIntroParagraphs = collect($seoIntroParagraphs ?? []);
+    $seoTopicLinks = collect($seoTopicLinks ?? []);
+    $seoSemanticTerms = collect($seoSemanticTerms ?? []);
 
     $metaKeywordParts = collect([
         'lowongan kerja',
@@ -156,6 +159,42 @@
             @endif
         </div>
     </section>
+
+    @if($seoIntroParagraphs->isNotEmpty() || $seoTopicLinks->isNotEmpty() || $seoSemanticTerms->isNotEmpty())
+        <section class="section-container py-8">
+            <div class="surface-card p-6 md:p-8">
+                @if($seoIntroParagraphs->isNotEmpty())
+                    <div class="space-y-3 text-slate-600 dark:text-slate-300">
+                        @foreach($seoIntroParagraphs as $paragraph)
+                            <p>{{ $paragraph }}</p>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if($seoTopicLinks->isNotEmpty())
+                    <div class="mt-6">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{{ __('Topik Terkait') }}</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @foreach($seoTopicLinks as $topic)
+                                <a href="{{ $topic['url'] }}" class="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                                    {{ $topic['label'] }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if($seoSemanticTerms->isNotEmpty())
+                    <div class="mt-5">
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            {{ __('Pencarian terkait:') }}
+                            {{ $seoSemanticTerms->implode(' - ') }}
+                        </p>
+                    </div>
+                @endif
+            </div>
+        </section>
+    @endif
 
     <section class="section-container py-8">
         <div class="grid gap-6 lg:grid-cols-12">

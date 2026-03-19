@@ -411,6 +411,98 @@ class JobController extends Controller
                 ]);
         }
 
+        $seoIntroParagraphs = collect();
+        if ($resolvedCategoryName && $queryLocation !== '') {
+            $seoIntroParagraphs->push(sprintf(
+                'Halaman ini menampilkan lowongan kerja %s terbaru di %s dari berbagai perusahaan aktif. Kamu bisa membandingkan posisi berdasarkan gaji, pengalaman, dan tipe kerja agar proses lamaran lebih terarah.',
+                $resolvedCategoryName,
+                $queryLocation
+            ));
+            $seoIntroParagraphs->push(sprintf(
+                'Tersedia %s lowongan aktif untuk kombinasi %s di %s. Gunakan filter tambahan untuk menemukan posisi yang paling relevan dengan profil kariermu.',
+                number_format($jobs->total()),
+                $resolvedCategoryName,
+                $queryLocation
+            ));
+        } elseif ($resolvedCategoryName) {
+            $seoIntroParagraphs->push(sprintf(
+                'Jelajahi lowongan kerja %s terbaru yang diupdate berkala dari perusahaan terverifikasi. Gunakan pencarian kata kunci dan filter pengalaman untuk menyaring hasil paling relevan.',
+                $resolvedCategoryName
+            ));
+            $seoIntroParagraphs->push(sprintf(
+                'Saat ini tersedia %s lowongan aktif dalam kategori %s di Cari Loker.',
+                number_format($jobs->total()),
+                $resolvedCategoryName
+            ));
+        } elseif ($queryLocation !== '') {
+            $seoIntroParagraphs->push(sprintf(
+                'Temukan peluang karier terbaru di %s untuk berbagai level pengalaman dan bidang kerja. Halaman ini dirancang untuk memudahkanmu membandingkan lowongan secara cepat.',
+                $queryLocation
+            ));
+            $seoIntroParagraphs->push(sprintf(
+                'Ada %s lowongan aktif di %s saat ini, termasuk opsi onsite, hybrid, dan remote.',
+                number_format($jobs->total()),
+                $queryLocation
+            ));
+        } elseif ($queryKeyword !== '') {
+            $seoIntroParagraphs->push(sprintf(
+                'Hasil pencarian untuk "%s" menampilkan lowongan kerja terbaru dari perusahaan yang sedang rekrut aktif. Sesuaikan lokasi dan rentang gaji untuk mendapatkan hasil yang lebih presisi.',
+                $queryKeyword
+            ));
+            $seoIntroParagraphs->push(sprintf(
+                'Ditemukan %s lowongan aktif berdasarkan kata kunci "%s".',
+                number_format($jobs->total()),
+                $queryKeyword
+            ));
+        } else {
+            $seoIntroParagraphs->push('Cari Loker membantu kandidat menemukan lowongan kerja terbaru di Indonesia dengan filter yang lengkap, mulai dari lokasi, kategori, pengalaman, hingga salary range.');
+            $seoIntroParagraphs->push(sprintf('Saat ini tersedia %s lowongan aktif yang bisa kamu telusuri dan lamar langsung.', number_format($jobs->total())));
+        }
+
+        $seoTopicLinks = collect();
+        if ($resolvedCategoryName && $queryLocation !== '') {
+            $resolvedCategory = $categories->firstWhere('slug', $queryCategory);
+            if ($resolvedCategory) {
+                $seoTopicLinks->push([
+                    'label' => sprintf('Semua lowongan %s', $resolvedCategoryName),
+                    'url' => route('jobs.by-category', $resolvedCategory),
+                ]);
+            }
+            $seoTopicLinks->push([
+                'label' => sprintf('Semua lowongan di %s', $queryLocation),
+                'url' => route('jobs.by-location', ['locationSlug' => str($queryLocation)->slug()]),
+            ]);
+            $seoTopicLinks = $seoTopicLinks
+                ->merge($relatedCategoryLinks->take(3))
+                ->merge($relatedLocationLinks->take(3));
+        } elseif ($resolvedCategoryName) {
+            $seoTopicLinks = $seoTopicLinks->merge($relatedLocationLinks->take(6));
+        } elseif ($queryLocation !== '') {
+            $seoTopicLinks = $seoTopicLinks->merge($relatedCategoryLinks->take(6));
+        } else {
+            $seoTopicLinks = $seoTopicLinks
+                ->merge($categories->take(4)->map(fn ($category) => [
+                    'label' => sprintf('Lowongan %s', $category->name),
+                    'url' => route('jobs.by-category', $category),
+                ]))
+                ->merge($popularLocations->take(4)->map(fn ($location) => [
+                    'label' => sprintf('Lowongan di %s', $location->city),
+                    'url' => route('jobs.by-location', ['locationSlug' => str((string) $location->city)->slug()]),
+                ]));
+        }
+        $seoTopicLinks = $seoTopicLinks->unique('url')->take(8)->values();
+
+        $seoSemanticTerms = collect([
+            'lowongan kerja terbaru',
+            'loker Indonesia',
+            $queryKeyword !== '' ? sprintf('lowongan %s', $queryKeyword) : null,
+            $resolvedCategoryName ? sprintf('karier %s', $resolvedCategoryName) : null,
+            $resolvedCategoryName ? sprintf('pekerjaan %s', $resolvedCategoryName) : null,
+            $queryLocation !== '' ? sprintf('loker %s', $queryLocation) : null,
+            $queryLocation !== '' ? sprintf('karier di %s', $queryLocation) : null,
+            ($resolvedCategoryName && $queryLocation !== '') ? sprintf('%s di %s', $resolvedCategoryName, $queryLocation) : null,
+        ])->filter()->unique()->values();
+
         $derivedMetaTitle = 'Lowongan Kerja Terbaru - Cari Loker';
         $derivedMetaDescription = 'Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.';
         if ($queryKeyword !== '' && $queryLocation !== '') {
@@ -444,6 +536,9 @@ class JobController extends Controller
             'seoFaqs' => $seoOverrides['seoFaqs'] ?? [],
             'relatedCategoryLinks' => $relatedCategoryLinks,
             'relatedLocationLinks' => $relatedLocationLinks,
+            'seoIntroParagraphs' => $seoIntroParagraphs,
+            'seoTopicLinks' => $seoTopicLinks,
+            'seoSemanticTerms' => $seoSemanticTerms,
         ]);
     }
 
