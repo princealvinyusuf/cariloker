@@ -16,7 +16,7 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-3">
                         <div>
                             <p class="text-sm font-medium">
                                 {{ __('Total rows in staging table') }}:
@@ -36,11 +36,18 @@
                             </p>
                         </div>
 
-                        <button id="start-distribute"
-                                type="button"
-                                class="inline-flex items-center px-4 py-2 bg-violet-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {{ __('Start Distribute Data') }}
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button id="start-distribute"
+                                    type="button"
+                                    class="inline-flex items-center px-4 py-2 bg-violet-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                {{ __('Start Distribute Data') }}
+                            </button>
+                            <button id="clean-related-data"
+                                    type="button"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                {{ __('Clean Relatable Database') }}
+                            </button>
+                        </div>
                     </div>
 
                     <div>
@@ -75,6 +82,11 @@
                     </div>
 
                     <div>
+                        <h3 class="text-sm font-semibold mb-2">{{ __('Result') }}</h3>
+                        <div id="result-container" class="text-xs space-y-1 max-h-40 overflow-y-auto"></div>
+                    </div>
+
+                    <div>
                         <h3 class="text-sm font-semibold mb-2">{{ __('Errors (if any)') }}</h3>
                         <div id="errors-container" class="text-xs space-y-1 max-h-40 overflow-y-auto">
                             @foreach(($progress['errors'] ?? []) as $error)
@@ -90,6 +102,7 @@
     <script>
         (function () {
             const startButton = document.getElementById('start-distribute');
+            const cleanButton = document.getElementById('clean-related-data');
             const statusLabel = document.getElementById('status-label');
             const totalRowsEl = document.getElementById('total-rows');
             const progressText = document.getElementById('progress-text');
@@ -101,9 +114,15 @@
             const elapsedSeconds = document.getElementById('elapsed-seconds');
             const etaSeconds = document.getElementById('eta-seconds');
             const progressBar = document.getElementById('progress-bar');
+            const resultContainer = document.getElementById('result-container');
             const errorsContainer = document.getElementById('errors-container');
 
             let pollInterval = null;
+
+            function setButtonsDisabled(disabled) {
+                startButton.disabled = disabled;
+                cleanButton.disabled = disabled;
+            }
 
             function updateUI(data) {
                 const total = data.total ?? 0;
@@ -117,6 +136,7 @@
                 const chunkRps = data.chunk_rows_per_second ?? 0;
                 const elapsed = data.elapsed_seconds ?? 0;
                 const eta = data.eta_seconds;
+                const successMessage = data.success_message ?? '';
 
                 totalRowsEl.textContent = total;
                 progressText.textContent = processed + ' / ' + total;
@@ -127,6 +147,14 @@
                 chunkRowsPerSecond.textContent = chunkRps;
                 elapsedSeconds.textContent = elapsed;
                 etaSeconds.textContent = eta === null ? '-' : eta + 's';
+
+                resultContainer.innerHTML = '';
+                if (successMessage) {
+                    const p = document.createElement('p');
+                    p.className = 'text-emerald-500';
+                    p.textContent = '• ' + successMessage;
+                    resultContainer.appendChild(p);
+                }
 
                 const denom = total > 0 ? total : 1;
                 const percentage = Math.min(100, Math.floor((processed / denom) * 100));
@@ -166,7 +194,7 @@
                                 clearInterval(pollInterval);
                                 pollInterval = null;
                             }
-                            startButton.disabled = false;
+                            setButtonsDisabled(false);
                         }
                     })
                     .catch(() => {
@@ -174,12 +202,12 @@
                             clearInterval(pollInterval);
                             pollInterval = null;
                         }
-                        startButton.disabled = false;
+                        setButtonsDisabled(false);
                     });
             }
 
             startButton.addEventListener('click', function () {
-                startButton.disabled = true;
+                setButtonsDisabled(true);
                 statusLabel.textContent = 'Starting...';
 
                 fetch('{{ route('admin.jobs.import.start') }}', {
@@ -206,9 +234,10 @@
                                 elapsed_seconds: data.elapsed_seconds ?? 0,
                                 eta_seconds: data.eta_seconds ?? null,
                                 running: false,
+                                success_message: '',
                                 errors: [data.message || 'Failed to start distribution.'],
                             });
-                            startButton.disabled = false;
+                            setButtonsDisabled(false);
                             return;
                         }
 
@@ -228,15 +257,98 @@
                             elapsed_seconds: 0,
                             eta_seconds: null,
                             running: false,
+                            success_message: '',
                             errors: ['Unexpected error starting distribution.'],
                         });
-                        startButton.disabled = false;
+                        setButtonsDisabled(false);
+                    });
+            });
+
+            cleanButton.addEventListener('click', function () {
+                const confirmed = window.confirm('Clean related imported data from job listings, companies, categories, and locations? This will NOT delete rows in job_imports.');
+                if (!confirmed) {
+                    return;
+                }
+
+                setButtonsDisabled(true);
+                statusLabel.textContent = 'Cleaning...';
+
+                fetch('{{ route('admin.jobs.import.clean') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({})
+                })
+                    .then(async (response) => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            updateUI({
+                                total: data.total ?? 0,
+                                processed: 0,
+                                succeeded: 0,
+                                failed: 1,
+                                skipped: 0,
+                                rows_per_second: 0,
+                                chunk_rows_per_second: 0,
+                                elapsed_seconds: 0,
+                                eta_seconds: null,
+                                running: false,
+                                success_message: '',
+                                errors: [data.message || 'Failed to clean related data.'],
+                            });
+                            setButtonsDisabled(false);
+                            return;
+                        }
+
+                        const counts = data.counts || {};
+                        updateUI({
+                            total: Number(document.getElementById('total-rows').textContent || 0),
+                            processed: 0,
+                            succeeded: 0,
+                            failed: 0,
+                            skipped: 0,
+                            rows_per_second: 0,
+                            chunk_rows_per_second: 0,
+                            elapsed_seconds: 0,
+                            eta_seconds: null,
+                            running: false,
+                            success_message:
+                                (data.message || 'Cleanup completed.') +
+                                    ' jobs=' + (counts.jobs_deleted ?? 0) +
+                                    ', companies=' + (counts.companies_deleted ?? 0) +
+                                    ', categories=' + (counts.categories_deleted ?? 0) +
+                                    ', locations=' + (counts.locations_deleted ?? 0),
+                            errors: [],
+                        });
+                        statusLabel.textContent = 'Idle';
+                        setButtonsDisabled(false);
+                    })
+                    .catch(() => {
+                        updateUI({
+                            total: Number(document.getElementById('total-rows').textContent || 0),
+                            processed: 0,
+                            succeeded: 0,
+                            failed: 1,
+                            skipped: 0,
+                            rows_per_second: 0,
+                            chunk_rows_per_second: 0,
+                            elapsed_seconds: 0,
+                            eta_seconds: null,
+                            running: false,
+                            success_message: '',
+                            errors: ['Unexpected error while cleaning related data.'],
+                        });
+                        setButtonsDisabled(false);
                     });
             });
 
             // If a job is already running, start polling immediately
             @if(!empty($progress['running']))
                 pollInterval = setInterval(fetchProgress, 2000);
+                setButtonsDisabled(true);
             @endif
         })();
     </script>

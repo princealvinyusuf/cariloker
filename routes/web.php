@@ -44,6 +44,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.jobs.import.index');
     Route::post('/admin/jobs/import/start', [\App\Http\Controllers\Admin\JobImportController::class, 'start'])
         ->name('admin.jobs.import.start');
+    Route::post('/admin/jobs/import/clean', [\App\Http\Controllers\Admin\JobImportController::class, 'clean'])
+        ->name('admin.jobs.import.clean');
     Route::get('/admin/jobs/import/progress', [\App\Http\Controllers\Admin\JobImportController::class, 'progress'])
         ->name('admin.jobs.import.progress');
     // Legacy route from first iteration: keep but redirect to the new page
