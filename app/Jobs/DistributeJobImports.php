@@ -127,7 +127,7 @@ class DistributeJobImports implements ShouldQueue
         try {
             DB::table('job_imports')
                 ->orderBy('id')
-                ->chunkById(self::CHUNK_SIZE, function ($rows) use (&$processed, &$succeeded, &$failed, &$skipped, $total, &$errors, $startedAt) {
+                ->chunkById(self::CHUNK_SIZE, function ($rows) use (&$processed, &$succeeded, &$failed, &$skipped, $total, &$errors, $startedAt, $startedAtTimestamp) {
                     $chunkStartedAt = microtime(true);
                     $result = $this->processChunk($rows);
                     $processed += $result['processed'];
