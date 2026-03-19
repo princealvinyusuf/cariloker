@@ -6,18 +6,54 @@
         'internship' => __('Internship'),
         'freelance' => __('Freelance'),
     ];
+
+    $seoMetaTitle = $seoMetaTitle ?? __('Lowongan Kerja Terbaru - Cari Loker');
+    $seoMetaDescription = $seoMetaDescription ?? __('Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.');
+    $pageHeading = $pageHeading ?? __('Search, Apply & Get Your Dream Job');
+    $pageSubheading = $pageSubheading ?? __('Cari lowongan kerja terbaru dari berbagai bidang dan lokasi, lalu lamar dalam beberapa langkah.');
+
+    $breadcrumbItems = $breadcrumbItems ?? [
+        ['name' => __('Beranda'), 'url' => route('beranda')],
+        ['name' => __('Jobs'), 'url' => route('jobs.index')],
+    ];
+
+    $breadcrumbSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => collect($breadcrumbItems)->values()->map(function ($item, $index) {
+            return [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => $item['name'],
+                'item' => $item['url'],
+            ];
+        })->all(),
+    ];
 @endphp
 
-@section('meta_title', __('Lowongan Kerja Terbaru - Cari Loker'))
-@section('meta_description', __('Cari dan temukan pekerjaan impianmu! Jelajahi ribuan lowongan kerja terbaru di berbagai bidang dan lokasi di seluruh Indonesia hanya di Cari Loker.'))
+@section('meta_title', $seoMetaTitle)
+@section('meta_description', $seoMetaDescription)
 @section('og_type', 'website')
+@section('structured_data')
+    <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endsection
 
 <x-app-layout>
     <section class="border-b border-slate-200 bg-white py-12 dark:border-slate-800 dark:bg-slate-950">
         <div class="section-container">
+            <nav aria-label="Breadcrumb" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    @foreach($breadcrumbItems as $crumb)
+                        <li class="flex items-center gap-2">
+                            <a href="{{ $crumb['url'] }}" class="hover:text-primary-700 dark:hover:text-primary-300">{{ $crumb['name'] }}</a>
+                            @unless($loop->last)<span>/</span>@endunless
+                        </li>
+                    @endforeach
+                </ol>
+            </nav>
             <div class="mx-auto max-w-4xl text-center">
-                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-5xl">{{ __('Search, Apply & Get Your Dream Job') }}</h1>
-                <p class="mx-auto mt-4 max-w-2xl text-slate-600 dark:text-slate-300">{{ __('Cari lowongan kerja terbaru dari berbagai bidang dan lokasi, lalu lamar dalam beberapa langkah.') }}</p>
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-5xl">{{ $pageHeading }}</h1>
+                <p class="mx-auto mt-4 max-w-2xl text-slate-600 dark:text-slate-300">{{ $pageSubheading }}</p>
             </div>
             <div id="job-search-bar" class="mx-auto mt-8 max-w-5xl">
                 <form method="GET" action="{{ route('jobs.index') }}" class="search-bar-wrapper surface-card p-4 md:p-5">
@@ -44,7 +80,7 @@
             @if($categories->count() > 0)
                 <div class="mt-6 flex flex-wrap justify-center gap-2">
                     @foreach($categories->take(8) as $category)
-                        <a href="{{ route('jobs.index', ['category' => $category->slug, 'list' => 1]) }}" class="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                        <a href="{{ route('jobs.by-category', $category) }}" class="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                             {{ $category->name }}
                         </a>
                     @endforeach
@@ -164,6 +200,31 @@
                     </div>
                 @endif
             </main>
+        </div>
+    </section>
+
+    <section class="section-container pb-12">
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="surface-card p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white">{{ __('Explore by Category') }}</h2>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    @foreach($categories->take(10) as $category)
+                        <a href="{{ route('jobs.by-category', $category) }}" class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                            {{ $category->name }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+            <div class="surface-card p-6">
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white">{{ __('Explore by Location') }}</h2>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    @foreach(($popularLocations ?? collect())->take(10) as $location)
+                        <a href="{{ route('jobs.by-location', ['locationSlug' => \Illuminate\Support\Str::slug((string) $location->city)]) }}" class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                            {{ $location->city }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
         </div>
     </section>
 </x-app-layout>

@@ -18,7 +18,7 @@
             @if($categories->count() > 0)
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 mb-8">
                     @foreach($categories as $category)
-                        <a href="{{ route('jobs.index', ['category' => $category->slug, 'list' => '1']) }}" 
+                        <a href="{{ route('jobs.by-category', $category) }}" 
                            class="bg-white rounded-2xl p-6 text-center hover:shadow-lg hover:scale-105 hover:bg-violet-50 transition-all group">
                             <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-violet-50 flex items-center justify-center group-hover:bg-violet-100 transition-colors">
                                 <i class="fa-solid fa-briefcase text-xl text-violet-600 group-hover:text-violet-600"></i>

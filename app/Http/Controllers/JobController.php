@@ -22,6 +22,76 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
+        return $this->renderListingPage($request);
+    }
+
+    /**
+     * SEO landing page for a specific category.
+     */
+    public function byCategory(Request $request, JobCategory $category)
+    {
+        $request->merge([
+            'category' => $category->slug,
+        ]);
+
+        return $this->renderListingPage(
+            $request,
+            [
+                'metaTitle' => sprintf('Lowongan Kerja %s Terbaru - Cari Loker', $category->name),
+                'metaDescription' => sprintf('Temukan lowongan kerja %s terbaru dari berbagai perusahaan terbaik di Indonesia.', $category->name),
+                'pageHeading' => sprintf('Lowongan Kerja %s', $category->name),
+                'pageSubheading' => sprintf('Jelajahi peluang karier %s yang relevan dengan keahlianmu.', $category->name),
+                'breadcrumbItems' => [
+                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Jobs', 'url' => route('jobs.index')],
+                    ['name' => $category->name, 'url' => route('jobs.by-category', $category)],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * SEO landing page for a specific city/location.
+     */
+    public function byLocation(Request $request, string $locationSlug)
+    {
+        $locations = Location::query()
+            ->whereNotNull('city')
+            ->select('city')
+            ->distinct()
+            ->get();
+
+        $matchedCity = $locations
+            ->first(fn ($location) => str($location->city)->slug() === $locationSlug)
+            ?->city;
+
+        abort_unless($matchedCity, 404);
+
+        $request->merge([
+            'location' => $matchedCity,
+        ]);
+
+        return $this->renderListingPage(
+            $request,
+            [
+                'metaTitle' => sprintf('Lowongan Kerja di %s Terbaru - Cari Loker', $matchedCity),
+                'metaDescription' => sprintf('Cari lowongan kerja terbaru di %s. Temukan pekerjaan terbaik sesuai bidang dan pengalamanmu.', $matchedCity),
+                'pageHeading' => sprintf('Lowongan Kerja di %s', $matchedCity),
+                'pageSubheading' => sprintf('Peluang karier terbaru dari perusahaan terbaik di %s.', $matchedCity),
+                'breadcrumbItems' => [
+                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Jobs', 'url' => route('jobs.index')],
+                    ['name' => $matchedCity, 'url' => route('jobs.by-location', ['locationSlug' => $locationSlug])],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Shared listing renderer for jobs index and SEO landing pages.
+     */
+    private function renderListingPage(Request $request, array $seoOverrides = [])
+    {
         $query = Job::query()
             ->with(['company', 'location', 'category'])
             ->where('status', 'published')
@@ -158,11 +228,28 @@ class JobController extends Controller
                 ->orderByDesc('jobs_count')->limit(8)->get();
         });
 
+        $popularLocations = Cache::remember('locations:popular', 600, function () {
+            return Location::query()
+                ->whereNotNull('city')
+                ->whereHas('jobs', fn ($q) => $q->where('status', 'published'))
+                ->withCount(['jobs' => fn ($q) => $q->where('status', 'published')])
+                ->orderByDesc('jobs_count')
+                ->orderBy('city')
+                ->limit(10)
+                ->get();
+        });
+
         return view('jobs.index', [
             'jobs' => $jobs,
             'categories' => $categories,
             'popularCompanies' => $popularCompanies,
             'educationLevels' => $educationLevels,
+            'popularLocations' => $popularLocations,
+            'seoMetaTitle' => $seoOverrides['metaTitle'] ?? null,
+            'seoMetaDescription' => $seoOverrides['metaDescription'] ?? null,
+            'pageHeading' => $seoOverrides['pageHeading'] ?? null,
+            'pageSubheading' => $seoOverrides['pageSubheading'] ?? null,
+            'breadcrumbItems' => $seoOverrides['breadcrumbItems'] ?? null,
         ]);
     }
 

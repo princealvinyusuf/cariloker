@@ -61,6 +61,12 @@ Route::redirect('/', '/beranda')->name('home');
 Route::get('/jobs', [JobController::class, 'index'])
     ->middleware(['throttle:job-listing'])
     ->name('jobs.index');
+Route::get('/lowongan/kategori/{category:slug}', [JobController::class, 'byCategory'])
+    ->middleware(['throttle:job-listing'])
+    ->name('jobs.by-category');
+Route::get('/lowongan/lokasi/{locationSlug}', [JobController::class, 'byLocation'])
+    ->middleware(['throttle:job-listing'])
+    ->name('jobs.by-location');
 
 Route::resource('jobs', JobController::class)->except(['index']);
 
@@ -99,6 +105,28 @@ Route::get('/sitemap.xml', function () {
             'lastmod' => optional($company->updated_at ?? $company->created_at)->toAtomString(),
         ]);
 
+    $categoryUrls = \App\Models\JobCategory::query()
+        ->orderBy('name')
+        ->limit(1000)
+        ->get()
+        ->map(fn ($category) => [
+            'loc' => route('jobs.by-category', $category),
+            'lastmod' => now()->toAtomString(),
+        ]);
+
+    $locationUrls = \App\Models\Location::query()
+        ->whereNotNull('city')
+        ->whereHas('jobs', fn ($q) => $q->where('status', 'published'))
+        ->select(['city', 'updated_at', 'created_at'])
+        ->distinct()
+        ->orderBy('city')
+        ->limit(2000)
+        ->get()
+        ->map(fn ($location) => [
+            'loc' => route('jobs.by-location', ['locationSlug' => \Illuminate\Support\Str::slug((string) $location->city)]),
+            'lastmod' => optional($location->updated_at ?? $location->created_at)->toAtomString(),
+        ]);
+
     $blogUrls = BlogPost::query()
         ->where('status', 'published')
         ->whereNotNull('published_at')
@@ -113,6 +141,8 @@ Route::get('/sitemap.xml', function () {
     $urls = $staticUrls
         ->merge($jobUrls)
         ->merge($companyUrls)
+        ->merge($categoryUrls)
+        ->merge($locationUrls)
         ->merge($blogUrls)
         ->values();
 

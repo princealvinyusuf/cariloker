@@ -65,7 +65,7 @@
             @if($categories->count() > 0)
                 <div class="mx-auto mt-10 flex max-w-6xl flex-wrap justify-center gap-2">
                     @foreach($categories->take(10) as $category)
-                        <a href="{{ route('jobs.index', ['category' => $category->slug, 'list' => 1]) }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                        <a href="{{ route('jobs.by-category', $category) }}" class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                             {{ $category->name }}
                         </a>
                     @endforeach
@@ -86,7 +86,7 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($categories->take(8) as $category)
                     @php $icon = $getCategoryIcon($category->name); @endphp
-                    <a href="{{ route('jobs.index', ['category' => $category->slug, 'list' => 1]) }}" class="surface-card p-5 transition hover:-translate-y-0.5 hover:border-primary-300">
+                    <a href="{{ route('jobs.by-category', $category) }}" class="surface-card p-5 transition hover:-translate-y-0.5 hover:border-primary-300">
                         <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl {{ $icon['color'] }}">
                             <i class="fa-solid {{ $icon['icon'] }} text-lg {{ $icon['iconColor'] }}"></i>
                         </div>

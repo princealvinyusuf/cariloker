@@ -6,6 +6,31 @@
 @endif
 @section('structured_data')
     @php
+        $breadcrumbSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                [
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'Beranda',
+                    'item' => route('beranda'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Jobs',
+                    'item' => route('jobs.index'),
+                ],
+                [
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $job->title,
+                    'item' => route('jobs.show', $job),
+                ],
+            ],
+        ];
+
         $jobSchema = [
             '@context' => 'https://schema.org',
             '@type' => 'JobPosting',
@@ -46,6 +71,7 @@
             ];
         }
     @endphp
+    <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     <script type="application/ld+json">{!! json_encode($jobSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endsection
 
@@ -104,6 +130,20 @@
                     @endif
                     @if($job->education_level)
                         <span class="rounded-md bg-primary-50 px-2 py-1 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $job->education_level }}</span>
+                    @endif
+                </div>
+                <div class="mt-5 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
+                    @if($job->category)
+                        <a href="{{ route('jobs.by-category', $job->category) }}" class="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200">
+                            {{ __('Lihat lowongan lain di kategori') }} {{ $job->category->name }} →
+                        </a>
+                    @endif
+                    @if($job->location?->city)
+                        <div class="mt-2">
+                            <a href="{{ route('jobs.by-location', ['locationSlug' => \Illuminate\Support\Str::slug((string) $job->location->city)]) }}" class="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200">
+                                {{ __('Lihat lowongan lain di') }} {{ $job->location->city }} →
+                            </a>
+                        </div>
                     @endif
                 </div>
             </div>
