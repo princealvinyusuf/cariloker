@@ -9,7 +9,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class JobImportController extends Controller
@@ -157,13 +156,6 @@ class JobImportController extends Controller
     {
         $this->authorizeAdmin();
 
-        if (!Schema::hasColumn('job_listings', 'source_hash')) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Missing source_hash column. Please run migrations first.',
-            ], 422);
-        }
-
         if (!Cache::add(DistributeJobImports::LOCK_KEY, now()->timestamp, 600)) {
             return response()->json([
                 'status' => 'already_running',
@@ -174,7 +166,6 @@ class JobImportController extends Controller
         try {
             $counts = DB::transaction(function () {
                 $companyIds = DB::table('job_listings')
-                    ->whereNotNull('source_hash')
                     ->whereNotNull('company_id')
                     ->distinct()
                     ->pluck('company_id')
@@ -182,7 +173,6 @@ class JobImportController extends Controller
                     ->all();
 
                 $categoryIds = DB::table('job_listings')
-                    ->whereNotNull('source_hash')
                     ->whereNotNull('category_id')
                     ->distinct()
                     ->pluck('category_id')
@@ -190,16 +180,13 @@ class JobImportController extends Controller
                     ->all();
 
                 $locationIds = DB::table('job_listings')
-                    ->whereNotNull('source_hash')
                     ->whereNotNull('location_id')
                     ->distinct()
                     ->pluck('location_id')
                     ->map(fn ($id) => (int) $id)
                     ->all();
 
-                $jobsDeleted = DB::table('job_listings')
-                    ->whereNotNull('source_hash')
-                    ->delete();
+                $jobsDeleted = DB::table('job_listings')->delete();
 
                 $companiesDeleted = $this->deleteOrphanedCompanies($companyIds);
                 $categoriesDeleted = $this->deleteOrphanedCategories($categoryIds);
@@ -229,7 +216,7 @@ class JobImportController extends Controller
 
             return response()->json([
                 'status' => 'cleaned',
-                'message' => 'Related imported data has been cleaned. job_imports data remains untouched.',
+                'message' => 'Related job data has been cleaned. job_imports data remains untouched.',
                 'counts' => $counts,
             ]);
         } catch (Throwable $e) {

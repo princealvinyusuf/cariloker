@@ -265,7 +265,7 @@
             });
 
             cleanButton.addEventListener('click', function () {
-                const confirmed = window.confirm('Clean related imported data from job listings, companies, categories, and locations? This will NOT delete rows in job_imports.');
+                const confirmed = window.confirm('Clean ALL job listings and related orphaned companies/categories/locations? This will NOT delete rows in job_imports.');
                 if (!confirmed) {
                     return;
                 }
