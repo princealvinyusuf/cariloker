@@ -542,6 +542,7 @@ class DistributeJobImports implements ShouldQueue
                 'source_hash' => $row['source_hash'],
                 'description' => $description,
                 'requirements' => $requirements,
+                'openings' => $row['openings'],
                 'posted_at' => $row['posted_at'],
                 'valid_until' => $row['valid_until'],
                 'employment_type' => $row['employment_type'],
@@ -575,6 +576,7 @@ class DistributeJobImports implements ShouldQueue
             'source_hash' => $row['source_hash'],
             'description' => $description,
             'requirements' => $requirements,
+            'openings' => $row['openings'],
             'posted_at' => $row['posted_at'],
             'valid_until' => $row['valid_until'],
             'employment_type' => $row['employment_type'],
@@ -649,6 +651,7 @@ class DistributeJobImports implements ShouldQueue
         $externalUrl = $this->normalizeNullableString($row->url ?? null);
         $description = $this->normalizeNullableString($row->deskripsi ?? null);
         $requirements = $this->normalizeNullableString($row->keahlian ?? null);
+        $openings = $this->parseNullableUnsignedInt($row->jumlah_lowongan ?? null);
         $postedAt = $this->parseImportDate($row->tanggal_posting ?? null, false);
         $validUntil = $this->parseImportDate($row->tanggal_berakhir ?? null, true);
 
@@ -667,6 +670,7 @@ class DistributeJobImports implements ShouldQueue
             'external_url' => $externalUrl,
             'description' => $description,
             'requirements' => $requirements,
+            'openings' => $openings,
             'posted_at' => $postedAt,
             'valid_until' => $validUntil,
             'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
@@ -820,6 +824,29 @@ class DistributeJobImports implements ShouldQueue
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    protected function parseNullableUnsignedInt($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $raw = trim((string) $value);
+        if ($raw === '') {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $raw);
+        if ($digits === null || $digits === '') {
+            return null;
+        }
+
+        $number = (int) $digits;
+        return $number >= 0 ? $number : null;
     }
 
     protected function locationKey(string $city, ?string $state, string $country): string

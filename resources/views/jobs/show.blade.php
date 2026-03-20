@@ -255,6 +255,10 @@
                     <div class="font-medium text-slate-900 dark:text-white">{{ optional($job->valid_until)->format('d M Y') ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Job Type') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Jumlah Kebutuhan') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->openings ?? '-' }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Jenis Kelamin') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->gender ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Education') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->education_level ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Salary') }}</div>
