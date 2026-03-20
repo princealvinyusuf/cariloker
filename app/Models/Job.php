@@ -23,6 +23,7 @@ class Job extends Model
         'source_hash',
         'description',
         'requirements',
+        'sector_text',
         'employment_type',
         'openings',
         'posted_at',

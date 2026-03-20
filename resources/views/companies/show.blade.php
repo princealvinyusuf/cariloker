@@ -69,7 +69,7 @@
                         <i class="fa-solid fa-building text-3xl"></i>
                     </div>
                 @endif
-                <div class="mt-4 text-sm text-gray-600">{{ __('Industry') }}</div>
+                <div class="mt-4 text-sm text-gray-600">{{ __('Sektor Pekerjaan') }}</div>
                 <div class="font-semibold text-gray-900">{{ $company->industry ?: '-' }}</div>
                 <div class="mt-4 text-sm text-gray-600">{{ __('Location') }}</div>
                 <div class="font-semibold text-gray-900">{{ $company->location?->city }}</div>

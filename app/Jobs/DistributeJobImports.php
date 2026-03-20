@@ -48,6 +48,9 @@ class DistributeJobImports implements ShouldQueue
     /** @var array<string, true> */
     protected array $seenSourceHashes = [];
 
+    /** @var array<int, true> */
+    protected array $companyIndustryApplied = [];
+
     public function failed(Throwable $exception): void
     {
         $state = Cache::get(self::PROGRESS_KEY, []);
@@ -288,6 +291,7 @@ class DistributeJobImports implements ShouldQueue
                     'name' => $row['company_name'],
                     'logo_path' => $row['logo_path'],
                     'website_url' => null,
+                    'industry' => $row['sector_text'],
                 ];
             }
         }
@@ -527,6 +531,8 @@ class DistributeJobImports implements ShouldQueue
             $locationId = $this->locationIdByKey[$locationKey] ?? null;
         }
 
+        $this->ensureCompanyIndustry($companyId, $row['sector_text']);
+
         $baseSlug = $this->buildSlugBase($row['title']);
         $hashSuffix = substr((string) $row['source_hash'], 0, 20);
         $description = $row['description'] ?? '';
@@ -544,6 +550,7 @@ class DistributeJobImports implements ShouldQueue
                 'source_hash' => $row['source_hash'],
                 'description' => $description,
                 'requirements' => $requirements,
+                'sector_text' => $row['sector_text'],
                 'openings' => $row['openings'],
                 'posted_at' => $row['posted_at'],
                 'valid_until' => $row['valid_until'],
@@ -587,6 +594,7 @@ class DistributeJobImports implements ShouldQueue
             'source_hash' => $row['source_hash'],
             'description' => $description,
             'requirements' => $requirements,
+            'sector_text' => $row['sector_text'],
             'openings' => $row['openings'],
             'posted_at' => $row['posted_at'],
             'valid_until' => $row['valid_until'],
@@ -678,6 +686,7 @@ class DistributeJobImports implements ShouldQueue
         $seniorityLevel = $this->normalizeNullableString($row->tingkat_pekerjaan ?? null);
         $salaryText = $this->normalizeNullableString($row->gaji ?? null);
         $experienceText = $this->normalizeNullableString($row->pengalaman ?? null);
+        $sectorText = $this->normalizeNullableString($row->sektor ?? null);
 
         return [
             'is_skippable' => false,
@@ -695,6 +704,7 @@ class DistributeJobImports implements ShouldQueue
             'external_url' => $externalUrl,
             'description' => $description,
             'requirements' => $requirements,
+            'sector_text' => $sectorText,
             'openings' => $openings,
             'posted_at' => $postedAt,
             'valid_until' => $validUntil,
@@ -708,6 +718,7 @@ class DistributeJobImports implements ShouldQueue
                 $externalUrl,
                 $description,
                 $requirements,
+                $sectorText,
                 $physicalCondition,
                 $seniorityLevel,
                 $salaryText,
@@ -805,6 +816,7 @@ class DistributeJobImports implements ShouldQueue
         ?string $externalUrl,
         ?string $description,
         ?string $requirements,
+        ?string $sectorText,
         ?string $physicalCondition,
         ?string $seniorityLevel,
         ?string $salaryText,
@@ -818,6 +830,7 @@ class DistributeJobImports implements ShouldQueue
             Str::lower(trim((string) $externalUrl)),
             Str::lower(trim((string) $description)),
             Str::lower(trim((string) $requirements)),
+            Str::lower(trim((string) $sectorText)),
             Str::lower(trim((string) $physicalCondition)),
             Str::lower(trim((string) $seniorityLevel)),
             Str::lower(trim((string) $salaryText)),
@@ -951,6 +964,25 @@ class DistributeJobImports implements ShouldQueue
         }
 
         return ['min' => $min, 'max' => $max];
+    }
+
+    protected function ensureCompanyIndustry(int $companyId, ?string $sectorText): void
+    {
+        if ($companyId <= 0 || $sectorText === null || $sectorText === '') {
+            return;
+        }
+        if (isset($this->companyIndustryApplied[$companyId])) {
+            return;
+        }
+
+        DB::table('companies')
+            ->where('id', $companyId)
+            ->where(function ($query) {
+                $query->whereNull('industry')->orWhere('industry', '');
+            })
+            ->update(['industry' => $sectorText, 'updated_at' => now()]);
+
+        $this->companyIndustryApplied[$companyId] = true;
     }
 
     protected function locationKey(string $city, ?string $state, string $country): string

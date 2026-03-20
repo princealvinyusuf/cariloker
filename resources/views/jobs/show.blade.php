@@ -255,6 +255,10 @@
                     <div class="font-medium text-slate-900 dark:text-white">{{ optional($job->valid_until)->format('d M Y') ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Job Type') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ __((string) str($job->employment_type)->replace('_',' ')->title()) }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Bidang Pekerjaan') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->category?->name ?? '-' }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Sektor Pekerjaan') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->sector_text ?? $job->company?->industry ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Jumlah Kebutuhan') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->openings ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Jenis Kelamin') }}</div>
