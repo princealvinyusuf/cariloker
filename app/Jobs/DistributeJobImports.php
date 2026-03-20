@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\Location;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -539,6 +540,8 @@ class DistributeJobImports implements ShouldQueue
                 'slug' => $slug,
                 'source_hash' => $row['source_hash'],
                 'description' => $description,
+                'posted_at' => $row['posted_at'],
+                'valid_until' => $row['valid_until'],
                 'employment_type' => $row['employment_type'],
                 'external_url' => $row['external_url'],
                 'gender' => $row['gender'],
@@ -569,6 +572,8 @@ class DistributeJobImports implements ShouldQueue
             'slug' => substr($baseSlug . '-' . Str::lower(Str::uuid()->toString()), 0, 255),
             'source_hash' => $row['source_hash'],
             'description' => $description,
+            'posted_at' => $row['posted_at'],
+            'valid_until' => $row['valid_until'],
             'employment_type' => $row['employment_type'],
             'external_url' => $row['external_url'],
             'gender' => $row['gender'],
@@ -640,6 +645,8 @@ class DistributeJobImports implements ShouldQueue
 
         $externalUrl = $this->normalizeNullableString($row->url ?? null);
         $description = $this->normalizeNullableString($row->deskripsi ?? null);
+        $postedAt = $this->parseImportDate($row->tanggal_posting ?? null, false);
+        $validUntil = $this->parseImportDate($row->tanggal_berakhir ?? null, true);
 
         return [
             'is_skippable' => false,
@@ -655,6 +662,8 @@ class DistributeJobImports implements ShouldQueue
             'gender' => $this->normalizeNullableString($row->jenis_kelamin ?? null),
             'external_url' => $externalUrl,
             'description' => $description,
+            'posted_at' => $postedAt,
+            'valid_until' => $validUntil,
             'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
             'source_hash' => $this->buildSourceHash(
                 $companyName,
@@ -756,6 +765,37 @@ class DistributeJobImports implements ShouldQueue
     {
         $value = trim((string) $value);
         return $value === '' ? null : $value;
+    }
+
+    protected function parseImportDate(?string $value, bool $dateOnly): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        $formats = ['d/m/Y', 'd-m-Y', 'Y-m-d', 'd/m/y', 'd-m-y'];
+        foreach ($formats as $format) {
+            try {
+                $date = Carbon::createFromFormat($format, $value);
+                if ($date !== false) {
+                    return $dateOnly
+                        ? $date->format('Y-m-d')
+                        : $date->startOfDay()->format('Y-m-d H:i:s');
+                }
+            } catch (\Throwable $e) {
+                // Try next format.
+            }
+        }
+
+        try {
+            $date = Carbon::parse($value);
+            return $dateOnly
+                ? $date->format('Y-m-d')
+                : $date->format('Y-m-d H:i:s');
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     protected function locationKey(string $city, ?string $state, string $country): string
