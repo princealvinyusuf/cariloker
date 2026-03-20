@@ -70,17 +70,8 @@ class JobController extends Controller
      */
     public function byLocation(Request $request, string $locationSlug)
     {
-        $locations = Location::query()
-            ->whereNotNull('city')
-            ->select('city')
-            ->distinct()
-            ->get();
-
-        $matchedCity = $locations
-            ->first(fn ($location) => str($location->city)->slug() === $locationSlug)
-            ?->city;
-
-        abort_unless($matchedCity, 404);
+        $matchedCity = $this->resolveCityFromSlug($locationSlug)
+            ?? str($locationSlug)->replace('-', ' ')->title()->toString();
 
         $request->merge([
             'location' => $matchedCity,
@@ -122,17 +113,8 @@ class JobController extends Controller
      */
     public function byCategoryAndLocation(Request $request, JobCategory $category, string $locationSlug)
     {
-        $locations = Location::query()
-            ->whereNotNull('city')
-            ->select('city')
-            ->distinct()
-            ->get();
-
-        $matchedCity = $locations
-            ->first(fn ($location) => str($location->city)->slug() === $locationSlug)
-            ?->city;
-
-        abort_unless($matchedCity, 404);
+        $matchedCity = $this->resolveCityFromSlug($locationSlug)
+            ?? str($locationSlug)->replace('-', ' ')->title()->toString();
 
         $request->merge([
             'category' => $category->slug,
@@ -685,5 +667,18 @@ class JobController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function resolveCityFromSlug(string $locationSlug): ?string
+    {
+        $cities = Location::query()
+            ->whereNotNull('city')
+            ->select('city')
+            ->distinct()
+            ->get();
+
+        return $cities
+            ->first(fn ($location) => str((string) $location->city)->slug() === $locationSlug)
+            ?->city;
     }
 }
