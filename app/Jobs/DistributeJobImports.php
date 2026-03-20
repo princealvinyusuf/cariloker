@@ -531,6 +531,8 @@ class DistributeJobImports implements ShouldQueue
         $hashSuffix = substr((string) $row['source_hash'], 0, 20);
         $description = $row['description'] ?? '';
         $requirements = $row['requirements'];
+        $salaryRange = $this->parseSalaryRange($row['salary_text']);
+        $experienceRange = $this->parseExperienceRange($row['experience_text']);
         for ($attempt = 0; $attempt < 100; $attempt++) {
             $slug = $this->buildSlugCandidate($baseSlug, $hashSuffix, $attempt);
             $jobData = [
@@ -552,6 +554,13 @@ class DistributeJobImports implements ShouldQueue
                 'work_arrangement' => $row['work_arrangement'],
                 'seniority_level' => $row['seniority_level'],
                 'education_level' => $row['education_level'],
+                'salary_text' => $row['salary_text'],
+                'experience_text' => $row['experience_text'],
+                'salary_min' => $salaryRange['min'],
+                'salary_max' => $salaryRange['max'],
+                'salary_currency' => $salaryRange['currency'] ?? 'IDR',
+                'experience_min' => $experienceRange['min'],
+                'experience_max' => $experienceRange['max'],
                 'status' => 'published',
             ];
 
@@ -588,6 +597,13 @@ class DistributeJobImports implements ShouldQueue
             'work_arrangement' => $row['work_arrangement'],
             'seniority_level' => $row['seniority_level'],
             'education_level' => $row['education_level'],
+            'salary_text' => $row['salary_text'],
+            'experience_text' => $row['experience_text'],
+            'salary_min' => $salaryRange['min'],
+            'salary_max' => $salaryRange['max'],
+            'salary_currency' => $salaryRange['currency'] ?? 'IDR',
+            'experience_min' => $experienceRange['min'],
+            'experience_max' => $experienceRange['max'],
             'status' => 'published',
         ];
 
@@ -660,6 +676,8 @@ class DistributeJobImports implements ShouldQueue
         $validUntil = $this->parseImportDate($row->tanggal_berakhir ?? null, true);
         $physicalCondition = $this->normalizeNullableString($row->kondisi ?? null);
         $seniorityLevel = $this->normalizeNullableString($row->tingkat_pekerjaan ?? null);
+        $salaryText = $this->normalizeNullableString($row->gaji ?? null);
+        $experienceText = $this->normalizeNullableString($row->pengalaman ?? null);
 
         return [
             'is_skippable' => false,
@@ -682,6 +700,8 @@ class DistributeJobImports implements ShouldQueue
             'valid_until' => $validUntil,
             'seniority_level' => $seniorityLevel,
             'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
+            'salary_text' => $salaryText,
+            'experience_text' => $experienceText,
             'source_hash' => $this->buildSourceHash(
                 $companyName,
                 $title,
@@ -690,6 +710,8 @@ class DistributeJobImports implements ShouldQueue
                 $requirements,
                 $physicalCondition,
                 $seniorityLevel,
+                $salaryText,
+                $experienceText,
                 $location['city'] ?? null,
                 $location['state'] ?? null
             ),
@@ -785,6 +807,8 @@ class DistributeJobImports implements ShouldQueue
         ?string $requirements,
         ?string $physicalCondition,
         ?string $seniorityLevel,
+        ?string $salaryText,
+        ?string $experienceText,
         ?string $city,
         ?string $state
     ): string {
@@ -796,6 +820,8 @@ class DistributeJobImports implements ShouldQueue
             Str::lower(trim((string) $requirements)),
             Str::lower(trim((string) $physicalCondition)),
             Str::lower(trim((string) $seniorityLevel)),
+            Str::lower(trim((string) $salaryText)),
+            Str::lower(trim((string) $experienceText)),
             Str::lower(trim((string) $city)),
             Str::lower(trim((string) $state)),
         ];
@@ -861,6 +887,70 @@ class DistributeJobImports implements ShouldQueue
 
         $number = (int) $digits;
         return $number >= 0 ? $number : null;
+    }
+
+    /**
+     * @return array{min:?int,max:?int,currency:?string}
+     */
+    protected function parseSalaryRange(?string $salaryText): array
+    {
+        $salaryText = trim((string) $salaryText);
+        if ($salaryText === '') {
+            return ['min' => null, 'max' => null, 'currency' => 'IDR'];
+        }
+
+        $currency = Str::contains(Str::upper($salaryText), 'USD') ? 'USD' : 'IDR';
+        preg_match_all('/\d[\d\.,]*/', $salaryText, $matches);
+        $numbers = collect($matches[0] ?? [])
+            ->map(function (string $num) {
+                $digits = preg_replace('/\D+/', '', $num);
+                return $digits === '' ? null : (int) $digits;
+            })
+            ->filter(fn ($n) => $n !== null && $n > 0)
+            ->values()
+            ->all();
+
+        if ($numbers === []) {
+            return ['min' => null, 'max' => null, 'currency' => $currency];
+        }
+
+        $min = (int) min($numbers);
+        $max = (int) max($numbers);
+        if ($max < $min) {
+            $max = $min;
+        }
+
+        return ['min' => $min, 'max' => $max, 'currency' => $currency];
+    }
+
+    /**
+     * @return array{min:?int,max:?int}
+     */
+    protected function parseExperienceRange(?string $experienceText): array
+    {
+        $experienceText = trim((string) $experienceText);
+        if ($experienceText === '') {
+            return ['min' => null, 'max' => null];
+        }
+
+        preg_match_all('/\d+/', $experienceText, $matches);
+        $numbers = collect($matches[0] ?? [])
+            ->map(fn (string $n) => (int) $n)
+            ->filter(fn (int $n) => $n >= 0)
+            ->values()
+            ->all();
+
+        if ($numbers === []) {
+            return ['min' => null, 'max' => null];
+        }
+
+        $min = (int) min($numbers);
+        $max = (int) max($numbers);
+        if ($max < $min) {
+            $max = $min;
+        }
+
+        return ['min' => $min, 'max' => $max];
     }
 
     protected function locationKey(string $city, ?string $state, string $country): string

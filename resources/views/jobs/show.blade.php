@@ -263,6 +263,16 @@
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->physical_condition ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Level Pekerjaan') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->seniority_level ?? '-' }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Pengalaman Kerja') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">
+                        @if($job->experience_text)
+                            {{ $job->experience_text }}
+                        @elseif($job->experience_min !== null || $job->experience_max !== null)
+                            {{ $job->experience_min ?? $job->experience_max }}{{ $job->experience_max !== null ? ' - '.$job->experience_max : '' }} tahun
+                        @else
+                            -
+                        @endif
+                    </div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Education') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->education_level ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Salary') }}</div>
@@ -270,6 +280,8 @@
                         @if($job->salary_min)
                             @php $fmtIdr = fn($n) => 'Rp ' . number_format((int)$n, 0, ',', '.'); @endphp
                             {{ $fmtIdr($job->salary_min) }}{{ $job->salary_max ? ' - '.$fmtIdr($job->salary_max) : '' }}
+                        @elseif($job->salary_text)
+                            {{ $job->salary_text }}
                         @else
                             -
                         @endif

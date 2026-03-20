@@ -32,6 +32,8 @@ class Job extends Model
         'work_arrangement',
         'seniority_level',
         'education_level',
+        'salary_text',
+        'experience_text',
         'experience_min',
         'experience_max',
         'salary_min',
