@@ -548,7 +548,9 @@ class DistributeJobImports implements ShouldQueue
                 'employment_type' => $row['employment_type'],
                 'external_url' => $row['external_url'],
                 'gender' => $row['gender'],
+                'physical_condition' => $row['physical_condition'],
                 'work_arrangement' => $row['work_arrangement'],
+                'seniority_level' => $row['seniority_level'],
                 'education_level' => $row['education_level'],
                 'status' => 'published',
             ];
@@ -582,7 +584,9 @@ class DistributeJobImports implements ShouldQueue
             'employment_type' => $row['employment_type'],
             'external_url' => $row['external_url'],
             'gender' => $row['gender'],
+            'physical_condition' => $row['physical_condition'],
             'work_arrangement' => $row['work_arrangement'],
+            'seniority_level' => $row['seniority_level'],
             'education_level' => $row['education_level'],
             'status' => 'published',
         ];
@@ -654,6 +658,8 @@ class DistributeJobImports implements ShouldQueue
         $openings = $this->parseNullableUnsignedInt($row->jumlah_lowongan ?? null);
         $postedAt = $this->parseImportDate($row->tanggal_posting ?? null, false);
         $validUntil = $this->parseImportDate($row->tanggal_berakhir ?? null, true);
+        $physicalCondition = $this->normalizeNullableString($row->kondisi ?? null);
+        $seniorityLevel = $this->normalizeNullableString($row->tingkat_pekerjaan ?? null);
 
         return [
             'is_skippable' => false,
@@ -667,12 +673,14 @@ class DistributeJobImports implements ShouldQueue
             'employment_type' => $this->mapEmploymentType($row->tipe_pekerjaan ?? null),
             'work_arrangement' => $this->mapWorkArrangement($row->kondisi ?? null),
             'gender' => $this->normalizeNullableString($row->jenis_kelamin ?? null),
+            'physical_condition' => $physicalCondition,
             'external_url' => $externalUrl,
             'description' => $description,
             'requirements' => $requirements,
             'openings' => $openings,
             'posted_at' => $postedAt,
             'valid_until' => $validUntil,
+            'seniority_level' => $seniorityLevel,
             'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
             'source_hash' => $this->buildSourceHash(
                 $companyName,
@@ -680,6 +688,8 @@ class DistributeJobImports implements ShouldQueue
                 $externalUrl,
                 $description,
                 $requirements,
+                $physicalCondition,
+                $seniorityLevel,
                 $location['city'] ?? null,
                 $location['state'] ?? null
             ),
@@ -773,6 +783,8 @@ class DistributeJobImports implements ShouldQueue
         ?string $externalUrl,
         ?string $description,
         ?string $requirements,
+        ?string $physicalCondition,
+        ?string $seniorityLevel,
         ?string $city,
         ?string $state
     ): string {
@@ -782,6 +794,8 @@ class DistributeJobImports implements ShouldQueue
             Str::lower(trim((string) $externalUrl)),
             Str::lower(trim((string) $description)),
             Str::lower(trim((string) $requirements)),
+            Str::lower(trim((string) $physicalCondition)),
+            Str::lower(trim((string) $seniorityLevel)),
             Str::lower(trim((string) $city)),
             Str::lower(trim((string) $state)),
         ];

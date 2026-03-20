@@ -259,6 +259,10 @@
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->openings ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Jenis Kelamin') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->gender ?? '-' }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Kondisi Fisik') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->physical_condition ?? '-' }}</div>
+                    <div class="text-slate-500 dark:text-slate-400">{{ __('Level Pekerjaan') }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->seniority_level ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Education') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->education_level ?? '-' }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Salary') }}</div>

@@ -28,6 +28,7 @@ class Job extends Model
         'posted_at',
         'external_url',
         'gender',
+        'physical_condition',
         'work_arrangement',
         'seniority_level',
         'education_level',
