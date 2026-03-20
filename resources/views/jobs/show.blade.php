@@ -103,7 +103,12 @@
             <div class="mt-3 flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">{{ $job->title }}</h1>
-                    <p class="mt-1 text-slate-600 dark:text-slate-300">{{ $job->company->name }} • {{ $job->location?->city ?? __('Remote') }}</p>
+                    <p class="mt-1 text-slate-600 dark:text-slate-300">
+                        <a href="{{ route('companies.show', $job->company) }}" class="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200">
+                            {{ $job->company->name }}
+                        </a>
+                        • {{ $job->location?->city ?? __('Remote') }}
+                    </p>
                     <div class="mt-4 flex flex-wrap items-center gap-2 text-xs">
                         @if($job->openings)
                             <span class="rounded-full bg-sky-50 px-2.5 py-1 font-medium text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">{{ $job->openings }} {{ __('Positions') }}</span>
@@ -131,9 +136,13 @@
             <div class="surface-card p-6" id="description">
                 <div class="flex items-center gap-4">
                     @if($job->company->logo_path)
-                        <img class="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200 dark:ring-slate-700" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo" loading="lazy">
+                        <a href="{{ route('companies.show', $job->company) }}" class="inline-block">
+                            <img class="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200 dark:ring-slate-700" src="{{ Storage::url($job->company->logo_path) }}" alt="{{ $job->company->name }} logo" loading="lazy">
+                        </a>
                     @else
-                        <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><i class="fa-solid fa-building text-2xl"></i></div>
+                        <a href="{{ route('companies.show', $job->company) }}" class="inline-block">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300"><i class="fa-solid fa-building text-2xl"></i></div>
+                        </a>
                     @endif
                     <div>
                         <p class="font-semibold text-slate-900 dark:text-white">{{ $job->company->name }}</p>
@@ -244,7 +253,15 @@
 
                 <div class="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Company') }}</div>
-                    <div class="font-medium text-slate-900 dark:text-white">{{ $job->company?->name }}</div>
+                    <div class="font-medium text-slate-900 dark:text-white">
+                        @if($job->company)
+                            <a href="{{ route('companies.show', $job->company) }}" class="text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200">
+                                {{ $job->company->name }}
+                            </a>
+                        @else
+                            -
+                        @endif
+                    </div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('Province') }}</div>
                     <div class="font-medium text-slate-900 dark:text-white">{{ $job->location?->state }}</div>
                     <div class="text-slate-500 dark:text-slate-400">{{ __('City/Regency') }}</div>
@@ -309,11 +326,15 @@
                     <div class="surface-card p-5">
                         <div class="flex items-start gap-4">
                             @if($related->company->logo_path)
-                                <img class="h-12 w-12 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-700" src="{{ Storage::url($related->company->logo_path) }}" alt="{{ $related->company->name }} logo" loading="lazy">
+                                <a href="{{ route('companies.show', $related->company) }}" class="inline-block">
+                                    <img class="h-12 w-12 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-700" src="{{ Storage::url($related->company->logo_path) }}" alt="{{ $related->company->name }} logo" loading="lazy">
+                                </a>
                             @else
-                                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                                    <i class="fa-solid fa-building text-xl"></i>
-                                </div>
+                                <a href="{{ route('companies.show', $related->company) }}" class="inline-block">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                                        <i class="fa-solid fa-building text-xl"></i>
+                                    </div>
+                                </a>
                             @endif
                             <div class="flex-1">
                                 <div class="flex items-center justify-between">
