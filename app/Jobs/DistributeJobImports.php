@@ -195,6 +195,7 @@ class DistributeJobImports implements ShouldQueue
         } finally {
             $elapsedSeconds = max(0.001, microtime(true) - $startedAt);
             $rowsPerSecond = round($processed / $elapsedSeconds, 2);
+            $this->clearListingCaches();
             Cache::put(self::PROGRESS_KEY, [
                 'total' => $total,
                 'processed' => $processed,
@@ -211,6 +212,22 @@ class DistributeJobImports implements ShouldQueue
                 'errors' => $errors,
             ], self::PROGRESS_TTL_SECONDS);
             Cache::forget(self::LOCK_KEY);
+        }
+    }
+
+    protected function clearListingCaches(): void
+    {
+        $keys = [
+            'categories:with-count',
+            'education_levels:distinct',
+            'companies:popular',
+            'locations:popular',
+            'beranda:categories:with-count',
+            'beranda:companies:popular',
+        ];
+
+        foreach ($keys as $key) {
+            Cache::forget($key);
         }
     }
 

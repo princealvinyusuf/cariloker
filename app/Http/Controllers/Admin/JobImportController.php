@@ -202,6 +202,7 @@ class JobImportController extends Controller
                 'queue_warning' => null,
                 'errors' => [],
             ], 21600);
+            $this->clearListingCaches();
 
             return response()->json([
                 'status' => 'cleaned',
@@ -398,6 +399,22 @@ class JobImportController extends Controller
     protected function authorizeAdmin(): void
     {
         abort_unless(auth()->user()?->role === 'admin', 403);
+    }
+
+    protected function clearListingCaches(): void
+    {
+        $keys = [
+            'categories:with-count',
+            'education_levels:distinct',
+            'companies:popular',
+            'locations:popular',
+            'beranda:categories:with-count',
+            'beranda:companies:popular',
+        ];
+
+        foreach ($keys as $key) {
+            Cache::forget($key);
+        }
     }
 
     /**
