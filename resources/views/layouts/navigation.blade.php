@@ -32,6 +32,21 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:gap-2">
+                <form method="GET" action="{{ route('jobs.index') }}" class="hidden lg:block">
+                    <input type="hidden" name="list" value="1">
+                    <div class="relative">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input
+                            type="search"
+                            name="q"
+                            value="{{ request('q') }}"
+                            placeholder="{{ __('Cari lowongan...') }}"
+                            class="w-56 rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                        >
+                    </div>
+                </form>
                 <a href="{{ route('jobs.index', ['list' => 1]) }}" class="btn-secondary !px-4 !py-2">{{ __('Find Jobs') }}</a>
                 <button type="button" onclick="window.toggleTheme()" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300" aria-label="Toggle theme">
                     <svg class="h-5 w-5 dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
@@ -87,6 +102,22 @@
     </div>
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden border-t border-slate-200 bg-white px-4 pb-4 pt-2 dark:border-slate-800 dark:bg-slate-950 sm:hidden">
+        <form method="GET" action="{{ route('jobs.index') }}" class="mb-3">
+            <input type="hidden" name="list" value="1">
+            <div class="relative">
+                <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ request('q') }}"
+                    placeholder="{{ __('Cari lowongan...') }}"
+                    class="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                >
+            </div>
+        </form>
+
         <div class="space-y-1">
             <a href="{{ route('beranda') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Beranda') }}</a>
             <a href="{{ route('jobs.index', ['list' => '1']) }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Jobs') }}</a>
