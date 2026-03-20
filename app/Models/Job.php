@@ -22,6 +22,7 @@ class Job extends Model
         'slug',
         'source_hash',
         'description',
+        'requirements',
         'employment_type',
         'openings',
         'posted_at',

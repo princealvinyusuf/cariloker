@@ -530,6 +530,7 @@ class DistributeJobImports implements ShouldQueue
         $baseSlug = $this->buildSlugBase($row['title']);
         $hashSuffix = substr((string) $row['source_hash'], 0, 20);
         $description = $row['description'] ?? '';
+        $requirements = $row['requirements'];
         for ($attempt = 0; $attempt < 100; $attempt++) {
             $slug = $this->buildSlugCandidate($baseSlug, $hashSuffix, $attempt);
             $jobData = [
@@ -540,6 +541,7 @@ class DistributeJobImports implements ShouldQueue
                 'slug' => $slug,
                 'source_hash' => $row['source_hash'],
                 'description' => $description,
+                'requirements' => $requirements,
                 'posted_at' => $row['posted_at'],
                 'valid_until' => $row['valid_until'],
                 'employment_type' => $row['employment_type'],
@@ -572,6 +574,7 @@ class DistributeJobImports implements ShouldQueue
             'slug' => substr($baseSlug . '-' . Str::lower(Str::uuid()->toString()), 0, 255),
             'source_hash' => $row['source_hash'],
             'description' => $description,
+            'requirements' => $requirements,
             'posted_at' => $row['posted_at'],
             'valid_until' => $row['valid_until'],
             'employment_type' => $row['employment_type'],
@@ -645,6 +648,7 @@ class DistributeJobImports implements ShouldQueue
 
         $externalUrl = $this->normalizeNullableString($row->url ?? null);
         $description = $this->normalizeNullableString($row->deskripsi ?? null);
+        $requirements = $this->normalizeNullableString($row->keahlian ?? null);
         $postedAt = $this->parseImportDate($row->tanggal_posting ?? null, false);
         $validUntil = $this->parseImportDate($row->tanggal_berakhir ?? null, true);
 
@@ -662,6 +666,7 @@ class DistributeJobImports implements ShouldQueue
             'gender' => $this->normalizeNullableString($row->jenis_kelamin ?? null),
             'external_url' => $externalUrl,
             'description' => $description,
+            'requirements' => $requirements,
             'posted_at' => $postedAt,
             'valid_until' => $validUntil,
             'education_level' => $this->normalizeNullableString($row->pendidikan ?? null),
@@ -670,6 +675,7 @@ class DistributeJobImports implements ShouldQueue
                 $title,
                 $externalUrl,
                 $description,
+                $requirements,
                 $location['city'] ?? null,
                 $location['state'] ?? null
             ),
@@ -683,6 +689,22 @@ class DistributeJobImports implements ShouldQueue
         }
 
         $normalized = Str::of($type)->lower();
+
+        if ($normalized->contains('paruh') || $normalized->contains('part')) {
+            return 'part_time';
+        }
+        if ($normalized->contains('kontrak') || $normalized->contains('contract')) {
+            return 'contract';
+        }
+        if ($normalized->contains('magang') || $normalized->contains('intern')) {
+            return 'internship';
+        }
+        if ($normalized->contains('freelance') || $normalized->contains('project') || $normalized->contains('lepas')) {
+            return 'freelance';
+        }
+        if ($normalized->contains('tetap') || $normalized->contains('full') || $normalized->contains('penuh')) {
+            return 'full_time';
+        }
 
         if ($normalized->contains('part')) {
             return 'part_time';
@@ -746,6 +768,7 @@ class DistributeJobImports implements ShouldQueue
         string $title,
         ?string $externalUrl,
         ?string $description,
+        ?string $requirements,
         ?string $city,
         ?string $state
     ): string {
@@ -754,6 +777,7 @@ class DistributeJobImports implements ShouldQueue
             Str::lower(trim($title)),
             Str::lower(trim((string) $externalUrl)),
             Str::lower(trim((string) $description)),
+            Str::lower(trim((string) $requirements)),
             Str::lower(trim((string) $city)),
             Str::lower(trim((string) $state)),
         ];

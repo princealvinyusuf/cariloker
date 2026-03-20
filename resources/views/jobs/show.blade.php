@@ -167,6 +167,23 @@
                         <span class="rounded-md bg-primary-50 px-2 py-1 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ $job->education_level }}</span>
                     @endif
                 </div>
+                @if($job->requirements)
+                    @php
+                        $requirementsItems = collect(preg_split('/[\r\n,;|]+/', (string) $job->requirements))
+                            ->map(fn ($item) => trim((string) $item))
+                            ->filter()
+                            ->values();
+                    @endphp
+                    @if($requirementsItems->isNotEmpty())
+                        <ul class="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700 dark:text-slate-200">
+                            @foreach($requirementsItems as $item)
+                                <li>{{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="mt-4 whitespace-pre-line text-sm text-slate-700 dark:text-slate-200">{{ $job->requirements }}</p>
+                    @endif
+                @endif
                 <div class="mt-5 border-t border-slate-100 pt-4 text-sm dark:border-slate-800">
                     @if($job->category)
                         <a href="{{ route('jobs.by-category', $job->category) }}" class="font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200">
