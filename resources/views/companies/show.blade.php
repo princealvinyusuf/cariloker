@@ -71,6 +71,25 @@
                 @endif
                 <div class="mt-4 text-sm text-gray-600">{{ __('Sektor Pekerjaan') }}</div>
                 <div class="font-semibold text-gray-900">{{ $company->industry ?: '-' }}</div>
+                @php
+                    $companyCategories = $company->jobs
+                        ->pluck('category.name')
+                        ->filter()
+                        ->unique()
+                        ->values();
+                @endphp
+                <div class="mt-4 text-sm text-gray-600">{{ __('Bidang Pekerjaan') }}</div>
+                @if($companyCategories->isNotEmpty())
+                    <div class="mt-1 flex flex-wrap gap-2">
+                        @foreach($companyCategories as $categoryName)
+                            <span class="inline-flex rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700">
+                                {{ $categoryName }}
+                            </span>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="font-semibold text-gray-900">-</div>
+                @endif
                 <div class="mt-4 text-sm text-gray-600">{{ __('Location') }}</div>
                 <div class="font-semibold text-gray-900">{{ $company->location?->city }}</div>
                 <div class="mt-4 text-sm text-gray-600">{{ __('About') }}</div>
@@ -82,7 +101,12 @@
             @forelse($company->jobs as $job)
                 <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                     <a class="text-lg font-semibold text-gray-900 hover:text-primary-dark" href="{{ route('jobs.show', $job) }}">{{ $job->title }}</a>
-                <div class="text-sm text-gray-600">{{ $job->location?->city ?? __('Remote') }} • {{ str($job->employment_type)->replace('_',' ')->title() }}</div>
+                <div class="text-sm text-gray-600">
+                    {{ $job->location?->city ?? __('Remote') }} • {{ str($job->employment_type)->replace('_',' ')->title() }}
+                    @if($job->category?->name)
+                        • {{ $job->category->name }}
+                    @endif
+                </div>
                 </div>
             @empty
                 <p class="text-gray-600">{{ __('No open positions at the moment.') }}</p>

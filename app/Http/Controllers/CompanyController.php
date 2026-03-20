@@ -68,7 +68,11 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        $company->load(['jobs' => fn ($q) => $q->where('status', 'published')->latest()]);
+        $company->load(['jobs' => fn ($q) => $q
+            ->where('status', 'published')
+            ->with('category')
+            ->latest()
+        ]);
         return view('companies.show', ['company' => $company]);
     }
 
