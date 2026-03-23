@@ -17,6 +17,7 @@ use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Job;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/googlea0b66707fe911939.html', function () {
     return response('google-site-verification: googlea0b66707fe911939.html')
@@ -236,6 +237,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/beranda', [JobController::class, 'beranda'])->name('beranda');
+Route::get('/beranda', function (Request $request) {
+    $query = $request->query();
+
+    if (! empty($query)) {
+        return redirect()->route('jobs.index', $query, 301);
+    }
+
+    return redirect()->route('home', [], 301);
+})->name('beranda');
 
 require __DIR__.'/auth.php';
