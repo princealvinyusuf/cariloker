@@ -30,7 +30,7 @@
                         {{ __('About') }}
                     </a>
                     <a href="{{ route('cv.reviewer') }}" class="rounded-xl px-3 py-2 text-sm font-medium {{ $isCvReviewer ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white' }}">
-                        {{ __('Bedan CV Gratis') }}
+                        {{ __('Bedah CV Gratis') }}
                     </a>
                 </div>
             </div>
@@ -128,7 +128,7 @@
             <a href="{{ route('companies.index') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Companies') }}</a>
             <a href="{{ route('blog.index') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Blog') }}</a>
             <a href="{{ route('about') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('About') }}</a>
-            <a href="{{ route('cv.reviewer') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Bedan CV Gratis') }}</a>
+            <a href="{{ route('cv.reviewer') }}" class="block rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800">{{ __('Bedah CV Gratis') }}</a>
         </div>
 
         <div class="mt-4 space-y-2 border-t border-slate-200 pt-4 dark:border-slate-800">

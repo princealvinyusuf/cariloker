@@ -1,5 +1,5 @@
-@section('meta_title', 'Bedan CV Gratis - AI CV ATS Checker | Cari Loker')
-@section('meta_description', 'Bedan CV Gratis dengan AI CV ATS Checker. Upload CV Anda, dapatkan analisis 12 aspek, action points, keyword, dan rekomendasi karier dalam hitungan detik.')
+@section('meta_title', 'Bedah CV Gratis - AI CV ATS Checker | Cari Loker')
+@section('meta_description', 'Bedah CV Gratis dengan AI CV ATS Checker. Upload CV Anda, dapatkan analisis 12 aspek, action points, keyword, dan rekomendasi karier dalam hitungan detik.')
 @section('meta_keywords', 'bedah cv gratis, cv ats checker, ai cv reviewer, review cv indonesia, optimasi cv')
 @section('canonical_url', route('cv.reviewer'))
 @section('og_type', 'website')
@@ -18,7 +18,7 @@
                 </span>
                 <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-6xl">
                     Tingkatkan Peluang Lolos Screening dengan
-                    <span class="text-primary-600">Bedan CV Gratis</span>
+                    <span class="text-primary-600">Bedah CV Gratis</span>
                 </h1>
                 <p class="mx-auto mt-5 max-w-3xl text-base text-slate-600 dark:text-slate-300 md:text-lg">
                     Dapatkan analisis CV mendalam berbasis AI seperti platform profesional: skor ATS, analisis 12 aspek penting, action points, keyword rekomendasi, dan saran karier.
