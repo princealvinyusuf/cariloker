@@ -6,8 +6,7 @@
 
 @section('head_tags')
     <script src="https://js.puter.com/v2/"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
@@ -471,6 +470,67 @@
                 return '';
             };
 
+            const loadExternalScript = (src) => {
+                return new Promise((resolve, reject) => {
+                    const existing = document.querySelector(`script[data-dynamic-src="${src}"]`);
+                    if (existing) {
+                        if (existing.dataset.loaded === 'true') {
+                            resolve();
+                            return;
+                        }
+                        existing.addEventListener('load', () => resolve(), { once: true });
+                        existing.addEventListener('error', () => reject(new Error(`Gagal load script: ${src}`)), { once: true });
+                        return;
+                    }
+
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.async = true;
+                    script.dataset.dynamicSrc = src;
+                    script.addEventListener('load', () => {
+                        script.dataset.loaded = 'true';
+                        resolve();
+                    }, { once: true });
+                    script.addEventListener('error', () => reject(new Error(`Gagal load script: ${src}`)), { once: true });
+                    document.head.appendChild(script);
+                });
+            };
+
+            let pdfJsLoadPromise = null;
+            const ensurePdfJsLoaded = async () => {
+                const existingLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+                if (existingLib?.GlobalWorkerOptions) {
+                    existingLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                    return existingLib;
+                }
+
+                if (!pdfJsLoadPromise) {
+                    pdfJsLoadPromise = (async () => {
+                        const sources = [
+                            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+                            'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js',
+                        ];
+
+                        for (const source of sources) {
+                            try {
+                                await loadExternalScript(source);
+                                const lib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
+                                if (lib?.GlobalWorkerOptions) {
+                                    lib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                                    return lib;
+                                }
+                            } catch (_) {
+                                // Try the next source.
+                            }
+                        }
+
+                        throw new Error('PDF parser belum tersedia di browser ini. Coba refresh, nonaktifkan adblock, atau paste teks CV manual.');
+                    })();
+                }
+
+                return await pdfJsLoadPromise;
+            };
+
             const fileToImageElement = async (file) => {
                 const dataUrl = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -517,13 +577,9 @@
             };
 
             const extractPdfTextWithOCR = async (file) => {
-                if (!window.pdfjsLib?.GlobalWorkerOptions) {
-                    throw new Error('PDF parser belum tersedia.');
-                }
-
-                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
+                const pdfjsLib = await ensurePdfJsLoaded();
                 const fileBuffer = await file.arrayBuffer();
-                const loadingTask = window.pdfjsLib.getDocument({ data: fileBuffer });
+                const loadingTask = pdfjsLib.getDocument({ data: fileBuffer });
                 const pdf = await loadingTask.promise;
                 const maxPages = Math.min(pdf.numPages, 5);
                 const pageTexts = [];
@@ -547,13 +603,9 @@
             };
 
             const extractPdfText = async (file) => {
-                if (!window.pdfjsLib?.GlobalWorkerOptions) {
-                    throw new Error('PDF parser belum tersedia.');
-                }
-
-                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
+                const pdfjsLib = await ensurePdfJsLoaded();
                 const fileBuffer = await file.arrayBuffer();
-                const loadingTask = window.pdfjsLib.getDocument({ data: fileBuffer });
+                const loadingTask = pdfjsLib.getDocument({ data: fileBuffer });
                 const pdf = await loadingTask.promise;
                 const pages = [];
 
