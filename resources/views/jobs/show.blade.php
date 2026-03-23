@@ -1,6 +1,9 @@
 @section('meta_title', $job->title . ' - ' . ($job->company->name ?? 'Cari Loker'))
 @section('meta_description', str($job->plain_description_text)->limit(155, ''))
 @section('og_type', 'article')
+@if(($isExpired ?? false))
+    @section('meta_robots', 'noindex,follow')
+@endif
 @if($job->company?->logo_path)
     @section('og_image', url(Storage::url($job->company->logo_path)))
 @endif
@@ -72,7 +75,9 @@
         }
     @endphp
     <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-    <script type="application/ld+json">{!! json_encode($jobSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @unless(($isExpired ?? false))
+        <script type="application/ld+json">{!! json_encode($jobSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @endunless
 @endsection
 
 <x-app-layout>

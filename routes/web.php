@@ -98,6 +98,10 @@ Route::get('/sitemap.xml', function () {
 
     $jobUrls = Job::withoutGlobalScope('notExpired')
         ->where('status', 'published')
+        ->where(function ($query) {
+            $query->whereNull('valid_until')
+                ->orWhereDate('valid_until', '>=', today()->toDateString());
+        })
         ->latest('updated_at')
         ->limit(5000)
         ->get()

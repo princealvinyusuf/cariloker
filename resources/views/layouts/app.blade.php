@@ -28,7 +28,8 @@
             $ogImage = trim($__env->yieldContent('og_image')) ?: asset('image/cariloker.png');
             $ogType = trim($__env->yieldContent('og_type')) ?: 'website';
 
-            $queryWithoutPage = request()->except(['page']);
+            // `list` is a UI state flag used in internal links; do not treat it as an SEO filter signal.
+            $queryWithoutPage = request()->except(['page', 'list']);
             $isFilteredDirectoryPage = in_array($routeName, ['jobs.index', 'companies.index'], true) && !empty($queryWithoutPage);
             $isPaginatedPage = request()->integer('page', 1) > 1;
 
