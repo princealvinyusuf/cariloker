@@ -6,6 +6,25 @@
 
 @section('head_tags')
     <script src="https://js.puter.com/v2/"></script>
+    <style>
+        .score-ring-track {
+            stroke: rgba(148, 163, 184, 0.25);
+        }
+
+        .score-ring-progress {
+            stroke: #2563eb;
+            transition: stroke-dashoffset 0.9s ease;
+            stroke-linecap: round;
+        }
+
+        .dark .score-ring-track {
+            stroke: rgba(148, 163, 184, 0.35);
+        }
+
+        .dark .score-ring-progress {
+            stroke: #60a5fa;
+        }
+    </style>
 @endsection
 
 <x-app-layout>
@@ -103,26 +122,70 @@
 
         <div id="result-wrapper" class="mt-8 hidden">
             <div class="surface-card p-6 md:p-8">
-                <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">AI CV Reviewer Results</p>
                         <h2 class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Hasil Analisis CV</h2>
                     </div>
-                    <div class="min-w-[160px] rounded-2xl bg-primary-50 px-5 py-4 text-center ring-1 ring-primary-100 dark:bg-primary-900/30 dark:ring-primary-700/40">
-                        <p class="text-xs uppercase tracking-[0.15em] text-primary-700 dark:text-primary-300">Overall Score</p>
-                        <p id="overall-score" class="mt-1 text-3xl font-extrabold text-primary-700 dark:text-primary-300">0%</p>
+                    <div class="flex items-center gap-4 rounded-2xl bg-primary-50 px-4 py-3 ring-1 ring-primary-100 dark:bg-primary-900/30 dark:ring-primary-700/40">
+                        <div class="relative h-20 w-20">
+                            <svg class="h-20 w-20 -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
+                                <circle class="score-ring-track" cx="60" cy="60" r="52" stroke-width="12" fill="none"></circle>
+                                <circle id="score-ring-progress" class="score-ring-progress" cx="60" cy="60" r="52" stroke-width="12" fill="none"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <p id="overall-score" class="text-xl font-extrabold text-primary-700 dark:text-primary-300">0%</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.15em] text-primary-700 dark:text-primary-300">ATS Readiness</p>
+                            <p class="mt-1 text-sm text-slate-700 dark:text-slate-200">Skor keseluruhan CV Anda</p>
+                        </div>
                     </div>
                 </div>
                 <p id="overall-impression" class="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-300"></p>
+
+                <div class="mt-6 flex flex-wrap gap-2">
+                    <button type="button" data-tab-target="tab-overview" class="result-tab-btn rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">Overview</button>
+                    <button type="button" data-tab-target="tab-aspects" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">12 Aspek</button>
+                    <button type="button" data-tab-target="tab-keywords" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Keywords</button>
+                    <button type="button" data-tab-target="tab-career" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Career Fit</button>
+                </div>
             </div>
 
-            <div id="aspects-grid" class="mt-6 grid gap-4 md:grid-cols-2"></div>
+            <div id="tab-overview" class="result-tab-panel mt-6">
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="surface-card p-5">
+                        <p class="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Top Strength</p>
+                        <p id="top-strength" class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">-</p>
+                    </div>
+                    <div class="surface-card p-5">
+                        <p class="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Main Gap</p>
+                        <p id="main-gap" class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">-</p>
+                    </div>
+                    <div class="surface-card p-5">
+                        <p class="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Aspect Count</p>
+                        <p id="aspect-count" class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">0 aspek</p>
+                    </div>
+                    <div class="surface-card p-5">
+                        <p class="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Recommended Action</p>
+                        <p id="priority-action" class="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-100">-</p>
+                    </div>
+                </div>
+            </div>
 
-            <div class="mt-6 grid gap-4 lg:grid-cols-2">
+            <div id="tab-aspects" class="result-tab-panel mt-6 hidden">
+                <div id="aspects-grid" class="grid gap-4 md:grid-cols-2"></div>
+            </div>
+
+            <div id="tab-keywords" class="result-tab-panel mt-6 hidden">
                 <div class="surface-card p-6">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Keywords Recommendation</h3>
                     <ul id="keywords-list" class="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300"></ul>
                 </div>
+            </div>
+
+            <div id="tab-career" class="result-tab-panel mt-6 hidden">
                 <div class="surface-card p-6">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white">Career Recommendation</h3>
                     <p id="career-recommendation" class="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300"></p>
@@ -142,10 +205,17 @@
             const statusText = document.getElementById('status-text');
             const resultWrapper = document.getElementById('result-wrapper');
             const overallScore = document.getElementById('overall-score');
+            const scoreRingProgress = document.getElementById('score-ring-progress');
             const overallImpression = document.getElementById('overall-impression');
             const aspectsGrid = document.getElementById('aspects-grid');
             const keywordsList = document.getElementById('keywords-list');
             const careerRecommendation = document.getElementById('career-recommendation');
+            const topStrength = document.getElementById('top-strength');
+            const mainGap = document.getElementById('main-gap');
+            const aspectCount = document.getElementById('aspect-count');
+            const priorityAction = document.getElementById('priority-action');
+            const tabButtons = document.querySelectorAll('.result-tab-btn');
+            const tabPanels = document.querySelectorAll('.result-tab-panel');
             const reviewBtnText = document.getElementById('review-btn-text');
             const reviewBtnLoading = document.getElementById('review-btn-loading');
             const fileHelp = document.getElementById('file-help');
@@ -178,6 +248,73 @@
                 reviewBtn.classList.toggle('cursor-not-allowed', loading);
                 reviewBtnText.classList.toggle('hidden', loading);
                 reviewBtnLoading.classList.toggle('hidden', !loading);
+            };
+
+            const ringRadius = 52;
+            const ringCircumference = 2 * Math.PI * ringRadius;
+            scoreRingProgress.style.strokeDasharray = `${ringCircumference}`;
+            scoreRingProgress.style.strokeDashoffset = `${ringCircumference}`;
+
+            const setActiveTab = (targetId) => {
+                tabPanels.forEach((panel) => panel.classList.toggle('hidden', panel.id !== targetId));
+                tabButtons.forEach((button) => {
+                    const isActive = button.dataset.tabTarget === targetId;
+                    button.classList.toggle('bg-primary-600', isActive);
+                    button.classList.toggle('text-white', isActive);
+                    button.classList.toggle('border', !isActive);
+                    button.classList.toggle('border-slate-200', !isActive);
+                    button.classList.toggle('dark:border-slate-700', !isActive);
+                    button.classList.toggle('bg-white', !isActive);
+                    button.classList.toggle('dark:bg-slate-900', !isActive);
+                    button.classList.toggle('text-slate-700', !isActive);
+                    button.classList.toggle('dark:text-slate-200', !isActive);
+                });
+            };
+
+            const animateScore = (score) => {
+                const safeScore = Math.max(0, Math.min(100, Number(score) || 0));
+                const targetOffset = ringCircumference * (1 - safeScore / 100);
+                const start = performance.now();
+                const duration = 900;
+                const initialValue = Number((overallScore.textContent || '0').replace('%', '')) || 0;
+                const initialOffset = ringCircumference * (1 - initialValue / 100);
+
+                const step = (time) => {
+                    const progress = Math.min((time - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const currentScore = Math.round(initialValue + (safeScore - initialValue) * eased);
+                    const currentOffset = initialOffset + (targetOffset - initialOffset) * eased;
+                    overallScore.textContent = `${currentScore}%`;
+                    scoreRingProgress.style.strokeDashoffset = `${currentOffset}`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    }
+                };
+
+                requestAnimationFrame(step);
+            };
+
+            const summarizeOverview = (aspects) => {
+                if (!aspects.length) {
+                    topStrength.textContent = '-';
+                    mainGap.textContent = '-';
+                    aspectCount.textContent = '0 aspek';
+                    priorityAction.textContent = '-';
+                    return;
+                }
+
+                const sorted = [...aspects].sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+                const strongest = sorted[0];
+                const weakest = sorted[sorted.length - 1];
+                const firstAction = Array.isArray(weakest.action_points) && weakest.action_points.length
+                    ? weakest.action_points[0]
+                    : weakest.analysis || '-';
+
+                topStrength.textContent = `${strongest.name} (${Number(strongest.score || 0)}%)`;
+                mainGap.textContent = `${weakest.name} (${Number(weakest.score || 0)}%)`;
+                aspectCount.textContent = `${aspects.length} aspek`;
+                priorityAction.textContent = firstAction;
             };
 
             const parseModelJson = (raw) => {
@@ -218,6 +355,12 @@
                 return 'rose';
             };
 
+            tabButtons.forEach((button) => {
+                button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
+            });
+
+            setActiveTab('tab-overview');
+
             const renderAspect = (aspect) => {
                 const score = Number(aspect.score || 0);
                 const tone = scoreTone(score);
@@ -227,23 +370,52 @@
                     rose: 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
                 };
                 const actionPoints = Array.isArray(aspect.action_points) ? aspect.action_points : [];
+                const aspectId = String(aspect.name || 'aspect').toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
 
                 return `
                     <article class="surface-card p-5">
-                        <div class="flex items-start justify-between gap-3">
+                        <button type="button" class="aspect-toggle flex w-full items-start justify-between gap-3 text-left" data-target="${escapeHtml(aspectId)}">
                             <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(aspect.name || 'Aspect')}</h3>
-                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${toneStyles[tone]}">${escapeHtml(score)}%</span>
-                        </div>
-                        <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">${escapeHtml(aspect.analysis || '')}</p>
-                        ${actionPoints.length ? `<div class="mt-3">
+                            <div class="flex items-center gap-2">
+                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold ${toneStyles[tone]}">${escapeHtml(score)}%</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform aspect-icon"></i>
+                            </div>
+                        </button>
+                        <div id="${escapeHtml(aspectId)}" class="mt-3 hidden">
+                            <p class="text-sm text-slate-600 dark:text-slate-300">${escapeHtml(aspect.analysis || '')}</p>
+                            ${actionPoints.length ? `<div class="mt-3">
                             <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Action Points</p>
                             <ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300">
                                 ${actionPoints.map((point) => `<li>- ${escapeHtml(point)}</li>`).join('')}
                             </ul>
-                        </div>` : ''}
-                        ${aspect.why_important ? `<p class="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400"><strong class="text-slate-700 dark:text-slate-300">Why it matters:</strong> ${escapeHtml(aspect.why_important)}</p>` : ''}
+                            </div>` : ''}
+                            ${aspect.why_important ? `<p class="mt-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400"><strong class="text-slate-700 dark:text-slate-300">Why it matters:</strong> ${escapeHtml(aspect.why_important)}</p>` : ''}
+                        </div>
                     </article>
                 `;
+            };
+
+            const initExpandableCards = () => {
+                const toggles = aspectsGrid.querySelectorAll('.aspect-toggle');
+                toggles.forEach((toggle, idx) => {
+                    const targetId = toggle.dataset.target;
+                    const panel = document.getElementById(targetId);
+                    const icon = toggle.querySelector('.aspect-icon');
+                    if (!panel || !icon) {
+                        return;
+                    }
+
+                    if (idx === 0) {
+                        panel.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    }
+
+                    toggle.addEventListener('click', () => {
+                        const isHidden = panel.classList.contains('hidden');
+                        panel.classList.toggle('hidden', !isHidden);
+                        icon.classList.toggle('rotate-180', isHidden);
+                    });
+                });
             };
 
             fileInput.addEventListener('change', async (event) => {
@@ -277,7 +449,14 @@
                 aspectsGrid.innerHTML = '';
                 keywordsList.innerHTML = '';
                 overallImpression.textContent = '';
+                overallScore.textContent = '0%';
+                scoreRingProgress.style.strokeDashoffset = `${ringCircumference}`;
                 careerRecommendation.textContent = '';
+                topStrength.textContent = '-';
+                mainGap.textContent = '-';
+                aspectCount.textContent = '0 aspek';
+                priorityAction.textContent = '-';
+                setActiveTab('tab-overview');
             });
 
             reviewBtn.addEventListener('click', async () => {
@@ -340,13 +519,17 @@ ${text}
                         throw new Error('Model response is not valid JSON.');
                     }
 
-                    overallScore.textContent = `${Number(parsed.overall_score || 0)}%`;
+                    const totalScore = Number(parsed.overall_score || 0);
+                    animateScore(totalScore);
                     overallImpression.textContent = parsed.overall_impression || '-';
 
                     const aspectMap = new Map((Array.isArray(parsed.aspects) ? parsed.aspects : []).map((item) => [item.name, item]));
                     const orderedAspects = expectedAspects.map((name) => aspectMap.get(name)).filter(Boolean);
+                    const finalAspects = orderedAspects.length ? orderedAspects : (Array.isArray(parsed.aspects) ? parsed.aspects : []);
 
-                    aspectsGrid.innerHTML = orderedAspects.map(renderAspect).join('');
+                    aspectsGrid.innerHTML = finalAspects.map(renderAspect).join('');
+                    initExpandableCards();
+                    summarizeOverview(finalAspects);
 
                     const keywords = Array.isArray(parsed.keywords_recommendation) ? parsed.keywords_recommendation : [];
                     keywordsList.innerHTML = keywords.length
@@ -356,6 +539,7 @@ ${text}
                     careerRecommendation.textContent = parsed.career_recommendation || '-';
 
                     resultWrapper.classList.remove('hidden');
+                    setActiveTab('tab-overview');
                     statusText.textContent = 'Analisis selesai. Silakan cek hasil di bawah.';
                 } catch (error) {
                     statusText.textContent = `Gagal menganalisis CV: ${error.message || 'unknown error'}`;
