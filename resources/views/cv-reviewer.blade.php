@@ -1186,7 +1186,7 @@
 
             const initExpandableCards = () => {
                 const toggles = aspectsGrid.querySelectorAll('.aspect-toggle');
-                toggles.forEach((toggle, idx) => {
+                toggles.forEach((toggle) => {
                     const targetId = toggle.dataset.target;
                     const panel = document.getElementById(targetId);
                     const icon = toggle.querySelector('.aspect-icon');
@@ -1206,9 +1206,8 @@
                         icon.classList.remove('rotate-180');
                     };
 
-                    if (idx === 0) {
-                        openPanel();
-                    }
+                    // Default to expanded for better result visibility.
+                    openPanel();
 
                     toggle.addEventListener('click', () => {
                         const isOpen = panel.classList.contains('open');
