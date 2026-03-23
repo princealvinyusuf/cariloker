@@ -52,6 +52,8 @@ class ApplicationController extends Controller
 
     private function normalizeExternalUrl(string $url): string
     {
+        $url = $this->sanitizeHiredTodayUrl($url);
+
         // Imported legacy data may come fully uppercased, so normalize for redirects.
         if (! preg_match('/[a-z]/', $url)) {
             return Str::lower($url);
@@ -74,5 +76,50 @@ class ApplicationController extends Controller
         $fragment = isset($parts['fragment']) ? '#'.$parts['fragment'] : '';
 
         return $scheme.$userInfo.$host.$port.$path.$query.$fragment;
+    }
+
+    private function sanitizeHiredTodayUrl(string $url): string
+    {
+        $parts = parse_url($url);
+
+        if ($parts === false || ! isset($parts['host'])) {
+            return $url;
+        }
+
+        if (! str_contains(Str::lower($parts['host']), 'hiredtoday.com')) {
+            return $url;
+        }
+
+        $path = $parts['path'] ?? '';
+        $path = preg_replace('#/jobseeker(?=/|$)#i', '', $path) ?? $path;
+        $path = preg_replace('#/{2,}#', '/', $path) ?? $path;
+
+        $query = $parts['query'] ?? '';
+        if ($query !== '') {
+            parse_str($query, $queryParams);
+
+            $queryParams = array_filter(
+                $queryParams,
+                fn (mixed $value, string $key): bool => ! in_array(
+                    Str::upper($key),
+                    ['UTM_CAMPAIGN', 'UTM_MEDIUM', 'UTM_SOURCE'],
+                    true
+                ),
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            $query = http_build_query($queryParams);
+        }
+
+        $scheme = isset($parts['scheme']) ? $parts['scheme'].'://' : '';
+        $userInfo = isset($parts['user'])
+            ? $parts['user'].(isset($parts['pass']) ? ':'.$parts['pass'] : '').'@'
+            : '';
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $fragment = isset($parts['fragment']) ? '#'.$parts['fragment'] : '';
+        $queryString = $query !== '' ? '?'.$query : '';
+
+        return $scheme.$userInfo.$host.$port.$path.$queryString.$fragment;
     }
 }
