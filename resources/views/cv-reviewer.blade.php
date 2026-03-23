@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js"></script>
     <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         .score-ring-track {
             stroke: rgba(148, 163, 184, 0.25);
@@ -122,9 +123,9 @@
                     <div class="mt-6 grid gap-4 md:grid-cols-2">
                         <div>
                             <label for="cv-file" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">CV / Resume</label>
-                            <input id="cv-file" type="file" accept=".txt,.md,.rtf,.pdf,.doc,.docx" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                            <input id="cv-file" type="file" accept=".txt,.md,.rtf,.pdf,.doc,.docx,.png,.jpg,.jpeg,.webp" class="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-primary-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                             <p id="file-help" class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                                File teks akan dibaca otomatis. Untuk PDF/DOC/DOCX, bila teks tidak terbaca silakan paste isi CV di kolom bawah.
+                                File teks, PDF, DOCX, dan gambar CV akan dicoba dibaca otomatis (termasuk OCR untuk scan). Jika gagal, paste isi CV di kolom bawah.
                             </p>
                         </div>
                         <div>
@@ -322,7 +323,7 @@
                 'Career Recommendation'
             ];
             const textLikeExtensions = ['.txt', '.md', '.rtf'];
-            const extractableExtensions = ['.pdf', '.docx'];
+            const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
             let extractedFromFile = '';
             let extractedFileName = '';
 
@@ -463,7 +464,86 @@
                 if (lower.endsWith('.md')) return '.md';
                 if (lower.endsWith('.rtf')) return '.rtf';
                 if (lower.endsWith('.doc')) return '.doc';
+                if (lower.endsWith('.png')) return '.png';
+                if (lower.endsWith('.jpg')) return '.jpg';
+                if (lower.endsWith('.jpeg')) return '.jpeg';
+                if (lower.endsWith('.webp')) return '.webp';
                 return '';
+            };
+
+            const fileToImageElement = async (file) => {
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Gagal membaca image file.'));
+                    reader.readAsDataURL(file);
+                });
+
+                return await new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.onload = () => resolve(image);
+                    image.onerror = () => reject(new Error('Gagal memuat image file.'));
+                    image.src = dataUrl;
+                });
+            };
+
+            const runOcrOnCanvas = async (canvas, progressPrefix = 'OCR') => {
+                if (!window.Tesseract?.recognize) {
+                    throw new Error('OCR engine belum tersedia.');
+                }
+
+                const language = 'eng+ind';
+                const result = await window.Tesseract.recognize(canvas, language, {
+                    logger: (message) => {
+                        if (message?.status && typeof message.progress === 'number') {
+                            const pct = Math.round(message.progress * 100);
+                            statusText.textContent = `${progressPrefix}: ${message.status} ${pct}%`;
+                        }
+                    }
+                });
+                return (result?.data?.text || '').trim();
+            };
+
+            const extractImageTextWithOCR = async (file) => {
+                const image = await fileToImageElement(file);
+                const canvas = document.createElement('canvas');
+                const maxWidth = 1800;
+                const ratio = image.width > maxWidth ? (maxWidth / image.width) : 1;
+                canvas.width = Math.max(1, Math.floor(image.width * ratio));
+                canvas.height = Math.max(1, Math.floor(image.height * ratio));
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                return await runOcrOnCanvas(canvas, 'OCR gambar CV');
+            };
+
+            const extractPdfTextWithOCR = async (file) => {
+                if (!window.pdfjsLib?.GlobalWorkerOptions) {
+                    throw new Error('PDF parser belum tersedia.');
+                }
+
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
+                const fileBuffer = await file.arrayBuffer();
+                const loadingTask = window.pdfjsLib.getDocument({ data: fileBuffer });
+                const pdf = await loadingTask.promise;
+                const maxPages = Math.min(pdf.numPages, 5);
+                const pageTexts = [];
+
+                for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
+                    statusText.textContent = `Menjalankan OCR PDF halaman ${pageNo}/${maxPages}...`;
+                    const page = await pdf.getPage(pageNo);
+                    const viewport = page.getViewport({ scale: 1.8 });
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.floor(viewport.width);
+                    canvas.height = Math.floor(viewport.height);
+                    const ctx = canvas.getContext('2d');
+                    await page.render({ canvasContext: ctx, viewport }).promise;
+                    const pageText = await runOcrOnCanvas(canvas, `OCR PDF halaman ${pageNo}/${maxPages}`);
+                    if (pageText) {
+                        pageTexts.push(pageText);
+                    }
+                }
+
+                return pageTexts.join('\n\n');
             };
 
             const extractPdfText = async (file) => {
@@ -486,7 +566,14 @@
                     }
                 }
 
-                return pages.join('\n\n');
+                const textLayerResult = pages.join('\n\n').trim();
+                if (textLayerResult.length >= 120) {
+                    return textLayerResult;
+                }
+
+                statusText.textContent = 'PDF terdeteksi sebagai scan/image. Menjalankan OCR...';
+                const ocrResult = await extractPdfTextWithOCR(file);
+                return ocrResult.trim();
             };
 
             const extractDocxText = async (file) => {
@@ -512,6 +599,10 @@
 
                 if (extension === '.docx') {
                     return (await extractDocxText(file)).trim();
+                }
+
+                if (imageExtensions.includes(extension)) {
+                    return (await extractImageTextWithOCR(file)).trim();
                 }
 
                 if (extension === '.doc') {
@@ -723,7 +814,7 @@
                 mainGap.textContent = '-';
                 aspectCount.textContent = '0 aspek';
                 priorityAction.textContent = '-';
-                fileHelp.textContent = 'File teks akan dibaca otomatis. Untuk PDF/DOC/DOCX, bila teks tidak terbaca silakan paste isi CV di kolom bawah.';
+                fileHelp.textContent = 'File teks, PDF, DOCX, dan gambar CV akan dicoba dibaca otomatis (termasuk OCR untuk scan). Jika gagal, paste isi CV di kolom bawah.';
                 setActiveTab('tab-overview');
             });
 
