@@ -13,6 +13,7 @@
                 'companies.show' => isset($company) ? ($company->name . ' - Profil Perusahaan') : 'Profil Perusahaan - Cari Loker',
                 'blog.index' => 'Blog Karier & Tips Kerja - Cari Loker',
                 'blog.show' => isset($blogPost) ? ($blogPost->title . ' - Blog Cari Loker') : 'Artikel Karier - Cari Loker',
+                'cv.reviewer' => 'Bedan CV Gratis - AI CV ATS Checker',
                 'about' => 'Tentang Kami - Cari Loker',
                 'faq' => 'FAQ - Cari Loker',
                 'terms-of-service' => 'Syarat & Ketentuan - Cari Loker',

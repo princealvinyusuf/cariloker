@@ -23,6 +23,7 @@
                     <li><a href="{{ route('jobs.index', ['list' => '1']) }}" class="text-slate-400 transition hover:text-white">{{ __('Find Jobs') }}</a></li>
                     <li><a href="{{ route('companies.index') }}" class="text-slate-400 transition hover:text-white">{{ __('Browse Companies') }}</a></li>
                     <li><a href="{{ route('blog.index') }}" class="text-slate-400 transition hover:text-white">{{ __('Career Blog') }}</a></li>
+                    <li><a href="{{ route('cv.reviewer') }}" class="text-slate-400 transition hover:text-white">{{ __('Bedan CV Gratis') }}</a></li>
                     <li><a href="{{ route('about') }}" class="text-slate-400 transition hover:text-white">{{ __('About Us') }}</a></li>
                 </ul>
             </div>

@@ -66,6 +66,7 @@ Route::get('/locale/{locale}', function (string $locale) {
 
 // Homepage should be served directly on root URL (no redirect).
 Route::get('/', [JobController::class, 'beranda'])->name('home');
+Route::view('/bedah-cv-gratis', 'cv-reviewer')->name('cv.reviewer');
 
 // Jobs listing page retains the jobs.index name for navigation and filters
 Route::get('/jobs', [JobController::class, 'index'])
@@ -88,6 +89,7 @@ Route::get('/hello', fn() => 'world');
 Route::get('/sitemap.xml', function () {
     $staticUrls = collect([
         route('home'),
+        route('cv.reviewer'),
         route('jobs.index'),
         route('companies.index'),
         route('categories.index'),
