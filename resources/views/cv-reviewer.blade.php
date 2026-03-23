@@ -455,6 +455,15 @@
                     button.classList.toggle('dark:text-slate-200', !isActive);
                 });
 
+                if (targetId === 'tab-aspects') {
+                    // Recompute heights when the hidden tab becomes visible.
+                    requestAnimationFrame(() => {
+                        document.querySelectorAll('#tab-aspects .aspect-panel.open').forEach((panel) => {
+                            panel.style.maxHeight = `${panel.scrollHeight}px`;
+                        });
+                    });
+                }
+
                 if (!resultWrapper.classList.contains('hidden')) {
                     animatePanels();
                 }
