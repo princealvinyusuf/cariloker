@@ -24,6 +24,64 @@
         .dark .score-ring-progress {
             stroke: #60a5fa;
         }
+
+        .result-tabs-sticky {
+            position: sticky;
+            top: 5.25rem;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+        }
+
+        @keyframes fade-slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-animate {
+            animation: fade-slide-up 0.45s ease both;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -300px 0; }
+            100% { background-position: 300px 0; }
+        }
+
+        .skeleton-line {
+            background: linear-gradient(90deg, rgba(226,232,240,0.5) 25%, rgba(203,213,225,0.65) 50%, rgba(226,232,240,0.5) 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        .dark .skeleton-line {
+            background: linear-gradient(90deg, rgba(51,65,85,0.5) 25%, rgba(71,85,105,0.6) 50%, rgba(51,65,85,0.5) 75%);
+            background-size: 600px 100%;
+        }
+
+        .tab-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tab-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .aspect-panel {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+
+        .aspect-panel.open {
+            opacity: 1;
+        }
     </style>
 @endsection
 
@@ -127,7 +185,7 @@
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">AI CV Reviewer Results</p>
                         <h2 class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Hasil Analisis CV</h2>
                     </div>
-                    <div class="flex items-center gap-4 rounded-2xl bg-primary-50 px-4 py-3 ring-1 ring-primary-100 dark:bg-primary-900/30 dark:ring-primary-700/40">
+                    <div id="score-chip" class="flex items-center gap-4 rounded-2xl bg-primary-50 px-4 py-3 ring-1 ring-primary-100 dark:bg-primary-900/30 dark:ring-primary-700/40">
                         <div class="relative h-20 w-20">
                             <svg class="h-20 w-20 -rotate-90" viewBox="0 0 120 120" aria-hidden="true">
                                 <circle class="score-ring-track" cx="60" cy="60" r="52" stroke-width="12" fill="none"></circle>
@@ -138,18 +196,18 @@
                             </div>
                         </div>
                         <div>
-                            <p class="text-xs uppercase tracking-[0.15em] text-primary-700 dark:text-primary-300">ATS Readiness</p>
-                            <p class="mt-1 text-sm text-slate-700 dark:text-slate-200">Skor keseluruhan CV Anda</p>
+                            <p id="ats-label" class="text-xs uppercase tracking-[0.15em] text-primary-700 dark:text-primary-300">ATS Readiness</p>
+                            <p id="ats-caption" class="mt-1 text-sm text-slate-700 dark:text-slate-200">Skor keseluruhan CV Anda</p>
                         </div>
                     </div>
                 </div>
                 <p id="overall-impression" class="mt-5 text-sm leading-relaxed text-slate-600 dark:text-slate-300"></p>
 
-                <div class="mt-6 flex flex-wrap gap-2">
-                    <button type="button" data-tab-target="tab-overview" class="result-tab-btn rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">Overview</button>
-                    <button type="button" data-tab-target="tab-aspects" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">12 Aspek</button>
-                    <button type="button" data-tab-target="tab-keywords" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Keywords</button>
-                    <button type="button" data-tab-target="tab-career" class="result-tab-btn rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Career Fit</button>
+                <div class="result-tabs-sticky tab-scroll -mx-2 mt-6 flex gap-2 overflow-x-auto rounded-xl bg-white/80 px-2 py-2 dark:bg-slate-950/70">
+                    <button type="button" data-tab-target="tab-overview" class="result-tab-btn shrink-0 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">Overview</button>
+                    <button type="button" data-tab-target="tab-aspects" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">12 Aspek</button>
+                    <button type="button" data-tab-target="tab-keywords" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Keywords</button>
+                    <button type="button" data-tab-target="tab-career" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Career Fit</button>
                 </div>
             </div>
 
@@ -192,6 +250,28 @@
                 </div>
             </div>
         </div>
+
+        <div id="sample-state" class="mt-8">
+            <div class="surface-card p-6 md:p-8">
+                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">Contoh Hasil Analisis</p>
+                <h2 class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Preview sebelum review</h2>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Setelah Anda klik <strong>Review Sekarang</strong>, hasil akan tampil seperti struktur di bawah ini.</p>
+                <div class="mt-5 grid gap-4 md:grid-cols-2">
+                    <div class="surface-card p-5">
+                        <div class="skeleton-line h-4 w-32 rounded"></div>
+                        <div class="skeleton-line mt-3 h-3 w-full rounded"></div>
+                        <div class="skeleton-line mt-2 h-3 w-11/12 rounded"></div>
+                        <div class="skeleton-line mt-2 h-3 w-9/12 rounded"></div>
+                    </div>
+                    <div class="surface-card p-5">
+                        <div class="skeleton-line h-4 w-40 rounded"></div>
+                        <div class="skeleton-line mt-3 h-3 w-full rounded"></div>
+                        <div class="skeleton-line mt-2 h-3 w-10/12 rounded"></div>
+                        <div class="skeleton-line mt-2 h-3 w-7/12 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <script>
@@ -204,8 +284,12 @@
             const clearBtn = document.getElementById('clear-btn');
             const statusText = document.getElementById('status-text');
             const resultWrapper = document.getElementById('result-wrapper');
+            const sampleState = document.getElementById('sample-state');
             const overallScore = document.getElementById('overall-score');
             const scoreRingProgress = document.getElementById('score-ring-progress');
+            const scoreChip = document.getElementById('score-chip');
+            const atsLabel = document.getElementById('ats-label');
+            const atsCaption = document.getElementById('ats-caption');
             const overallImpression = document.getElementById('overall-impression');
             const aspectsGrid = document.getElementById('aspects-grid');
             const keywordsList = document.getElementById('keywords-list');
@@ -255,6 +339,59 @@
             scoreRingProgress.style.strokeDasharray = `${ringCircumference}`;
             scoreRingProgress.style.strokeDashoffset = `${ringCircumference}`;
 
+            const getScorePalette = (score) => {
+                if (score >= 80) {
+                    return {
+                        ring: '#10b981',
+                        text: ['text-emerald-700', 'dark:text-emerald-300'],
+                        chip: ['bg-emerald-50', 'ring-emerald-100', 'dark:bg-emerald-900/30', 'dark:ring-emerald-700/40'],
+                        label: ['text-emerald-700', 'dark:text-emerald-300'],
+                        caption: 'CV Anda sudah kuat dan kompetitif.'
+                    };
+                }
+                if (score >= 65) {
+                    return {
+                        ring: '#f59e0b',
+                        text: ['text-amber-700', 'dark:text-amber-300'],
+                        chip: ['bg-amber-50', 'ring-amber-100', 'dark:bg-amber-900/30', 'dark:ring-amber-700/40'],
+                        label: ['text-amber-700', 'dark:text-amber-300'],
+                        caption: 'CV Anda cukup baik, perlu sedikit peningkatan.'
+                    };
+                }
+                return {
+                    ring: '#f43f5e',
+                    text: ['text-rose-700', 'dark:text-rose-300'],
+                    chip: ['bg-rose-50', 'ring-rose-100', 'dark:bg-rose-900/30', 'dark:ring-rose-700/40'],
+                    label: ['text-rose-700', 'dark:text-rose-300'],
+                    caption: 'CV Anda butuh optimasi prioritas sebelum melamar.'
+                };
+            };
+
+            const applyScorePalette = (score) => {
+                const palette = getScorePalette(score);
+                scoreRingProgress.style.stroke = palette.ring;
+
+                overallScore.classList.remove('text-primary-700', 'dark:text-primary-300', 'text-emerald-700', 'dark:text-emerald-300', 'text-amber-700', 'dark:text-amber-300', 'text-rose-700', 'dark:text-rose-300');
+                atsLabel.classList.remove('text-primary-700', 'dark:text-primary-300', 'text-emerald-700', 'dark:text-emerald-300', 'text-amber-700', 'dark:text-amber-300', 'text-rose-700', 'dark:text-rose-300');
+                scoreChip.classList.remove('bg-primary-50', 'ring-primary-100', 'dark:bg-primary-900/30', 'dark:ring-primary-700/40', 'bg-emerald-50', 'ring-emerald-100', 'dark:bg-emerald-900/30', 'dark:ring-emerald-700/40', 'bg-amber-50', 'ring-amber-100', 'dark:bg-amber-900/30', 'dark:ring-amber-700/40', 'bg-rose-50', 'ring-rose-100', 'dark:bg-rose-900/30', 'dark:ring-rose-700/40');
+
+                overallScore.classList.add(...palette.text);
+                atsLabel.classList.add(...palette.label);
+                scoreChip.classList.add(...palette.chip);
+                atsCaption.textContent = palette.caption;
+            };
+
+            const resetScoreVisual = () => {
+                scoreRingProgress.style.stroke = '';
+                overallScore.classList.remove('text-emerald-700', 'dark:text-emerald-300', 'text-amber-700', 'dark:text-amber-300', 'text-rose-700', 'dark:text-rose-300');
+                atsLabel.classList.remove('text-emerald-700', 'dark:text-emerald-300', 'text-amber-700', 'dark:text-amber-300', 'text-rose-700', 'dark:text-rose-300');
+                scoreChip.classList.remove('bg-emerald-50', 'ring-emerald-100', 'dark:bg-emerald-900/30', 'dark:ring-emerald-700/40', 'bg-amber-50', 'ring-amber-100', 'dark:bg-amber-900/30', 'dark:ring-amber-700/40', 'bg-rose-50', 'ring-rose-100', 'dark:bg-rose-900/30', 'dark:ring-rose-700/40');
+                overallScore.classList.add('text-primary-700', 'dark:text-primary-300');
+                atsLabel.classList.add('text-primary-700', 'dark:text-primary-300');
+                scoreChip.classList.add('bg-primary-50', 'ring-primary-100', 'dark:bg-primary-900/30', 'dark:ring-primary-700/40');
+                atsCaption.textContent = 'Skor keseluruhan CV Anda';
+            };
+
             const setActiveTab = (targetId) => {
                 tabPanels.forEach((panel) => panel.classList.toggle('hidden', panel.id !== targetId));
                 tabButtons.forEach((button) => {
@@ -269,10 +406,15 @@
                     button.classList.toggle('text-slate-700', !isActive);
                     button.classList.toggle('dark:text-slate-200', !isActive);
                 });
+
+                if (!resultWrapper.classList.contains('hidden')) {
+                    animatePanels();
+                }
             };
 
             const animateScore = (score) => {
                 const safeScore = Math.max(0, Math.min(100, Number(score) || 0));
+                applyScorePalette(safeScore);
                 const targetOffset = ringCircumference * (1 - safeScore / 100);
                 const start = performance.now();
                 const duration = 900;
@@ -293,6 +435,17 @@
                 };
 
                 requestAnimationFrame(step);
+            };
+
+            const animatePanels = () => {
+                const targets = document.querySelectorAll('#tab-overview .surface-card, #tab-aspects .surface-card, #tab-keywords .surface-card, #tab-career .surface-card');
+                targets.forEach((el, index) => {
+                    el.classList.remove('result-animate');
+                    el.style.animationDelay = `${Math.min(index * 40, 220)}ms`;
+                    // Force reflow for restart animation.
+                    void el.offsetWidth;
+                    el.classList.add('result-animate');
+                });
             };
 
             const summarizeOverview = (aspects) => {
@@ -359,9 +512,10 @@
                 button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
             });
 
+            resetScoreVisual();
             setActiveTab('tab-overview');
 
-            const renderAspect = (aspect) => {
+            const renderAspect = (aspect, index) => {
                 const score = Number(aspect.score || 0);
                 const tone = scoreTone(score);
                 const toneStyles = {
@@ -369,8 +523,13 @@
                     amber: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
                     rose: 'bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
                 };
+                const toneBarStyles = {
+                    emerald: 'bg-emerald-500',
+                    amber: 'bg-amber-500',
+                    rose: 'bg-rose-500'
+                };
                 const actionPoints = Array.isArray(aspect.action_points) ? aspect.action_points : [];
-                const aspectId = String(aspect.name || 'aspect').toLowerCase().replaceAll(/[^a-z0-9]+/g, '-');
+                const aspectId = `${String(aspect.name || 'aspect').toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}-${index}`;
 
                 return `
                     <article class="surface-card p-5">
@@ -381,7 +540,10 @@
                                 <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform aspect-icon"></i>
                             </div>
                         </button>
-                        <div id="${escapeHtml(aspectId)}" class="mt-3 hidden">
+                        <div class="mt-3 h-2 rounded-full bg-slate-100 dark:bg-slate-800">
+                            <div class="h-2 rounded-full ${toneBarStyles[tone]}" style="width: ${Math.max(0, Math.min(100, score))}%"></div>
+                        </div>
+                        <div id="${escapeHtml(aspectId)}" class="aspect-panel mt-3">
                             <p class="text-sm text-slate-600 dark:text-slate-300">${escapeHtml(aspect.analysis || '')}</p>
                             ${actionPoints.length ? `<div class="mt-3">
                             <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Action Points</p>
@@ -405,18 +567,38 @@
                         return;
                     }
 
-                    if (idx === 0) {
-                        panel.classList.remove('hidden');
+                    const openPanel = () => {
+                        panel.classList.add('open');
+                        panel.style.maxHeight = `${panel.scrollHeight}px`;
                         icon.classList.add('rotate-180');
+                    };
+
+                    const closePanel = () => {
+                        panel.style.maxHeight = '0px';
+                        panel.classList.remove('open');
+                        icon.classList.remove('rotate-180');
+                    };
+
+                    if (idx === 0) {
+                        openPanel();
                     }
 
                     toggle.addEventListener('click', () => {
-                        const isHidden = panel.classList.contains('hidden');
-                        panel.classList.toggle('hidden', !isHidden);
-                        icon.classList.toggle('rotate-180', isHidden);
+                        const isOpen = panel.classList.contains('open');
+                        if (isOpen) {
+                            closePanel();
+                        } else {
+                            openPanel();
+                        }
                     });
                 });
             };
+
+            window.addEventListener('resize', () => {
+                document.querySelectorAll('.aspect-panel.open').forEach((panel) => {
+                    panel.style.maxHeight = `${panel.scrollHeight}px`;
+                });
+            });
 
             fileInput.addEventListener('change', async (event) => {
                 const file = event.target.files?.[0];
@@ -446,11 +628,13 @@
                 cvText.value = '';
                 statusText.textContent = '';
                 resultWrapper.classList.add('hidden');
+                sampleState.classList.remove('hidden');
                 aspectsGrid.innerHTML = '';
                 keywordsList.innerHTML = '';
                 overallImpression.textContent = '';
                 overallScore.textContent = '0%';
                 scoreRingProgress.style.strokeDashoffset = `${ringCircumference}`;
+                resetScoreVisual();
                 careerRecommendation.textContent = '';
                 topStrength.textContent = '-';
                 mainGap.textContent = '-';
@@ -539,7 +723,9 @@ ${text}
                     careerRecommendation.textContent = parsed.career_recommendation || '-';
 
                     resultWrapper.classList.remove('hidden');
+                    sampleState.classList.add('hidden');
                     setActiveTab('tab-overview');
+                    animatePanels();
                     statusText.textContent = 'Analisis selesai. Silakan cek hasil di bawah.';
                 } catch (error) {
                     statusText.textContent = `Gagal menganalisis CV: ${error.message || 'unknown error'}`;
