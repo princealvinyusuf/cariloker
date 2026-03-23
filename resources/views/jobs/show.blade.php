@@ -1,9 +1,15 @@
-@section('meta_title', $job->title . ' - ' . ($job->company->name ?? 'Cari Loker'))
-@section('meta_description', str($job->plain_description_text)->limit(155, ''))
+@php
+    $isExpiredPage = (bool) ($isExpired ?? false);
+    $metaTitle = $isExpiredPage
+        ? ($job->title . ' (Expired) - ' . ($job->company->name ?? 'Cari Loker'))
+        : ($job->title . ' - ' . ($job->company->name ?? 'Cari Loker'));
+    $metaDescription = $isExpiredPage
+        ? str('Lowongan ini sudah melewati batas waktu lamaran. Anda masih bisa melihat detail posisi dan lowongan serupa lainnya di Cari Loker.')->limit(155, '')
+        : str($job->plain_description_text)->limit(155, '');
+@endphp
+@section('meta_title', $metaTitle)
+@section('meta_description', $metaDescription)
 @section('og_type', 'article')
-@if(($isExpired ?? false))
-    @section('meta_robots', 'noindex,follow')
-@endif
 @if($job->company?->logo_path)
     @section('og_image', url(Storage::url($job->company->logo_path)))
 @endif
@@ -74,10 +80,26 @@
             ];
         }
     @endphp
+        $webPageSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebPage',
+            'name' => $metaTitle,
+            'description' => $metaDescription,
+            'url' => route('jobs.show', $job),
+            'dateModified' => optional($job->updated_at ?? $job->created_at)->toAtomString(),
+            'isPartOf' => [
+                '@type' => 'WebSite',
+                'name' => 'Cari Loker',
+                'url' => route('beranda'),
+            ],
+        ];
+    @endphp
     <script type="application/ld+json">{!! json_encode($breadcrumbSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-    @unless(($isExpired ?? false))
+    @if($isExpiredPage)
+        <script type="application/ld+json">{!! json_encode($webPageSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    @else
         <script type="application/ld+json">{!! json_encode($jobSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
-    @endunless
+    @endif
 @endsection
 
 <x-app-layout>
