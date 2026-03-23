@@ -14,7 +14,7 @@
                     '@type' => 'ListItem',
                     'position' => 1,
                     'name' => 'Beranda',
-                    'item' => route('beranda'),
+                    'item' => route('home'),
                 ],
                 [
                     '@type' => 'ListItem',

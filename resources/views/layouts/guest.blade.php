@@ -69,7 +69,7 @@
             <div class="relative w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900">
                 <div class="grid md:grid-cols-2">
                     <div class="hidden md:flex flex-col justify-between bg-gradient-to-br from-primary-700 via-primary-600 to-accent-600 p-10 text-white">
-                        <a href="{{ route('beranda') }}" class="inline-flex items-center gap-2 text-xl font-bold tracking-tight">
+                        <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-xl font-bold tracking-tight">
                             <span>Cari Loker</span>
                         </a>
                         <div>
@@ -82,7 +82,7 @@
 
                     <div class="px-6 py-8 sm:px-10 sm:py-10">
                         <div class="mb-6 md:hidden">
-                            <a href="{{ route('beranda') }}" class="inline-flex items-center gap-2 text-lg font-bold text-primary-700 dark:text-primary-300">
+                            <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-lg font-bold text-primary-700 dark:text-primary-300">
                                 <span>Cari Loker</span>
                             </a>
                         </div>

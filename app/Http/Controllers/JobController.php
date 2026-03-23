@@ -57,7 +57,7 @@ class JobController extends Controller
                     ],
                 ],
                 'breadcrumbItems' => [
-                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Beranda', 'url' => route('home')],
                     ['name' => 'Jobs', 'url' => route('jobs.index')],
                     ['name' => $category->name, 'url' => route('jobs.by-category', $category)],
                 ],
@@ -100,7 +100,7 @@ class JobController extends Controller
                     ],
                 ],
                 'breadcrumbItems' => [
-                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Beranda', 'url' => route('home')],
                     ['name' => 'Jobs', 'url' => route('jobs.index')],
                     ['name' => $matchedCity, 'url' => route('jobs.by-location', ['locationSlug' => $locationSlug])],
                 ],
@@ -145,7 +145,7 @@ class JobController extends Controller
                     ],
                 ],
                 'breadcrumbItems' => [
-                    ['name' => 'Beranda', 'url' => route('beranda')],
+                    ['name' => 'Beranda', 'url' => route('home')],
                     ['name' => 'Jobs', 'url' => route('jobs.index')],
                     ['name' => $category->name, 'url' => route('jobs.by-category', $category)],
                     ['name' => $matchedCity, 'url' => route('jobs.by-category-location', ['category' => $category, 'locationSlug' => $locationSlug])],

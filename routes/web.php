@@ -85,7 +85,7 @@ Route::get('/hello', fn() => 'world');
 
 Route::get('/sitemap.xml', function () {
     $staticUrls = collect([
-        route('beranda'),
+        route('home'),
         route('jobs.index'),
         route('companies.index'),
         route('categories.index'),

@@ -13,7 +13,7 @@
     $pageSubheading = $pageSubheading ?? __('Cari lowongan kerja terbaru dari berbagai bidang dan lokasi, lalu lamar dalam beberapa langkah.');
 
     $breadcrumbItems = $breadcrumbItems ?? [
-        ['name' => __('Beranda'), 'url' => route('beranda')],
+        ['name' => __('Beranda'), 'url' => route('home')],
         ['name' => __('Jobs'), 'url' => route('jobs.index')],
     ];
 

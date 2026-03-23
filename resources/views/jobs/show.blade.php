@@ -23,7 +23,7 @@
                     '@type' => 'ListItem',
                     'position' => 1,
                     'name' => 'Beranda',
-                    'item' => route('beranda'),
+                    'item' => route('home'),
                 ],
                 [
                     '@type' => 'ListItem',
@@ -89,7 +89,7 @@
             'isPartOf' => [
                 '@type' => 'WebSite',
                 'name' => 'Cari Loker',
-                'url' => route('beranda'),
+                'url' => route('home'),
             ],
         ];
     @endphp
