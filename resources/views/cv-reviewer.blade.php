@@ -6,6 +6,9 @@
 
 @section('head_tags')
     <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <style>
         .score-ring-track {
             stroke: rgba(148, 163, 184, 0.25);
@@ -318,6 +321,10 @@
                 'Keywords',
                 'Career Recommendation'
             ];
+            const textLikeExtensions = ['.txt', '.md', '.rtf'];
+            const extractableExtensions = ['.pdf', '.docx'];
+            let extractedFromFile = '';
+            let extractedFileName = '';
 
             const escapeHtml = (value) => String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -446,6 +453,72 @@
                     void el.offsetWidth;
                     el.classList.add('result-animate');
                 });
+            };
+
+            const detectExtension = (name) => {
+                const lower = String(name || '').toLowerCase();
+                if (lower.endsWith('.docx')) return '.docx';
+                if (lower.endsWith('.pdf')) return '.pdf';
+                if (lower.endsWith('.txt')) return '.txt';
+                if (lower.endsWith('.md')) return '.md';
+                if (lower.endsWith('.rtf')) return '.rtf';
+                if (lower.endsWith('.doc')) return '.doc';
+                return '';
+            };
+
+            const extractPdfText = async (file) => {
+                if (!window.pdfjsLib?.GlobalWorkerOptions) {
+                    throw new Error('PDF parser belum tersedia.');
+                }
+
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.worker.min.js';
+                const fileBuffer = await file.arrayBuffer();
+                const loadingTask = window.pdfjsLib.getDocument({ data: fileBuffer });
+                const pdf = await loadingTask.promise;
+                const pages = [];
+
+                for (let pageNo = 1; pageNo <= pdf.numPages; pageNo += 1) {
+                    const page = await pdf.getPage(pageNo);
+                    const content = await page.getTextContent();
+                    const pageText = content.items.map((item) => item.str).join(' ').trim();
+                    if (pageText) {
+                        pages.push(pageText);
+                    }
+                }
+
+                return pages.join('\n\n');
+            };
+
+            const extractDocxText = async (file) => {
+                if (!window.mammoth?.extractRawText) {
+                    throw new Error('DOCX parser belum tersedia.');
+                }
+
+                const fileBuffer = await file.arrayBuffer();
+                const result = await window.mammoth.extractRawText({ arrayBuffer: fileBuffer });
+                return (result.value || '').trim();
+            };
+
+            const extractTextFromFile = async (file) => {
+                const extension = detectExtension(file?.name);
+
+                if (textLikeExtensions.includes(extension)) {
+                    return (await file.text()).trim();
+                }
+
+                if (extension === '.pdf') {
+                    return (await extractPdfText(file)).trim();
+                }
+
+                if (extension === '.docx') {
+                    return (await extractDocxText(file)).trim();
+                }
+
+                if (extension === '.doc') {
+                    throw new Error('Format .doc belum didukung otomatis. Silakan simpan ke PDF/DOCX atau paste teks CV.');
+                }
+
+                throw new Error('Format file belum didukung. Gunakan PDF, DOCX, TXT, MD, atau RTF.');
             };
 
             const summarizeOverview = (aspects) => {
@@ -606,26 +679,36 @@
                     return;
                 }
 
-                const fileName = file.name.toLowerCase();
-                const isTextLike = ['.txt', '.md', '.rtf'].some((ext) => fileName.endsWith(ext));
-
-                if (!isTextLike) {
-                    fileHelp.textContent = 'File dipilih. Untuk PDF/DOC/DOCX, paste isi CV jika teks tidak terbaca otomatis.';
-                    statusText.textContent = 'File non-teks terdeteksi. Silakan paste isi CV jika perlu.';
-                    return;
-                }
-
                 try {
-                    cvText.value = await file.text();
-                    statusText.textContent = 'Teks CV berhasil dimuat dari file.';
-                } catch (_) {
-                    statusText.textContent = 'Gagal membaca file. Silakan paste isi CV secara manual.';
+                    statusText.textContent = 'Membaca file CV...';
+                    fileHelp.textContent = 'Sistem sedang mengekstrak teks CV dari file Anda.';
+                    const extractedText = await extractTextFromFile(file);
+
+                    extractedFromFile = extractedText;
+                    extractedFileName = file.name;
+
+                    if (extractedText.length < 80) {
+                        statusText.textContent = 'Teks dari file terlalu sedikit. Silakan cek file atau paste isi CV manual.';
+                        fileHelp.textContent = 'Teks berhasil diekstrak namun sangat singkat. Paste isi CV jika hasil belum lengkap.';
+                        return;
+                    }
+
+                    cvText.value = extractedText;
+                    statusText.textContent = `Teks CV berhasil dibaca dari ${file.name}.`;
+                    fileHelp.textContent = 'Teks CV sudah terisi otomatis. Anda tetap bisa edit sebelum review.';
+                } catch (error) {
+                    extractedFromFile = '';
+                    extractedFileName = '';
+                    statusText.textContent = error.message || 'Gagal membaca file. Silakan paste isi CV secara manual.';
+                    fileHelp.textContent = 'Ekstraksi otomatis gagal. Paste isi CV di kolom teks untuk lanjut review.';
                 }
             });
 
             clearBtn.addEventListener('click', () => {
                 fileInput.value = '';
                 cvText.value = '';
+                extractedFromFile = '';
+                extractedFileName = '';
                 statusText.textContent = '';
                 resultWrapper.classList.add('hidden');
                 sampleState.classList.remove('hidden');
@@ -640,23 +723,45 @@
                 mainGap.textContent = '-';
                 aspectCount.textContent = '0 aspek';
                 priorityAction.textContent = '-';
+                fileHelp.textContent = 'File teks akan dibaca otomatis. Untuk PDF/DOC/DOCX, bila teks tidak terbaca silakan paste isi CV di kolom bawah.';
                 setActiveTab('tab-overview');
             });
 
             reviewBtn.addEventListener('click', async () => {
-                const text = cvText.value.trim();
-
-                if (!text || text.length < 120) {
-                    statusText.textContent = 'Isi CV terlalu singkat. Tambahkan lebih banyak detail sebelum dianalisis.';
-                    return;
-                }
-
                 if (!window.puter?.ai?.chat) {
                     statusText.textContent = 'Puter API belum siap. Refresh halaman lalu coba lagi.';
                     return;
                 }
 
                 setLoading(true);
+                statusText.textContent = 'Menyiapkan CV untuk analisis...';
+
+                let text = cvText.value.trim();
+                const currentFile = fileInput.files?.[0];
+
+                if (!text && currentFile) {
+                    try {
+                        if (!extractedFromFile || extractedFileName !== currentFile.name) {
+                            extractedFromFile = await extractTextFromFile(currentFile);
+                            extractedFileName = currentFile.name;
+                        }
+                        text = extractedFromFile.trim();
+                        if (text) {
+                            cvText.value = text;
+                        }
+                    } catch (error) {
+                        statusText.textContent = error.message || 'Gagal membaca isi file CV. Silakan paste teks CV manual.';
+                        setLoading(false);
+                        return;
+                    }
+                }
+
+                if (!text || text.length < 80) {
+                    statusText.textContent = 'Isi CV terlalu singkat atau belum terbaca. Tambahkan detail CV sebelum dianalisis.';
+                    setLoading(false);
+                    return;
+                }
+
                 statusText.textContent = 'Mengirim CV ke AI untuk dianalisis...';
 
                 const prompt = `
