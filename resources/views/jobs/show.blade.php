@@ -79,7 +79,6 @@
                 ],
             ];
         }
-    @endphp
         $webPageSchema = [
             '@context' => 'https://schema.org',
             '@type' => 'WebPage',
