@@ -1202,6 +1202,11 @@
                 if (typeof raw === 'object') {
                     if (typeof raw.message?.content === 'string') {
                         raw = raw.message.content;
+                    } else if (Array.isArray(raw.message?.content)) {
+                        raw = raw.message.content
+                            .map((part) => part?.text || part?.content || '')
+                            .join('\n')
+                            .trim();
                     } else if (typeof raw.text === 'string') {
                         raw = raw.text;
                     } else {
@@ -1223,6 +1228,35 @@
                     } catch (_) {
                         return null;
                     }
+                }
+            };
+
+            const getReadableErrorMessage = (error) => {
+                if (!error) {
+                    return 'unknown error';
+                }
+
+                if (typeof error === 'string') {
+                    return error;
+                }
+
+                if (typeof error.message === 'string' && error.message.trim()) {
+                    return error.message;
+                }
+
+                if (typeof error.error?.message === 'string' && error.error.message.trim()) {
+                    return error.error.message;
+                }
+
+                if (typeof error.response?.data?.error?.message === 'string' && error.response.data.error.message.trim()) {
+                    return error.response.data.error.message;
+                }
+
+                try {
+                    const serialized = JSON.stringify(error);
+                    return serialized && serialized !== '{}' ? serialized : 'unknown error';
+                } catch (_) {
+                    return 'unknown error';
                 }
             };
 
@@ -1467,11 +1501,22 @@ ${jobDescription || '(Not provided)'}
                 `.trim();
 
                 try {
-                    const response = await window.puter.ai.chat(prompt, {
-                        model: 'gpt-5.3-chat',
-                        temperature: 0.2,
-                        max_tokens: 2600
-                    });
+                    let response;
+                    try {
+                        response = await window.puter.ai.chat(prompt, {
+                            model: 'gpt-5.3-chat',
+                            temperature: 0.2,
+                            max_tokens: 2600
+                        });
+                    } catch (firstError) {
+                        // Retry once for transient provider-side failures.
+                        statusText.textContent = 'Permintaan pertama gagal, mencoba ulang...';
+                        response = await window.puter.ai.chat(prompt, {
+                            model: 'gpt-5.3-chat',
+                            temperature: 0.2,
+                            max_tokens: 2200
+                        });
+                    }
 
                     const parsed = parseModelJson(response);
                     if (!parsed) {
@@ -1507,7 +1552,13 @@ ${jobDescription || '(Not provided)'}
                     animatePanels();
                     statusText.textContent = 'Analisis selesai. Silakan cek hasil di bawah.';
                 } catch (error) {
-                    statusText.textContent = `Gagal menganalisis CV: ${error.message || 'unknown error'}`;
+                    const readable = getReadableErrorMessage(error);
+                    statusText.textContent = `Gagal menganalisis CV: ${readable}`;
+                    try {
+                        console.error('CV analysis error', error);
+                    } catch (_) {
+                        // no-op
+                    }
                 } finally {
                     setLoading(false);
                 }
