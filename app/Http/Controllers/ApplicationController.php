@@ -53,6 +53,7 @@ class ApplicationController extends Controller
     private function normalizeExternalUrl(string $url): string
     {
         $url = $this->sanitizeHiredTodayUrl($url);
+        $url = $this->sanitizeGlintsUrl($url);
 
         // Imported legacy data may come fully uppercased, so normalize for redirects.
         if (! preg_match('/[a-z]/', $url)) {
@@ -76,6 +77,50 @@ class ApplicationController extends Controller
         $fragment = isset($parts['fragment']) ? '#'.$parts['fragment'] : '';
 
         return $scheme.$userInfo.$host.$port.$path.$query.$fragment;
+    }
+
+    private function sanitizeGlintsUrl(string $url): string
+    {
+        $parts = parse_url($url);
+
+        if ($parts === false || ! isset($parts['host'])) {
+            return $url;
+        }
+
+        if (! str_contains(Str::lower($parts['host']), 'glints.com')) {
+            return $url;
+        }
+
+        $query = $parts['query'] ?? '';
+        if ($query === '') {
+            return $url;
+        }
+
+        parse_str($query, $queryParams);
+
+        $queryParams = array_filter(
+            $queryParams,
+            fn (mixed $value, string $key): bool => ! in_array(
+                Str::upper($key),
+                ['UTM_SOURCE', 'UTM_MEDIUM', 'UTM_CAMPAIGN'],
+                true
+            ),
+            ARRAY_FILTER_USE_BOTH
+        );
+
+        $query = http_build_query($queryParams);
+
+        $scheme = isset($parts['scheme']) ? $parts['scheme'].'://' : '';
+        $userInfo = isset($parts['user'])
+            ? $parts['user'].(isset($parts['pass']) ? ':'.$parts['pass'] : '').'@'
+            : '';
+        $host = $parts['host'];
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $path = $parts['path'] ?? '';
+        $fragment = isset($parts['fragment']) ? '#'.$parts['fragment'] : '';
+        $queryString = $query !== '' ? '?'.$query : '';
+
+        return $scheme.$userInfo.$host.$port.$path.$queryString.$fragment;
     }
 
     private function sanitizeHiredTodayUrl(string $url): string
