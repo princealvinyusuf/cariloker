@@ -39,6 +39,8 @@ Route::middleware('auth')->group(function () {
     // Admin Analytics
     Route::get('/admin/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])
         ->name('admin.analytics.index');
+    Route::post('/admin/analytics/clear-relatable-database', [\App\Http\Controllers\Admin\AnalyticsController::class, 'clearRelatableDatabase'])
+        ->name('admin.analytics.clear-relatable-database');
 
     // Admin Job Imports: distribute data from staging table
     Route::get('/admin/jobs/import', [\App\Http\Controllers\Admin\JobImportController::class, 'index'])

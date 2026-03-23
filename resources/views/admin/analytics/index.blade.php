@@ -7,6 +7,26 @@
 
     <div class="py-12" x-data="{ modal: null }" @keydown.escape.window="modal = null">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('status'))
+                <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-900/30 dark:text-emerald-200">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    {{ __('Use this action only if you want to reset analytics-related counters and logs.') }}
+                </p>
+                <form method="POST" action="{{ route('admin.analytics.clear-relatable-database') }}"
+                    onsubmit="return confirm('{{ __('Are you sure you want to clear relatable analytics data? This will delete visitor IPs, error logs, all applications, and reset job views/apply clicks.') }}')">
+                    @csrf
+                    <button type="submit"
+                        class="inline-flex items-center rounded-md border border-red-600 bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus-visible-outline dark:border-red-500 dark:bg-red-500 dark:hover:bg-red-600">
+                        {{ __('Clear Relatable Database') }}
+                    </button>
+                </form>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Active Jobs Card -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -298,7 +318,7 @@
         <div x-cloak x-show="modal === 'categories'" class="fixed inset-0 z-50 flex items-center justify-center px-4" role="dialog" aria-modal="true" x-transition>
             <div class="relative w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-900" @click.stop>
                 <div class="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-700">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Job Titles Detail') }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Job Categories Detail') }}</h3>
                     <button type="button" class="rounded-full p-1 text-gray-500 transition hover:text-gray-700 focus-visible-outline dark:text-gray-400 dark:hover:text-gray-200" @click="modal = null">
                         <span class="sr-only">{{ __('Close') }}</span>
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -311,7 +331,7 @@
                         <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">{{ __('Title') }}</th>
+                                    <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-600 dark:text-gray-300">{{ __('Category') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Active Jobs') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Inactive Jobs') }}</th>
                                     <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-600 dark:text-gray-300">{{ __('Total') }}</th>
@@ -321,14 +341,14 @@
                                 @forelse ($categoryDetails as $category)
                                     @php($total = ($category->active_jobs_count ?? 0) + ($category->inactive_jobs_count ?? 0))
                                     <tr>
-                                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $category->title ?: __('Untitled Role') }}</td>
+                                        <td class="px-4 py-3 text-gray-900 dark:text-gray-100">{{ $category->name ?: __('Uncategorized') }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ number_format($category->active_jobs_count ?? 0) }}</td>
                                         <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">{{ number_format($category->inactive_jobs_count ?? 0) }}</td>
                                         <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">{{ number_format($total) }}</td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No job titles found yet.') }}</td>
+                                        <td colspan="4" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">{{ __('No job categories found yet.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

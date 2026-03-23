@@ -8,7 +8,9 @@ use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\VisitorIp;
 use App\Models\ErrorLog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AnalyticsController extends Controller
 {
@@ -54,25 +56,35 @@ class AnalyticsController extends Controller
             ->limit(20)
             ->get(['id', 'title', 'company_id', 'status', 'valid_until', 'updated_at', 'posted_at']);
 
-        // Count unique job titles as fallback "categories" and gather detail breakdown
-        $totalCategories = Job::withoutGlobalScope('notExpired')
-            ->select('title')
-            ->distinct()
-            ->count('title');
-        $categoryDetails = Job::withoutGlobalScope('notExpired')
-            ->select('title')
-            ->selectRaw(
-                "SUM(CASE WHEN status = 'published' AND (valid_until IS NULL OR DATE(valid_until) >= ?) THEN 1 ELSE 0 END) as active_jobs_count",
-                [$today]
-            )
-            ->selectRaw(
-                "SUM(CASE WHEN status != 'published' OR (status = 'published' AND valid_until IS NOT NULL AND DATE(valid_until) < ?) THEN 1 ELSE 0 END) as inactive_jobs_count",
-                [$today]
-            )
-            ->groupBy('title')
-            ->orderBy('title')
+        // Count true job categories from the category relation and gather per-category breakdown.
+        $categoriesQuery = JobCategory::query()
+            ->withCount([
+                'jobs as active_jobs_count' => function ($query) use ($today) {
+                    $query->withoutGlobalScope('notExpired')
+                        ->where('status', 'published')
+                        ->where(function ($nestedQuery) use ($today) {
+                            $nestedQuery->whereNull('valid_until')
+                                ->orWhereDate('valid_until', '>=', $today);
+                        });
+                },
+                'jobs as inactive_jobs_count' => function ($query) use ($today) {
+                    $query->withoutGlobalScope('notExpired')
+                        ->where(function ($nestedQuery) use ($today) {
+                            $nestedQuery->where('status', '!=', 'published')
+                                ->orWhere(function ($expiredQuery) use ($today) {
+                                    $expiredQuery->where('status', 'published')
+                                        ->whereNotNull('valid_until')
+                                        ->whereDate('valid_until', '<', $today);
+                                });
+                        });
+                },
+            ])
+            ->havingRaw('(active_jobs_count + inactive_jobs_count) > 0');
+        $totalCategories = (clone $categoriesQuery)->count();
+        $categoryDetails = (clone $categoriesQuery)
+            ->orderBy('name')
             ->limit(100)
-            ->get();
+            ->get(['id', 'name', 'slug']);
 
         // Get total views (sum of all job views) and detailed breakdown
         $totalViews = Job::withoutGlobalScope('notExpired')->sum('views');
@@ -120,5 +132,29 @@ class AnalyticsController extends Controller
             'applyClickLeaders' => $applyClickLeaders,
             'recentVisitors' => $recentVisitors,
         ]);
+    }
+
+    /**
+     * Clear analytics-related datasets and counters.
+     */
+    public function clearRelatableDatabase(): RedirectResponse
+    {
+        if (!Auth::user() || Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        DB::transaction(function () {
+            VisitorIp::query()->delete();
+            ErrorLog::query()->delete();
+            Application::query()->delete();
+            Job::withoutGlobalScope('notExpired')->update([
+                'views' => 0,
+                'apply_clicks' => 0,
+            ]);
+        });
+
+        return redirect()
+            ->route('admin.analytics.index')
+            ->with('status', __('Relatable analytics data was cleared successfully.'));
     }
 }
