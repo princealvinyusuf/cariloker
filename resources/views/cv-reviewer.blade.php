@@ -188,19 +188,19 @@
         </div>
 
         <div id="result-wrapper" class="mt-8 hidden">
-            <div class="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
-                <aside class="surface-card p-4 lg:sticky lg:top-24 lg:self-start">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
+                <aside class="surface-card p-4 lg:sticky lg:top-24 lg:w-72 lg:flex-none">
                     <div class="result-tabs-sticky tab-scroll -mx-1 flex gap-2 overflow-x-auto px-1 py-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0">
-                        <button type="button" data-tab-target="tab-overview" class="result-tab-btn shrink-0 rounded-xl bg-primary-600 px-4 py-2 text-left text-sm font-semibold text-white">Overview</button>
-                        <button type="button" data-tab-target="tab-aspects" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">12 Aspek</button>
-                        <button type="button" data-tab-target="tab-job-match" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Job Match</button>
-                        <button type="button" data-tab-target="tab-keywords" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Keywords</button>
-                        <button type="button" data-tab-target="tab-career" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Career Fit</button>
-                        <button id="download-pdf-btn" type="button" class="shrink-0 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-left text-sm font-semibold text-primary-700 transition hover:bg-primary-100 dark:border-primary-700/50 dark:bg-primary-900/30 dark:text-primary-300">Download Analysis (PDF)</button>
+                        <button type="button" data-tab-target="tab-overview" class="result-tab-btn shrink-0 rounded-xl bg-primary-600 px-4 py-2 text-left text-sm font-semibold text-white"><i class="fa-regular fa-eye mr-2"></i>Overview</button>
+                        <button type="button" data-tab-target="tab-aspects" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><i class="fa-regular fa-square-check mr-2"></i>12 Aspek</button>
+                        <button type="button" data-tab-target="tab-job-match" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><i class="fa-solid fa-bullseye mr-2"></i>Job Match</button>
+                        <button type="button" data-tab-target="tab-keywords" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><i class="fa-solid fa-key mr-2"></i>Keywords</button>
+                        <button type="button" data-tab-target="tab-career" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-left text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"><i class="fa-solid fa-briefcase mr-2"></i>Career Fit</button>
+                        <button id="download-pdf-btn" type="button" class="shrink-0 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-left text-sm font-semibold text-primary-700 transition hover:bg-primary-100 dark:border-primary-700/50 dark:bg-primary-900/30 dark:text-primary-300"><i class="fa-regular fa-file-pdf mr-2"></i>Download Analysis (PDF)</button>
                     </div>
                 </aside>
 
-                <div class="space-y-6">
+                <div class="min-w-0 flex-1 space-y-6">
                     <div class="surface-card p-6 md:p-8">
                         <div class="flex flex-wrap items-center justify-between gap-4">
                             <div>
