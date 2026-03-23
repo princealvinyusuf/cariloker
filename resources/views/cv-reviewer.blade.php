@@ -105,7 +105,7 @@
                     Dapatkan analisis CV mendalam berbasis AI seperti platform profesional: skor ATS, analisis 12 aspek penting, action points, keyword rekomendasi, dan saran karier.
                 </p>
                 <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                    <span class="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">4.9/5 simulasi kepuasan</span>
+                    <span class="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">4.9/5 review kepuasan</span>
                     <span class="rounded-full bg-white px-3 py-1 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">12 aspek evaluasi</span>
                 </div>
             </div>
