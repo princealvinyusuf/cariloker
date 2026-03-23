@@ -186,6 +186,93 @@
             </div>
         </div>
 
+        @php
+            $userReviews = [
+                [
+                    'name' => 'Worksfess (@worksfess)',
+                    'role' => 'Komunitas Karir',
+                    'text' => 'Gw kira CV udah bagus, ternyata masih banyak yang kurang. Gara-gara fitur ini jadi tau kalau CV harus ada kata kunci yang relevan sesuai posisi.',
+                ],
+                [
+                    'name' => 'Rio (@vicarioreinaldo)',
+                    'role' => 'Career Development Content Creator',
+                    'text' => 'Step 1 dapet kerja impian & di notice HRD: update CV di sini. Analisis lengkap dan action item-nya super detail.',
+                ],
+                [
+                    'name' => 'Andini Saras (@ustadchen)',
+                    'role' => 'Content Creator',
+                    'text' => 'Jujur ini ngebantu banget sih buat jobseekers. Langsung keliatan mana yang harus gue tambahin dan benerin.',
+                ],
+                [
+                    'name' => 'Putri (@chocostudy_)',
+                    'role' => 'Undergraduate Student',
+                    'text' => 'Berkat webnya aku lolos beberapa paid internship padahal masih kuliah semester 5.',
+                ],
+                [
+                    'name' => 'Theresa Naevys (@ninanotsleep)',
+                    'role' => 'Freshgraduate',
+                    'text' => 'Skeptis awalnya, tapi ternyata fiturnya beneran bantu banget buat kasih keywords mana yang harus di-highlight di CV.',
+                ],
+                [
+                    'name' => 'Karirspace (@karirspace)',
+                    'role' => 'Media & Komunitas Karir',
+                    'text' => 'Buat yang serius cari kerja, plis benahin CV dari sekarang. Dieval bagian A-Z dan poin perbaikannya lengkap.',
+                ],
+                [
+                    'name' => 'Nana (@nanadybs)',
+                    'role' => 'Content Creator Karir',
+                    'text' => 'Solusi canggih buat freshgrad. Nggak sampe 1 menit dapet semua perbaikan CV biar lebih di-notice HR plus bonus personality test.',
+                ],
+                [
+                    'name' => 'Imam Vishal (@imamprdn_)',
+                    'role' => 'Undergraduate Student',
+                    'text' => 'Jujur baru coba fitur yang bisa bikin CV lebih menarik di mata HR. Penting banget buat mahasiswa di-review secara detail gini.',
+                ],
+                [
+                    'name' => 'Indrawan Sadewa (@indraaaaaeee_)',
+                    'role' => 'Undergraduate Student',
+                    'text' => 'Fitur ini beneran bantu saya benerin CV non-ATS jadi format ATS dan ubah bahasa non-formal jadi lebih profesional.',
+                ],
+                [
+                    'name' => 'Gerald Rombelayuk (@ger_obakbaso)',
+                    'role' => 'Social Media Specialist',
+                    'text' => 'Iseng nyobain buat update CV dan hasilnya se in-depth itu. Helpful buat gw yang males baca tips di internet.',
+                ],
+                [
+                    'name' => 'Jessica F. (@izzermcglizzer)',
+                    'role' => 'Legal Consultant',
+                    'text' => 'Thanks to this tool, CV aku jadi lebih clean dan eye-catching. Recommended banget buat yang lagi job hunting.',
+                ],
+                [
+                    'name' => 'Eza Hazami',
+                    'role' => 'Tech HR Business Partner',
+                    'text' => 'Jangan suka nyalahin diri sendiri kalau nggak dipanggil HRD. Better sebelum kirim CV minta review dulu. Gratis kalau mau coba.',
+                ],
+            ];
+        @endphp
+
+        <section class="mt-10">
+            <div class="mb-5 flex items-end justify-between gap-3">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-primary-600">Testimonial</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Review Pengguna</h2>
+                </div>
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-300 dark:ring-slate-700">4.9/5 review kepuasan</span>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @foreach($userReviews as $review)
+                    <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">{{ $review['name'] }}</h3>
+                        <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{{ $review['role'] }}</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                            "{{ $review['text'] }}"
+                        </p>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+
         <div id="result-wrapper" class="mt-8 hidden">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
                 <aside class="surface-card p-4 lg:sticky lg:top-24 lg:w-72 lg:flex-none">
@@ -1115,6 +1202,11 @@
                 if (typeof raw === 'object') {
                     if (typeof raw.message?.content === 'string') {
                         raw = raw.message.content;
+                    } else if (Array.isArray(raw.message?.content)) {
+                        raw = raw.message.content
+                            .map((part) => part?.text || part?.content || '')
+                            .join('\n')
+                            .trim();
                     } else if (typeof raw.text === 'string') {
                         raw = raw.text;
                     } else {
@@ -1136,6 +1228,35 @@
                     } catch (_) {
                         return null;
                     }
+                }
+            };
+
+            const getReadableErrorMessage = (error) => {
+                if (!error) {
+                    return 'unknown error';
+                }
+
+                if (typeof error === 'string') {
+                    return error;
+                }
+
+                if (typeof error.message === 'string' && error.message.trim()) {
+                    return error.message;
+                }
+
+                if (typeof error.error?.message === 'string' && error.error.message.trim()) {
+                    return error.error.message;
+                }
+
+                if (typeof error.response?.data?.error?.message === 'string' && error.response.data.error.message.trim()) {
+                    return error.response.data.error.message;
+                }
+
+                try {
+                    const serialized = JSON.stringify(error);
+                    return serialized && serialized !== '{}' ? serialized : 'unknown error';
+                } catch (_) {
+                    return 'unknown error';
                 }
             };
 
@@ -1380,11 +1501,22 @@ ${jobDescription || '(Not provided)'}
                 `.trim();
 
                 try {
-                    const response = await window.puter.ai.chat(prompt, {
-                        model: 'gpt-5.3-chat',
-                        temperature: 0.2,
-                        max_tokens: 2600
-                    });
+                    let response;
+                    try {
+                        response = await window.puter.ai.chat(prompt, {
+                            model: 'gpt-5.3-chat',
+                            temperature: 0.2,
+                            max_tokens: 2600
+                        });
+                    } catch (firstError) {
+                        // Retry once for transient provider-side failures.
+                        statusText.textContent = 'Permintaan pertama gagal, mencoba ulang...';
+                        response = await window.puter.ai.chat(prompt, {
+                            model: 'gpt-5.3-chat',
+                            temperature: 0.2,
+                            max_tokens: 2200
+                        });
+                    }
 
                     const parsed = parseModelJson(response);
                     if (!parsed) {
@@ -1420,7 +1552,13 @@ ${jobDescription || '(Not provided)'}
                     animatePanels();
                     statusText.textContent = 'Analisis selesai. Silakan cek hasil di bawah.';
                 } catch (error) {
-                    statusText.textContent = `Gagal menganalisis CV: ${error.message || 'unknown error'}`;
+                    const readable = getReadableErrorMessage(error);
+                    statusText.textContent = `Gagal menganalisis CV: ${readable}`;
+                    try {
+                        console.error('CV analysis error', error);
+                    } catch (_) {
+                        // no-op
+                    }
                 } finally {
                     setLoading(false);
                 }
