@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
         .score-ring-track {
             stroke: rgba(148, 163, 184, 0.25);
@@ -147,6 +148,11 @@
                         <textarea id="cv-text" rows="12" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" placeholder="Paste CV Anda di sini jika file tidak terbaca..."></textarea>
                     </div>
 
+                    <div class="mt-5">
+                        <label for="job-description" class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Target Job Description (Opsional)</label>
+                        <textarea id="job-description" rows="8" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" placeholder="Paste job description untuk mendapatkan CV-job match score dan gap analysis."></textarea>
+                    </div>
+
                     <div class="mt-5 flex flex-wrap items-center gap-3">
                         <button id="review-btn" type="button" class="btn-primary">
                             <span id="review-btn-text">Review Sekarang</span>
@@ -209,8 +215,10 @@
                 <div class="result-tabs-sticky tab-scroll -mx-2 mt-6 flex gap-2 overflow-x-auto rounded-xl bg-white/80 px-2 py-2 dark:bg-slate-950/70">
                     <button type="button" data-tab-target="tab-overview" class="result-tab-btn shrink-0 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white">Overview</button>
                     <button type="button" data-tab-target="tab-aspects" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">12 Aspek</button>
+                    <button type="button" data-tab-target="tab-job-match" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Job Match</button>
                     <button type="button" data-tab-target="tab-keywords" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Keywords</button>
                     <button type="button" data-tab-target="tab-career" class="result-tab-btn shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">Career Fit</button>
+                    <button id="download-pdf-btn" type="button" class="shrink-0 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-100 dark:border-primary-700/50 dark:bg-primary-900/30 dark:text-primary-300">Download Analysis (PDF)</button>
                 </div>
             </div>
 
@@ -237,6 +245,30 @@
 
             <div id="tab-aspects" class="result-tab-panel mt-6 hidden">
                 <div id="aspects-grid" class="grid gap-4 md:grid-cols-2"></div>
+            </div>
+
+            <div id="tab-job-match" class="result-tab-panel mt-6 hidden">
+                <div class="surface-card p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Job-targeted CV Scoring</h3>
+                        <span id="job-match-score-badge" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">Belum dianalisis</span>
+                    </div>
+                    <p id="job-match-summary" class="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">Tambahkan job description untuk melihat kecocokan CV terhadap target role.</p>
+                    <div class="mt-4 grid gap-4 md:grid-cols-2">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Key Gaps</p>
+                            <ul id="job-match-gaps" class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300"></ul>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Suggested Keywords</p>
+                            <ul id="job-match-keywords" class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300"></ul>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Priority Improvements</p>
+                        <ul id="job-match-improvements" class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-300"></ul>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-keywords" class="result-tab-panel mt-6 hidden">
@@ -281,10 +313,12 @@
         (() => {
             const fileInput = document.getElementById('cv-file');
             const cvText = document.getElementById('cv-text');
+            const jobDescriptionInput = document.getElementById('job-description');
             const language = document.getElementById('review-language');
             const purpose = document.getElementById('review-purpose');
             const reviewBtn = document.getElementById('review-btn');
             const clearBtn = document.getElementById('clear-btn');
+            const downloadPdfBtn = document.getElementById('download-pdf-btn');
             const statusText = document.getElementById('status-text');
             const resultWrapper = document.getElementById('result-wrapper');
             const sampleState = document.getElementById('sample-state');
@@ -297,6 +331,11 @@
             const aspectsGrid = document.getElementById('aspects-grid');
             const keywordsList = document.getElementById('keywords-list');
             const careerRecommendation = document.getElementById('career-recommendation');
+            const jobMatchScoreBadge = document.getElementById('job-match-score-badge');
+            const jobMatchSummary = document.getElementById('job-match-summary');
+            const jobMatchGaps = document.getElementById('job-match-gaps');
+            const jobMatchKeywords = document.getElementById('job-match-keywords');
+            const jobMatchImprovements = document.getElementById('job-match-improvements');
             const topStrength = document.getElementById('top-strength');
             const mainGap = document.getElementById('main-gap');
             const aspectCount = document.getElementById('aspect-count');
@@ -325,6 +364,8 @@
             const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp'];
             let extractedFromFile = '';
             let extractedFileName = '';
+            let latestAnalysis = null;
+            let latestCvText = '';
 
             const escapeHtml = (value) => String(value ?? '')
                 .replaceAll('&', '&amp;')
@@ -445,7 +486,7 @@
             };
 
             const animatePanels = () => {
-                const targets = document.querySelectorAll('#tab-overview .surface-card, #tab-aspects .surface-card, #tab-keywords .surface-card, #tab-career .surface-card');
+                const targets = document.querySelectorAll('#tab-overview .surface-card, #tab-aspects .surface-card, #tab-job-match .surface-card, #tab-keywords .surface-card, #tab-career .surface-card');
                 targets.forEach((el, index) => {
                     el.classList.remove('result-animate');
                     el.style.animationDelay = `${Math.min(index * 40, 220)}ms`;
@@ -661,7 +702,7 @@
                     throw new Error('Format .doc belum didukung otomatis. Silakan simpan ke PDF/DOCX atau paste teks CV.');
                 }
 
-                throw new Error('Format file belum didukung. Gunakan PDF, DOCX, TXT, MD, atau RTF.');
+                throw new Error('Format file belum didukung. Gunakan PDF, DOCX, TXT, MD, RTF, atau gambar (PNG/JPG/WEBP).');
             };
 
             const summarizeOverview = (aspects) => {
@@ -684,6 +725,373 @@
                 mainGap.textContent = `${weakest.name} (${Number(weakest.score || 0)}%)`;
                 aspectCount.textContent = `${aspects.length} aspek`;
                 priorityAction.textContent = firstAction;
+            };
+
+            const renderBulletedList = (target, items, fallback = 'Belum ada data.') => {
+                const normalized = Array.isArray(items) ? items.filter(Boolean) : [];
+                target.innerHTML = normalized.length
+                    ? normalized.map((item) => `<li>- ${escapeHtml(item)}</li>`).join('')
+                    : `<li>- ${escapeHtml(fallback)}</li>`;
+            };
+
+            const resetJobMatchView = () => {
+                jobMatchScoreBadge.textContent = 'Belum dianalisis';
+                jobMatchScoreBadge.className = 'rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200';
+                jobMatchSummary.textContent = 'Tambahkan job description untuk melihat kecocokan CV terhadap target role.';
+                renderBulletedList(jobMatchGaps, [], 'Belum ada gap yang dihitung.');
+                renderBulletedList(jobMatchKeywords, [], 'Belum ada keyword rekomendasi.');
+                renderBulletedList(jobMatchImprovements, [], 'Belum ada prioritas improvement.');
+            };
+
+            const renderJobMatch = (jobTargeted) => {
+                if (!jobTargeted || Number.isNaN(Number(jobTargeted.match_score))) {
+                    resetJobMatchView();
+                    return;
+                }
+
+                const score = Math.max(0, Math.min(100, Number(jobTargeted.match_score)));
+                const tone = scoreTone(score);
+                const toneStyles = {
+                    emerald: 'rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
+                    amber: 'rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                    rose: 'rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
+                };
+
+                jobMatchScoreBadge.className = toneStyles[tone];
+                jobMatchScoreBadge.textContent = `Match Score ${score}%`;
+                jobMatchSummary.textContent = jobTargeted.summary || 'Ringkasan kecocokan belum tersedia.';
+                renderBulletedList(jobMatchGaps, jobTargeted.key_gaps, 'Tidak ada gap utama terdeteksi.');
+                renderBulletedList(jobMatchKeywords, jobTargeted.suggested_keywords, 'Tidak ada keyword tambahan.');
+                renderBulletedList(jobMatchImprovements, jobTargeted.priority_improvements, 'Tidak ada prioritas tambahan.');
+            };
+
+            const ensureJsPdfLoaded = () => Boolean(window.jspdf?.jsPDF);
+
+            const wrapTextForPdf = (doc, text, maxWidth) => {
+                const safeText = String(text || '-');
+                return doc.splitTextToSize(safeText, maxWidth);
+            };
+
+            const addPdfParagraph = (doc, text, y, options = {}) => {
+                const maxWidth = options.maxWidth || 180;
+                const x = options.x || 15;
+                const lineHeight = options.lineHeight || 5.2;
+                const lines = wrapTextForPdf(doc, text, maxWidth);
+                doc.text(lines, x, y);
+                return y + (lines.length * lineHeight) + 2;
+            };
+
+            const formatDateTime = (date) => {
+                try {
+                    return new Intl.DateTimeFormat('id-ID', {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                    }).format(date);
+                } catch (_) {
+                    return date.toLocaleString();
+                }
+            };
+
+            const formatBulletItems = (items) => {
+                const normalized = Array.isArray(items) ? items.filter(Boolean) : [];
+                return normalized.length ? normalized : ['-'];
+            };
+
+            const slugify = (text) => String(text || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+                .slice(0, 40) || 'candidate';
+
+            const inferCandidateName = (rawCvText) => {
+                const lines = String(rawCvText || '')
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                    .slice(0, 18);
+
+                const ignored = /^(curriculum vitae|cv|resume|profil|profile|ringkasan|summary|contact|kontak|experience|pengalaman|education|pendidikan)$/i;
+                const emailLike = /@/;
+                const phoneLike = /(\+?\d[\d\s().-]{7,})/;
+
+                for (const line of lines) {
+                    if (line.length < 3 || line.length > 50) continue;
+                    if (ignored.test(line)) continue;
+                    if (emailLike.test(line) || phoneLike.test(line)) continue;
+                    if (!/^[a-zA-Z][a-zA-Z\s'.-]+$/.test(line)) continue;
+                    const words = line.split(/\s+/).filter(Boolean);
+                    if (words.length < 2 || words.length > 4) continue;
+                    return line.replace(/\s+/g, ' ').trim();
+                }
+
+                return 'Candidate';
+            };
+
+            let pdfLogoDataUrlPromise = null;
+            const getPdfLogoDataUrl = async () => {
+                if (pdfLogoDataUrlPromise) {
+                    return await pdfLogoDataUrlPromise;
+                }
+
+                pdfLogoDataUrlPromise = (async () => {
+                    try {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        const loaded = await new Promise((resolve, reject) => {
+                            img.onload = () => resolve(true);
+                            img.onerror = () => reject(new Error('Logo load failed'));
+                            img.src = '/image/cariloker.png';
+                        });
+                        if (!loaded) {
+                            return null;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 64;
+                        canvas.height = 64;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, 64, 64);
+                        return canvas.toDataURL('image/png');
+                    } catch (_) {
+                        return null;
+                    }
+                })();
+
+                return await pdfLogoDataUrlPromise;
+            };
+
+            const addPdfSectionHeading = (doc, title, y) => {
+                doc.setFillColor(239, 246, 255);
+                doc.roundedRect(12, y - 5, 186, 9, 2, 2, 'F');
+                doc.setTextColor(30, 64, 175);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text(String(title || ''), 15, y + 1);
+                doc.setTextColor(15, 23, 42);
+                return y + 10;
+            };
+
+            const addPageHeaderFooter = (doc, pageNumber, totalPages, logoDataUrl = null) => {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                doc.setFillColor(30, 64, 175);
+                doc.rect(0, 0, pageWidth, 9, 'F');
+                if (logoDataUrl) {
+                    doc.addImage(logoDataUrl, 'PNG', 4.5, 1.4, 5.8, 5.8);
+                }
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Cari Loker - Bedah CV Gratis', logoDataUrl ? 12 : 14, 6);
+                doc.setTextColor(100, 116, 139);
+                doc.setFontSize(9);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Page ${pageNumber}/${totalPages}`, pageWidth - 28, pageHeight - 6);
+                doc.text('Generated by AI CV ATS Checker', 14, pageHeight - 6);
+                doc.setTextColor(15, 23, 42);
+            };
+
+            const addPageWatermark = (doc, watermarkText) => {
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const safeText = String(watermarkText || 'Cari Loker').slice(0, 48);
+                doc.setTextColor(230, 236, 244);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(34);
+                doc.text(safeText, pageWidth / 2, pageHeight / 2, { align: 'center', angle: 35 });
+                doc.setFontSize(22);
+                doc.text('CONFIDENTIAL CV REPORT', pageWidth / 2, (pageHeight / 2) + 18, { align: 'center', angle: 35 });
+                doc.setTextColor(15, 23, 42);
+            };
+
+            const ensurePdfSpace = (doc, y, neededHeight, onNewPage) => {
+                const maxY = 274;
+                if (y + neededHeight <= maxY) {
+                    return y;
+                }
+                doc.addPage();
+                const nextY = 16;
+                if (typeof onNewPage === 'function') {
+                    onNewPage();
+                }
+                return nextY;
+            };
+
+            const getPdfScoreToneStyle = (score) => {
+                const numeric = Number(score || 0);
+                if (numeric >= 80) return { bg: [220, 252, 231], text: [22, 101, 52] };
+                if (numeric >= 65) return { bg: [254, 243, 199], text: [146, 64, 14] };
+                return { bg: [255, 228, 230], text: [159, 18, 57] };
+            };
+
+            const downloadAnalysisPdf = async () => {
+                if (!latestAnalysis) {
+                    statusText.textContent = 'Belum ada hasil analisis untuk diunduh.';
+                    return;
+                }
+
+                if (!ensureJsPdfLoaded()) {
+                    statusText.textContent = 'PDF generator belum siap. Refresh halaman lalu coba lagi.';
+                    return;
+                }
+
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+                    const logoDataUrl = await getPdfLogoDataUrl();
+                    const candidateName = inferCandidateName(latestCvText);
+                    const reportTitle = `CV Analysis Report - ${candidateName}`;
+                    const watermarkText = `Cari Loker - ${candidateName}`;
+                    const now = new Date();
+                    const reportDate = formatDateTime(now);
+                    let y = 16;
+                    statusText.textContent = 'Menyusun laporan PDF...';
+
+                // Executive summary page
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(18);
+                doc.text(reportTitle, 15, y);
+                y += 8;
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                doc.setTextColor(71, 85, 105);
+                doc.text(`Generated: ${reportDate}`, 15, y);
+                doc.text(`Overall Score: ${latestAnalysis.overall_score ?? '-'}%`, 120, y);
+                doc.setTextColor(15, 23, 42);
+                y += 9;
+
+                const aspectsForSummary = Array.isArray(latestAnalysis.aspects) ? latestAnalysis.aspects : [];
+                const sortedAspects = [...aspectsForSummary].sort((a, b) => Number(b.score || 0) - Number(a.score || 0));
+                const strongest = sortedAspects[0];
+                const weakest = sortedAspects[sortedAspects.length - 1];
+                const topKeywords = formatBulletItems(latestAnalysis.keywords_recommendation).slice(0, 6);
+                const summaryBullets = [
+                    strongest ? `Top strength: ${strongest.name} (${Number(strongest.score || 0)}%)` : null,
+                    weakest ? `Main gap: ${weakest.name} (${Number(weakest.score || 0)}%)` : null,
+                    `Total reviewed aspects: ${aspectsForSummary.length}`,
+                ].filter(Boolean);
+
+                y = addPdfSectionHeading(doc, 'Executive Summary', y);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                for (const bullet of summaryBullets) {
+                    y = addPdfParagraph(doc, `- ${bullet}`, y, { maxWidth: 172, x: 17, lineHeight: 5 });
+                }
+
+                const jobSummary = latestAnalysis.job_targeted;
+                if (jobSummary && Number.isFinite(Number(jobSummary.match_score)) && Number(jobSummary.match_score) >= 0) {
+                    y = ensurePdfSpace(doc, y, 16);
+                    const jobTone = getPdfScoreToneStyle(Number(jobSummary.match_score));
+                    doc.setFillColor(...jobTone.bg);
+                    doc.roundedRect(15, y - 4.5, 52, 8, 2, 2, 'F');
+                    doc.setTextColor(...jobTone.text);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`Job Match ${Number(jobSummary.match_score)}%`, 18, y + 0.8);
+                    doc.setTextColor(15, 23, 42);
+                    y += 8;
+                    doc.setFont('helvetica', 'normal');
+                    y = addPdfParagraph(doc, `- ${jobSummary.summary || 'Ringkasan job match belum tersedia.'}`, y, { maxWidth: 172, x: 17, lineHeight: 5 });
+                }
+
+                y = ensurePdfSpace(doc, y, 16);
+                y = addPdfSectionHeading(doc, 'Priority Keywords', y);
+                doc.setFont('helvetica', 'normal');
+                topKeywords.forEach((keyword) => {
+                    y = addPdfParagraph(doc, `- ${keyword}`, y, { maxWidth: 172, x: 17, lineHeight: 5 });
+                });
+
+                // Detailed report starts on new page
+                doc.addPage();
+                y = 16;
+                y = addPdfSectionHeading(doc, 'Overall Impression', y);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(10);
+                y = addPdfParagraph(doc, latestAnalysis.overall_impression, y, { maxWidth: 176, x: 15, lineHeight: 5.1 });
+
+                const job = latestAnalysis.job_targeted;
+                if (job && Number.isFinite(Number(job.match_score)) && Number(job.match_score) >= 0) {
+                    y = ensurePdfSpace(doc, y, 42);
+                    y = addPdfSectionHeading(doc, 'Job-targeted Match', y);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(10);
+                    doc.text(`Match Score: ${Number(job.match_score)}%`, 15, y);
+                    y += 5;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(10);
+                    y = addPdfParagraph(doc, `Summary: ${job.summary || '-'}`, y, { maxWidth: 176, x: 15, lineHeight: 5.1 });
+
+                    const gaps = formatBulletItems(job.key_gaps);
+                    const keywords = formatBulletItems(job.suggested_keywords);
+                    const improvements = formatBulletItems(job.priority_improvements);
+                    const grouped = [
+                        ['Key Gaps', gaps],
+                        ['Suggested Keywords', keywords],
+                        ['Priority Improvements', improvements],
+                    ];
+
+                    for (const [title, items] of grouped) {
+                        y = ensurePdfSpace(doc, y, 18);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(String(title), 15, y);
+                        y += 5;
+                        doc.setFont('helvetica', 'normal');
+                        for (const item of items) {
+                            y = ensurePdfSpace(doc, y, 8);
+                            y = addPdfParagraph(doc, `- ${item}`, y, { maxWidth: 172, x: 17, lineHeight: 5 });
+                        }
+                    }
+                }
+
+                const aspects = Array.isArray(latestAnalysis.aspects) ? latestAnalysis.aspects : [];
+                y = ensurePdfSpace(doc, y, 14);
+                y = addPdfSectionHeading(doc, `Detailed Aspect Review (${aspects.length})`, y);
+
+                for (const aspect of aspects) {
+                    y = ensurePdfSpace(doc, y, 34);
+                    doc.setDrawColor(226, 232, 240);
+                    doc.roundedRect(14, y - 4, 182, 28, 2, 2, 'S');
+                    doc.setFontSize(11);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(`${aspect.name || 'Aspect'}`, 15, y);
+                    const score = Number(aspect.score || 0);
+                    const toneStyle = getPdfScoreToneStyle(score);
+                    doc.setFillColor(...toneStyle.bg);
+                    doc.roundedRect(160, y - 3.7, 30, 7, 2, 2, 'F');
+                    doc.setTextColor(...toneStyle.text);
+                    doc.setFontSize(10);
+                    doc.text(`${score}%`, 171, y + 1);
+                    doc.setTextColor(15, 23, 42);
+                    y += 5;
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    y = addPdfParagraph(doc, aspect.analysis || '-', y, { maxWidth: 176, x: 15, lineHeight: 5.1 });
+
+                    const actionPoints = formatBulletItems(aspect.action_points);
+                    y = ensurePdfSpace(doc, y, 10);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Action Points:', 15, y);
+                    y += 5;
+                    doc.setFont('helvetica', 'normal');
+                    for (const point of actionPoints.slice(0, 3)) {
+                        y = ensurePdfSpace(doc, y, 7);
+                        y = addPdfParagraph(doc, `- ${point}`, y, { maxWidth: 172, x: 17, lineHeight: 4.8 });
+                    }
+                    y += 2;
+                }
+
+                    const totalPages = doc.getNumberOfPages();
+                    for (let page = 1; page <= totalPages; page += 1) {
+                        doc.setPage(page);
+                        addPageWatermark(doc, watermarkText);
+                        addPageHeaderFooter(doc, page, totalPages, logoDataUrl);
+                    }
+
+                    const fileName = `cv-analysis-${slugify(candidateName)}-${now.toISOString().slice(0, 10)}.pdf`;
+                    doc.save(fileName);
+                    statusText.textContent = 'Laporan PDF berhasil diunduh.';
+                } catch (error) {
+                    statusText.textContent = `Gagal membuat PDF: ${error?.message || 'unknown error'}`;
+                }
             };
 
             const parseModelJson = (raw) => {
@@ -728,7 +1136,10 @@
                 button.addEventListener('click', () => setActiveTab(button.dataset.tabTarget));
             });
 
+            downloadPdfBtn.addEventListener('click', downloadAnalysisPdf);
+
             resetScoreVisual();
+            resetJobMatchView();
             setActiveTab('tab-overview');
 
             const renderAspect = (aspect, index) => {
@@ -850,8 +1261,11 @@
             clearBtn.addEventListener('click', () => {
                 fileInput.value = '';
                 cvText.value = '';
+                jobDescriptionInput.value = '';
                 extractedFromFile = '';
                 extractedFileName = '';
+                latestAnalysis = null;
+                latestCvText = '';
                 statusText.textContent = '';
                 resultWrapper.classList.add('hidden');
                 sampleState.classList.remove('hidden');
@@ -866,6 +1280,7 @@
                 mainGap.textContent = '-';
                 aspectCount.textContent = '0 aspek';
                 priorityAction.textContent = '-';
+                resetJobMatchView();
                 fileHelp.textContent = 'File teks, PDF, DOCX, dan gambar CV akan dicoba dibaca otomatis (termasuk OCR untuk scan). Jika gagal, paste isi CV di kolom bawah.';
                 setActiveTab('tab-overview');
             });
@@ -905,12 +1320,14 @@
                     return;
                 }
 
+                const jobDescription = jobDescriptionInput.value.trim();
                 statusText.textContent = 'Mengirim CV ke AI untuk dianalisis...';
 
                 const prompt = `
 You are an expert ATS CV reviewer.
 Language for response: ${language.value === 'id' ? 'Bahasa Indonesia' : 'English'}.
 Review purpose: ${purpose.value}.
+Job description is ${jobDescription ? 'provided' : 'not provided'}.
 
 Analyze the following CV text and return STRICT JSON only with this schema:
 {
@@ -926,7 +1343,14 @@ Analyze the following CV text and return STRICT JSON only with this schema:
     }
   ],
   "keywords_recommendation": ["string", "string"],
-  "career_recommendation": "string"
+  "career_recommendation": "string",
+  "job_targeted": {
+    "match_score": number (0-100),
+    "summary": "string",
+    "key_gaps": ["string", "string"],
+    "suggested_keywords": ["string", "string"],
+    "priority_improvements": ["string", "string"]
+  }
 }
 
 Important rules:
@@ -934,9 +1358,13 @@ Important rules:
 - Give practical, concrete action points.
 - Keep analysis concise but insightful.
 - JSON only, no markdown.
+- If job description is missing, return job_targeted with match_score = -1 and short explanation in summary.
 
 CV TEXT:
 ${text}
+
+JOB DESCRIPTION:
+${jobDescription || '(Not provided)'}
                 `.trim();
 
                 try {
@@ -950,6 +1378,9 @@ ${text}
                     if (!parsed) {
                         throw new Error('Model response is not valid JSON.');
                     }
+
+                    latestAnalysis = parsed;
+                    latestCvText = text;
 
                     const totalScore = Number(parsed.overall_score || 0);
                     animateScore(totalScore);
@@ -969,6 +1400,7 @@ ${text}
                         : '<li>- Tidak ada keyword rekomendasi.</li>';
 
                     careerRecommendation.textContent = parsed.career_recommendation || '-';
+                    renderJobMatch(parsed.job_targeted);
 
                     resultWrapper.classList.remove('hidden');
                     sampleState.classList.add('hidden');
