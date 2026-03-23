@@ -61,8 +61,8 @@ Route::get('/locale/{locale}', function (string $locale) {
     return back();
 })->name('locale.switch');
 
-// Homepage has a dedicated route name to avoid conflicts with jobs.index
-Route::redirect('/', '/beranda')->name('home');
+// Homepage should be served directly on root URL (no redirect).
+Route::get('/', [JobController::class, 'beranda'])->name('home');
 
 // Jobs listing page retains the jobs.index name for navigation and filters
 Route::get('/jobs', [JobController::class, 'index'])
