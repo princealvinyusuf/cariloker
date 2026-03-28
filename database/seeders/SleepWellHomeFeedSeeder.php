@@ -44,6 +44,10 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'insight_sleep_quality', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 140],
             ['section_key' => 'insight_snore', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 141],
             ['section_key' => 'insight_phases', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 142],
+            ['section_key' => 'saved_favorites', 'title' => 'Favorites', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 150],
+            ['section_key' => 'saved_recently_played', 'title' => 'Recently Played', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 151],
+            ['section_key' => 'saved_playlists', 'title' => 'Playlists', 'subtitle' => 'Created for you', 'section_type' => 'horizontal', 'sort_order' => 152],
+            ['section_key' => 'saved_find_love', 'title' => 'Find something you love', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 153],
         ];
 
         foreach ($sections as $sectionData) {
@@ -233,6 +237,35 @@ class SleepWellHomeFeedSeeder extends Seeder
                     'cta_label' => 'Learn more',
                     'sort_order' => 10,
                 ],
+            ],
+            'saved_favorites' => [
+                ['title' => 'Train Your Brain to Sleep Better', 'subtitle' => 'Meditation • 51 min', 'sort_order' => 10],
+                ['title' => 'Fall Asleep Faster', 'subtitle' => '6 h 19 min', 'sort_order' => 20],
+                ['title' => 'Vanquish 3 a.m. Insomnia', 'subtitle' => 'Meditation • 57 min', 'sort_order' => 30],
+                ['title' => 'Lucid Dreaming Brainwaves', 'subtitle' => 'Mix • 2 items', 'sort_order' => 40],
+                ['title' => 'Sound Meditation: Brown Noise', 'subtitle' => 'Meditation • 30 min', 'sort_order' => 50],
+                ['title' => 'Ocean Wave Therapy', 'subtitle' => 'Mix • 3 items', 'sort_order' => 60],
+                ['title' => 'An Evening with Galileo', 'subtitle' => 'SleepTale • 30 min', 'sort_order' => 70],
+            ],
+            'saved_recently_played' => [
+                ['title' => 'Dropping into the Present Moment', 'subtitle' => 'Meditation • 14 min', 'sort_order' => 10],
+                ['title' => 'Green Noise Deep Sleep Hypnosis', 'subtitle' => 'Meditation • 30 min', 'sort_order' => 20],
+                ['title' => 'Your First Mix', 'subtitle' => 'Mix • 3 items', 'sort_order' => 30],
+                ['title' => 'Oceanscape', 'subtitle' => 'Mix • 7 items', 'sort_order' => 40],
+                ['title' => 'Emotional Release', 'subtitle' => 'Music', 'sort_order' => 50],
+                ['title' => 'Calming City Rain', 'subtitle' => 'Mix • 3 items', 'sort_order' => 60],
+                ['title' => 'The Underwater City', 'subtitle' => 'SleepTale • 49 min', 'sort_order' => 70],
+            ],
+            'saved_playlists' => [
+                ['title' => 'Fall Asleep Faster', 'subtitle' => '6 h 19 min', 'sort_order' => 10],
+                ['title' => 'Deep Sleep', 'subtitle' => '5 h 37 min', 'sort_order' => 20],
+                ['title' => 'Bilateral Music For Anxiety', 'subtitle' => '21 min', 'sort_order' => 30],
+            ],
+            'saved_find_love' => [
+                ['title' => 'Create and Save a Mix', 'subtitle' => null, 'sort_order' => 10],
+                ['title' => 'Drift off to a SleepTale', 'subtitle' => null, 'sort_order' => 20],
+                ['title' => 'Relax to a Guided Meditation', 'subtitle' => null, 'sort_order' => 30],
+                ['title' => 'Snooze to curated Music', 'subtitle' => null, 'sort_order' => 40],
             ],
         ];
 
