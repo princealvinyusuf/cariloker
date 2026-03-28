@@ -7,6 +7,7 @@ use App\Models\SleepWell\OnboardingScreen;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class SleepWellOnboardingScreenController extends Controller
 {
@@ -33,7 +34,12 @@ class SleepWellOnboardingScreenController extends Controller
     {
         $payload = $this->validatedPayload($request);
         $payload['options'] = $this->decodeOptions($payload['options_json'] ?? null);
+        $payload['image_url'] = $this->resolveImageUpload(
+            $request,
+            (string) ($payload['image_url'] ?? '')
+        );
         unset($payload['options_json']);
+        unset($payload['image_file']);
 
         OnboardingScreen::query()->create($payload);
 
@@ -56,7 +62,12 @@ class SleepWellOnboardingScreenController extends Controller
     {
         $payload = $this->validatedPayload($request);
         $payload['options'] = $this->decodeOptions($payload['options_json'] ?? null);
+        $payload['image_url'] = $this->resolveImageUpload(
+            $request,
+            (string) ($payload['image_url'] ?? $screen->image_url)
+        );
         unset($payload['options_json']);
+        unset($payload['image_file']);
 
         $screen->update($payload);
 
@@ -82,6 +93,7 @@ class SleepWellOnboardingScreenController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:500'],
             'image_url' => ['nullable', 'url', 'max:500'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'cta_label' => ['nullable', 'string', 'max:40'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],
             'skippable' => ['nullable', 'boolean'],
@@ -99,5 +111,16 @@ class SleepWellOnboardingScreenController extends Controller
         $decoded = json_decode($optionsJson, true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private function resolveImageUpload(Request $request, string $fallback): string
+    {
+        if (!$request->hasFile('image_file')) {
+            return $fallback;
+        }
+
+        $path = $request->file('image_file')->store('sleepwell/onboarding', 'public');
+
+        return Storage::disk('public')->url($path);
     }
 }

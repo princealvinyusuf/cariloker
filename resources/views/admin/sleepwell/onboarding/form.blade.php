@@ -27,7 +27,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ $action }}" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 @csrf
                 @if($method !== 'POST')
                     @method($method)
@@ -69,6 +69,13 @@
                 </div>
 
                 <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Upload Image') }}</label>
+                    <input type="file" name="image_file" accept="image/*"
+                           class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <p class="mt-1 text-xs text-slate-500">{{ __('Upload will override image URL.') }}</p>
+                </div>
+
+                <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('CTA Label') }}</label>
                     <input type="text" name="cta_label" value="{{ old('cta_label', $screen->cta_label ?: 'Continue') }}"
                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
@@ -101,7 +108,7 @@
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Options JSON') }}</label>
                     <textarea name="options_json" rows="7"
                               class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">{{ old('options_json', json_encode($screen->options ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) }}</textarea>
-                    <p class="mt-1 text-xs text-slate-500">{{ __('Example: {"choices":["Male","Female"]} or {"min":5,"max":10,"default":8}') }}</p>
+                    <p class="mt-1 text-xs text-slate-500">{{ __('Example choices: {"choices":[{"label":"Sleep All Night","emoji":"⏰"},{"label":"Relax & Unwind","icon_url":"https://..."}]}') }}</p>
                 </div>
 
                 <div class="md:col-span-2">
