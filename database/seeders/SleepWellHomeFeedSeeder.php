@@ -41,6 +41,9 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'routine_wind_down', 'title' => 'WIND DOWN', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 131],
             ['section_key' => 'routine_sleep', 'title' => 'SLEEP', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 132],
             ['section_key' => 'routine_recommendation', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 133],
+            ['section_key' => 'insight_sleep_quality', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 140],
+            ['section_key' => 'insight_snore', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 141],
+            ['section_key' => 'insight_phases', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 142],
         ];
 
         foreach ($sections as $sectionData) {
@@ -206,6 +209,30 @@ class SleepWellHomeFeedSeeder extends Seeder
             ],
             'routine_recommendation' => [
                 ['title' => 'Want to try a different routine?', 'subtitle' => 'Select a new routine and customize it to suit your sleep needs', 'cta_label' => 'Explore more', 'sort_order' => 10],
+            ],
+            'insight_sleep_quality' => [
+                [
+                    'title' => 'No Sleep Quality Yet',
+                    'subtitle' => 'Track your sleep tonight and wake up to detailed insights here.',
+                    'sort_order' => 10,
+                    'meta' => ['score' => 0],
+                ],
+            ],
+            'insight_snore' => [
+                [
+                    'title' => 'Do you snore?',
+                    'subtitle' => "Record your sleep sounds to uncover what's disturbing your rest.",
+                    'cta_label' => 'Track my sleep',
+                    'sort_order' => 10,
+                ],
+            ],
+            'insight_phases' => [
+                [
+                    'title' => 'Your Sleep Phases',
+                    'subtitle' => 'Learn more about your sleeping patterns and how to improve them.',
+                    'cta_label' => 'Learn more',
+                    'sort_order' => 10,
+                ],
             ],
         ];
 
