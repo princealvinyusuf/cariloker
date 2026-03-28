@@ -22,6 +22,14 @@
                class="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600">
                 {{ __('Manage Onboarding UI') }}
             </a>
+            <a href="{{ route('admin.sleepwell.home-sections.index') }}"
+               class="rounded-xl bg-indigo-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600">
+                {{ __('Manage Home Sections') }}
+            </a>
+            <a href="{{ route('admin.sleepwell.home-items.index') }}"
+               class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-800">
+                {{ __('Manage Home Items') }}
+            </a>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -50,6 +58,7 @@
                 <li><code>POST /api/v1/sleepwell/onboarding</code></li>
                 <li><code>POST /api/v1/sleepwell/onboarding/responses</code></li>
                 <li><code>GET /api/v1/sleepwell/catalog</code></li>
+                <li><code>GET /api/v1/sleepwell/home-feed</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/start</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/{session}/event</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/{session}/end</code></li>

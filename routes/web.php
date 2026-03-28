@@ -4,6 +4,8 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\SleepWellDashboardController;
+use App\Http\Controllers\Admin\SleepWellHomeItemController;
+use App\Http\Controllers\Admin\SleepWellHomeSectionController;
 use App\Http\Controllers\Admin\SleepWellOnboardingScreenController;
 use App\Http\Controllers\Admin\SleepWellTrackController;
 use App\Http\Controllers\BlogController;
@@ -85,6 +87,32 @@ Route::middleware('auth')->group(function () {
         ->name('admin.sleepwell.onboarding.update');
     Route::delete('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'destroy'])
         ->name('admin.sleepwell.onboarding.destroy');
+
+    Route::get('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'index'])
+        ->name('admin.sleepwell.home-sections.index');
+    Route::get('/dashboard/sleepwell/home-sections/create', [SleepWellHomeSectionController::class, 'create'])
+        ->name('admin.sleepwell.home-sections.create');
+    Route::post('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'store'])
+        ->name('admin.sleepwell.home-sections.store');
+    Route::get('/dashboard/sleepwell/home-sections/{section}/edit', [SleepWellHomeSectionController::class, 'edit'])
+        ->name('admin.sleepwell.home-sections.edit');
+    Route::put('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'update'])
+        ->name('admin.sleepwell.home-sections.update');
+    Route::delete('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'destroy'])
+        ->name('admin.sleepwell.home-sections.destroy');
+
+    Route::get('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'index'])
+        ->name('admin.sleepwell.home-items.index');
+    Route::get('/dashboard/sleepwell/home-items/create', [SleepWellHomeItemController::class, 'create'])
+        ->name('admin.sleepwell.home-items.create');
+    Route::post('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'store'])
+        ->name('admin.sleepwell.home-items.store');
+    Route::get('/dashboard/sleepwell/home-items/{item}/edit', [SleepWellHomeItemController::class, 'edit'])
+        ->name('admin.sleepwell.home-items.edit');
+    Route::put('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'update'])
+        ->name('admin.sleepwell.home-items.update');
+    Route::delete('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'destroy'])
+        ->name('admin.sleepwell.home-items.destroy');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\SleepWell\CatalogController;
+use App\Http\Controllers\Api\SleepWell\HomeFeedController;
 use App\Http\Controllers\Api\SleepWell\InsightsController;
 use App\Http\Controllers\Api\SleepWell\MixPresetController;
 use App\Http\Controllers\Api\SleepWell\OnboardingContentController;
@@ -15,6 +16,7 @@ Route::prefix('v1/sleepwell')->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store']);
     Route::post('/onboarding/responses', [OnboardingResponseController::class, 'store']);
     Route::get('/catalog', [CatalogController::class, 'index']);
+    Route::get('/home-feed', [HomeFeedController::class, 'index']);
 
     Route::post('/sessions/start', [SessionController::class, 'start']);
     Route::post('/sessions/{session}/event', [SessionController::class, 'event']);
