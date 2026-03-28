@@ -170,4 +170,34 @@
             </div>
         </div>
     </section>
+
+    <section class="section-container py-14">
+        <article class="mx-auto max-w-5xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+                {{ __('Panduan Cari Lowongan Kerja Terbaru di Indonesia') }}
+            </h2>
+            <p class="mt-4 text-slate-700 dark:text-slate-300">
+                {{ __('Cari Loker adalah portal lowongan kerja terbaru di Indonesia yang membantu pencari kerja menemukan peluang yang relevan tanpa proses rumit. Kami mengumpulkan lowongan dari berbagai kategori, mulai dari teknologi, pemasaran, keuangan, operasi, hingga layanan profesional. Setiap hari, daftar lowongan diperbarui agar pengguna bisa melihat posisi aktif, memahami persyaratan utama, dan mengirim lamaran ke pekerjaan yang paling sesuai dengan keahlian serta tujuan kariernya.') }}
+            </p>
+            <p class="mt-3 text-slate-700 dark:text-slate-300">
+                {{ __('Agar pencarian lebih efektif, gunakan kata kunci spesifik pada posisi yang kamu incar, misalnya "digital marketing", "software engineer", atau "administrasi". Setelah itu, kombinasikan filter lokasi, tipe kerja, pengalaman, dan rentang gaji untuk mempersempit hasil. Pendekatan ini membantu kamu menghemat waktu karena hanya lowongan yang benar-benar relevan yang muncul di halaman pencarian.') }}
+            </p>
+            <p class="mt-3 text-slate-700 dark:text-slate-300">
+                {{ __('Selain menampilkan lowongan kerja terbaru, halaman ini juga memudahkan kamu membandingkan perusahaan, memahami deskripsi pekerjaan, serta melihat informasi penting seperti tipe pekerjaan, lokasi, dan estimasi kompensasi. Dengan informasi yang lebih lengkap di awal, kamu bisa memutuskan prioritas lamaran dengan lebih cepat dan strategis.') }}
+            </p>
+
+            <h3 class="mt-6 text-xl font-semibold text-slate-900 dark:text-white">{{ __('Cara memaksimalkan hasil pencarian kerja') }}</h3>
+            <ul class="mt-3 list-disc space-y-2 pl-6 text-slate-700 dark:text-slate-300">
+                <li>{{ __('Perbarui CV secara berkala dan sesuaikan ringkasan profil dengan posisi yang dituju.') }}</li>
+                <li>{{ __('Gunakan kombinasi filter kategori dan lokasi agar hasil lebih terarah.') }}</li>
+                <li>{{ __('Fokus pada lowongan yang masih aktif dan sesuai pengalaman kerja.') }}</li>
+                <li>{{ __('Prioritaskan 5-10 lowongan paling relevan daripada melamar terlalu banyak secara acak.') }}</li>
+                <li>{{ __('Lakukan evaluasi mingguan untuk melihat strategi pencarian yang paling efektif.') }}</li>
+            </ul>
+
+            <p class="mt-4 text-slate-700 dark:text-slate-300">
+                {{ __('Portal lowongan kerja terbaru di Indonesia seharusnya tidak hanya menampilkan banyak data, tetapi juga membantu pengguna mengambil keputusan yang tepat. Karena itu, Cari Loker dirancang agar proses mencari, membandingkan, dan melamar pekerjaan terasa lebih jelas, terstruktur, dan cepat. Jika kamu mencari peluang baru, mulai dari halaman ini dan gunakan filter secara konsisten supaya peluang mendapatkan pekerjaan yang cocok menjadi lebih tinggi.') }}
+            </p>
+        </article>
+    </section>
 </x-app-layout>
