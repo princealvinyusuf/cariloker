@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\Admin\SleepWellDashboardController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CookiePolicyController;
@@ -54,6 +55,9 @@ Route::middleware('auth')->group(function () {
     // Legacy route from first iteration: keep but redirect to the new page
     Route::post('/admin/jobs/distribute-from-staging', [\App\Http\Controllers\Admin\JobImportController::class, 'distribute'])
         ->name('admin.jobs.distribute-from-staging');
+
+    Route::get('/dashboard/sleepwell', [SleepWellDashboardController::class, 'index'])
+        ->name('admin.sleepwell.dashboard');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {
