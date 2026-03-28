@@ -18,6 +18,10 @@
                class="rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
                 {{ __('Manage SleepWell Tracks') }}
             </a>
+            <a href="{{ route('admin.sleepwell.onboarding.index') }}"
+               class="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600">
+                {{ __('Manage Onboarding UI') }}
+            </a>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -42,7 +46,9 @@
         <div class="surface-card mt-6 p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ __('SleepWell API Endpoints') }}</h3>
             <ul class="mt-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
+                <li><code>GET /api/v1/sleepwell/onboarding/content</code></li>
                 <li><code>POST /api/v1/sleepwell/onboarding</code></li>
+                <li><code>POST /api/v1/sleepwell/onboarding/responses</code></li>
                 <li><code>GET /api/v1/sleepwell/catalog</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/start</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/{session}/event</code></li>

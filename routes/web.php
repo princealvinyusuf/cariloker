@@ -4,6 +4,7 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\SleepWellDashboardController;
+use App\Http\Controllers\Admin\SleepWellOnboardingScreenController;
 use App\Http\Controllers\Admin\SleepWellTrackController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
@@ -71,6 +72,19 @@ Route::middleware('auth')->group(function () {
         ->name('admin.sleepwell.tracks.update');
     Route::delete('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'destroy'])
         ->name('admin.sleepwell.tracks.destroy');
+
+    Route::get('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'index'])
+        ->name('admin.sleepwell.onboarding.index');
+    Route::get('/dashboard/sleepwell/onboarding/create', [SleepWellOnboardingScreenController::class, 'create'])
+        ->name('admin.sleepwell.onboarding.create');
+    Route::post('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'store'])
+        ->name('admin.sleepwell.onboarding.store');
+    Route::get('/dashboard/sleepwell/onboarding/{screen}/edit', [SleepWellOnboardingScreenController::class, 'edit'])
+        ->name('admin.sleepwell.onboarding.edit');
+    Route::put('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'update'])
+        ->name('admin.sleepwell.onboarding.update');
+    Route::delete('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'destroy'])
+        ->name('admin.sleepwell.onboarding.destroy');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

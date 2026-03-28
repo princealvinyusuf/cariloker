@@ -3,13 +3,17 @@
 use App\Http\Controllers\Api\SleepWell\CatalogController;
 use App\Http\Controllers\Api\SleepWell\InsightsController;
 use App\Http\Controllers\Api\SleepWell\MixPresetController;
+use App\Http\Controllers\Api\SleepWell\OnboardingContentController;
 use App\Http\Controllers\Api\SleepWell\OnboardingController;
+use App\Http\Controllers\Api\SleepWell\OnboardingResponseController;
 use App\Http\Controllers\Api\SleepWell\SessionController;
 use App\Http\Controllers\Api\SleepWell\SleepNowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/sleepwell')->group(function () {
+    Route::get('/onboarding/content', [OnboardingContentController::class, 'index']);
     Route::post('/onboarding', [OnboardingController::class, 'store']);
+    Route::post('/onboarding/responses', [OnboardingResponseController::class, 'store']);
     Route::get('/catalog', [CatalogController::class, 'index']);
 
     Route::post('/sessions/start', [SessionController::class, 'start']);

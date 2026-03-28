@@ -80,5 +80,8 @@ class DatabaseSeeder extends Seeder
         
         // Blog Posts
         $this->call(BlogPostSeeder::class);
+
+        // SleepWell Onboarding UI
+        $this->call(SleepWellOnboardingScreenSeeder::class);
     }
 }
