@@ -13,8 +13,12 @@ class SleepWellHomeFeedSeeder extends Seeder
         $sections = [
             ['section_key' => 'featured_content', 'title' => 'Featured content', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 10],
             ['section_key' => 'explore_grid', 'title' => 'Explore more', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 20],
+            ['section_key' => 'promo_therapy', 'title' => 'Still waking up tired?', 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 25],
+            ['section_key' => 'sleep_recorder', 'title' => 'Sleep Recorder', 'subtitle' => 'Monitor and improve', 'section_type' => 'promo', 'sort_order' => 27],
             ['section_key' => 'colored_noises', 'title' => 'Colored Noises', 'subtitle' => 'A rainbow of noises awaits.', 'section_type' => 'chips', 'sort_order' => 30],
             ['section_key' => 'top_rated', 'title' => 'Top 5 rated', 'subtitle' => null, 'section_type' => 'top_ranked', 'sort_order' => 40],
+            ['section_key' => 'quick_topics', 'title' => null, 'subtitle' => null, 'section_type' => 'chips', 'sort_order' => 45],
+            ['section_key' => 'discover_banner', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 47],
             ['section_key' => 'try_something_else', 'title' => 'Try something else', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 50],
             ['section_key' => 'curated_playlists', 'title' => 'Our curated playlists', 'subtitle' => 'Soothing music collection designed to help you sleep.', 'section_type' => 'horizontal', 'sort_order' => 60],
             ['section_key' => 'sleep_hypnosis', 'title' => 'Sleep Hypnosis', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 70],
@@ -52,6 +56,24 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Deep Brown', 'subtitle' => 'Brown Noise', 'sort_order' => 30],
                 ['title' => 'Violet Noise', 'subtitle' => 'Violet Noise', 'sort_order' => 40],
             ],
+            'promo_therapy' => [
+                [
+                    'title' => 'You have 50% off your first month of therapy',
+                    'subtitle' => 'Take the assessment',
+                    'cta_label' => 'Take the assessment',
+                    'sort_order' => 10,
+                    'meta' => ['badge' => 'betterhelp'],
+                ],
+            ],
+            'sleep_recorder' => [
+                [
+                    'title' => 'Monitor and improve',
+                    'subtitle' => 'Consistency is the best way to improve sleep',
+                    'cta_label' => 'Start Recorder',
+                    'sort_order' => 10,
+                    'meta' => ['quality' => 62],
+                ],
+            ],
             'top_rated' => [
                 ['title' => 'Green Noise Deep Sleep Hypnosis', 'subtitle' => 'Meditation', 'sort_order' => 10, 'meta' => ['rank' => 1]],
                 ['title' => "Rosemary's Quilt of Memories", 'subtitle' => 'SleepTale', 'sort_order' => 20, 'meta' => ['rank' => 2]],
@@ -63,6 +85,17 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Midnight Photograph', 'subtitle' => 'Music', 'sort_order' => 10],
                 ['title' => 'Under the Beardy', 'subtitle' => 'SleepTale • 25 min', 'sort_order' => 20],
                 ['title' => 'New Year Resolution', 'subtitle' => 'Meditation', 'sort_order' => 30],
+            ],
+            'quick_topics' => [
+                ['title' => 'Sleep Faster', 'sort_order' => 10, 'meta' => ['emoji' => '🏁']],
+                ['title' => 'Hypnosis', 'sort_order' => 20, 'meta' => ['emoji' => '🌀']],
+                ['title' => 'Napping', 'sort_order' => 30, 'meta' => ['emoji' => '😴']],
+                ['title' => 'Kids', 'sort_order' => 40, 'meta' => ['emoji' => '👶']],
+                ['title' => 'Stress', 'sort_order' => 50, 'meta' => ['emoji' => '😣']],
+                ['title' => 'Tinnitus', 'sort_order' => 60, 'meta' => ['emoji' => '👂']],
+            ],
+            'discover_banner' => [
+                ['title' => 'DISCOVER', 'subtitle' => 'Find sounds for tonight', 'sort_order' => 10],
             ],
             'curated_playlists' => [
                 ['title' => 'Fall Asleep Fast', 'subtitle' => 'Playlist • 6 h 19 min', 'sort_order' => 10],
