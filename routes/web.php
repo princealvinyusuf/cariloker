@@ -4,6 +4,7 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\SleepWellDashboardController;
+use App\Http\Controllers\Admin\SleepWellTrackController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CookiePolicyController;
@@ -58,6 +59,18 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/sleepwell', [SleepWellDashboardController::class, 'index'])
         ->name('admin.sleepwell.dashboard');
+    Route::get('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'index'])
+        ->name('admin.sleepwell.tracks.index');
+    Route::get('/dashboard/sleepwell/tracks/create', [SleepWellTrackController::class, 'create'])
+        ->name('admin.sleepwell.tracks.create');
+    Route::post('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'store'])
+        ->name('admin.sleepwell.tracks.store');
+    Route::get('/dashboard/sleepwell/tracks/{track}/edit', [SleepWellTrackController::class, 'edit'])
+        ->name('admin.sleepwell.tracks.edit');
+    Route::put('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'update'])
+        ->name('admin.sleepwell.tracks.update');
+    Route::delete('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'destroy'])
+        ->name('admin.sleepwell.tracks.destroy');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

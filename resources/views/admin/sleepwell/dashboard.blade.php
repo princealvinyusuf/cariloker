@@ -9,6 +9,17 @@
     </x-slot>
 
     <div class="section-container py-10">
+        <div class="mb-5 flex items-center gap-3">
+            <a href="{{ route('dashboard') }}"
+               class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:text-slate-200">
+                ← {{ __('Main Dashboard') }}
+            </a>
+            <a href="{{ route('admin.sleepwell.tracks.index') }}"
+               class="rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700">
+                {{ __('Manage SleepWell Tracks') }}
+            </a>
+        </div>
+
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div class="surface-card p-5">
                 <p class="text-xs uppercase tracking-wide text-slate-500">{{ __('Total listeners') }}</p>
