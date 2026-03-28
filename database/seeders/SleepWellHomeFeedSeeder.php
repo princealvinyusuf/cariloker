@@ -49,6 +49,12 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'saved_playlists', 'title' => 'Playlists', 'subtitle' => 'Created for you', 'section_type' => 'horizontal', 'sort_order' => 152],
             ['section_key' => 'saved_find_love', 'title' => 'Find something you love', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 153],
             ['section_key' => 'saved_suggestions', 'title' => 'Suggestions for you', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 154],
+            ['section_key' => 'profile_header', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 160],
+            ['section_key' => 'profile_chronotype', 'title' => null, 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 161],
+            ['section_key' => 'profile_auth_card', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 162],
+            ['section_key' => 'profile_promo_therapy', 'title' => 'Still waking up tired?', 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 163],
+            ['section_key' => 'profile_resources', 'title' => 'BetterSleep Resources', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 164],
+            ['section_key' => 'profile_account', 'title' => 'Account', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 165],
         ];
 
         foreach ($sections as $sectionData) {
@@ -275,6 +281,47 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Calming City Rain', 'subtitle' => 'Mix • 3 items', 'sort_order' => 40, 'meta' => ['action' => 'heart']],
                 ['title' => 'The Underwater City', 'subtitle' => 'SleepTale • 49 min', 'sort_order' => 50, 'meta' => ['action' => 'more']],
                 ['title' => '3D Rain Narrative', 'subtitle' => 'Meditation • 30 min', 'sort_order' => 60, 'meta' => ['action' => 'more']],
+            ],
+            'profile_header' => [
+                ['title' => 'Sleeper', 'subtitle' => null, 'sort_order' => 10],
+            ],
+            'profile_chronotype' => [
+                [
+                    'title' => 'Discover Your Chronotype',
+                    'subtitle' => "Find your body's natural sleep schedule.",
+                    'sort_order' => 10,
+                    'meta' => ['action' => 'arrow'],
+                ],
+            ],
+            'profile_auth_card' => [
+                [
+                    'title' => 'Create an account',
+                    'subtitle' => 'Save your chronotype, analysis and sleep insights to get personalized recommendations.',
+                    'sort_order' => 10,
+                ],
+            ],
+            'profile_promo_therapy' => [
+                [
+                    'title' => 'You have 50% off your first month of therapy',
+                    'subtitle' => 'Take the assessment',
+                    'cta_label' => 'Take the assessment',
+                    'sort_order' => 10,
+                ],
+            ],
+            'profile_resources' => [
+                ['title' => 'Alarm', 'sort_order' => 10, 'meta' => ['action' => 'pill', 'badge' => 'SET']],
+                ['title' => 'Bedtime', 'sort_order' => 20, 'meta' => ['action' => 'pill', 'badge' => 'SET']],
+                ['title' => 'Sleep Goal', 'sort_order' => 30, 'meta' => ['action' => 'arrow', 'value' => '8h']],
+                ['title' => 'Sleep Tracker Widget', 'sort_order' => 40, 'meta' => ['action' => 'pill', 'badge' => 'ADD']],
+                ['title' => 'Help & Support', 'sort_order' => 50],
+            ],
+            'profile_account' => [
+                [
+                    'title' => 'Subscription',
+                    'subtitle' => 'Yearly',
+                    'sort_order' => 10,
+                    'meta' => ['action' => 'pill', 'badge' => 'MANAGE'],
+                ],
             ],
         ];
 
