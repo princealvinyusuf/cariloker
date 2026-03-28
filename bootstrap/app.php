@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->prependToGroup('web', \App\Http\Middleware\RedirectToCanonicalUrl::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackVisitorIp::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\LogHttpErrors::class);
