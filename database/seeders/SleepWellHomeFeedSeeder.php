@@ -22,6 +22,21 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'try_something_else', 'title' => 'Try something else', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 50],
             ['section_key' => 'curated_playlists', 'title' => 'Our curated playlists', 'subtitle' => 'Soothing music collection designed to help you sleep.', 'section_type' => 'horizontal', 'sort_order' => 60],
             ['section_key' => 'sleep_hypnosis', 'title' => 'Sleep Hypnosis', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 70],
+            ['section_key' => 'sounds_featured', 'title' => 'Sounds', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 80],
+            ['section_key' => 'sounds_my_sounds', 'title' => 'My Sounds', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 81],
+            ['section_key' => 'sounds_popular', 'title' => 'Popular', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 82],
+            ['section_key' => 'music_hero', 'title' => 'Music', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 90],
+            ['section_key' => 'music_top10', 'title' => 'Top 10', 'subtitle' => 'Enjoy music picked for you by DJ BetterSleep.', 'section_type' => 'horizontal', 'sort_order' => 91],
+            ['section_key' => 'music_layers', 'title' => 'Music Layers', 'subtitle' => 'Create your own bedtime soundtrack with evolving music loops.', 'section_type' => 'chips', 'sort_order' => 92],
+            ['section_key' => 'mixes_favorites', 'title' => 'My Favorites Mixes', 'subtitle' => 'Unwind with your own personal selection of favorite sounds.', 'section_type' => 'horizontal', 'sort_order' => 100],
+            ['section_key' => 'mixes_featured', 'title' => 'Spring Forward', 'subtitle' => 'Let us gently ease you into the time change.', 'section_type' => 'promo', 'sort_order' => 101],
+            ['section_key' => 'mixes_sound_escapes', 'title' => 'Sound Escapes', 'subtitle' => 'Leave stress behind and sink into rich soundscapes.', 'section_type' => 'horizontal', 'sort_order' => 102],
+            ['section_key' => 'meditation_promoted', 'title' => 'Promoted content', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 110],
+            ['section_key' => 'meditation_bedtime', 'title' => 'Your bedtime wind-downs', 'subtitle' => 'Let go of the day and ease into sleep.', 'section_type' => 'horizontal', 'sort_order' => 111],
+            ['section_key' => 'meditation_new', 'title' => 'New releases & popular guidances', 'subtitle' => 'Try new guidances and all-time favorites.', 'section_type' => 'horizontal', 'sort_order' => 112],
+            ['section_key' => 'sleeptales_promoted', 'title' => 'Promoted content', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 120],
+            ['section_key' => 'sleeptales_popular', 'title' => 'Popular SleepTales', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 121],
+            ['section_key' => 'sleeptales_cozy', 'title' => 'Get cozy with easy listens', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 122],
         ];
 
         foreach ($sections as $sectionData) {
@@ -106,6 +121,74 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Ocean Waves Sleep Hypnosis', 'subtitle' => 'Hypnosis • 26 min', 'sort_order' => 10],
                 ['title' => 'Green Noise Deep Sleep Hypnosis', 'subtitle' => 'Hypnosis • 18 min', 'sort_order' => 20],
                 ['title' => 'Sound Mind Brown Noise', 'subtitle' => 'Hypnosis • 21 min', 'sort_order' => 30],
+            ],
+            'sounds_featured' => [
+                ['title' => 'Soothing Colored Noise', 'subtitle' => 'Starter Mix', 'sort_order' => 10, 'meta' => ['emoji' => '🎧']],
+                ['title' => 'Rain + Piano', 'subtitle' => 'Sleep in 10 minutes', 'sort_order' => 20, 'meta' => ['emoji' => '🌧️']],
+            ],
+            'sounds_my_sounds' => [
+                ['title' => 'Eternity', 'subtitle' => 'Sound', 'sort_order' => 10],
+                ['title' => 'Ocean', 'subtitle' => 'Sound', 'sort_order' => 20],
+                ['title' => 'Birds', 'subtitle' => 'Sound', 'sort_order' => 30],
+                ['title' => 'River', 'subtitle' => 'Sound', 'sort_order' => 40],
+            ],
+            'sounds_popular' => [
+                ['title' => 'Night', 'subtitle' => 'Sound', 'sort_order' => 10],
+                ['title' => 'Campfire', 'subtitle' => 'Sound', 'sort_order' => 20],
+                ['title' => 'White Noise', 'subtitle' => 'Sound', 'sort_order' => 30],
+                ['title' => 'Brown Noise', 'subtitle' => 'Sound', 'sort_order' => 40],
+                ['title' => 'Urban Rain', 'subtitle' => 'Sound', 'sort_order' => 50],
+                ['title' => 'Wind Chimes', 'subtitle' => 'Sound', 'sort_order' => 60],
+            ],
+            'music_hero' => [
+                ['title' => 'Peaceful Unwind', 'subtitle' => 'Find stillness and relax to alpha brainwave music.', 'cta_label' => 'Listen', 'sort_order' => 10],
+                ['title' => 'Night Drift', 'subtitle' => 'Calm instrumentals for deep rest.', 'cta_label' => 'Listen', 'sort_order' => 20],
+            ],
+            'music_top10' => [
+                ['title' => 'Playlist: Classical Music', 'subtitle' => 'Playlist • 1 h 33 min', 'sort_order' => 10],
+                ['title' => 'Clarity and Alertness', 'subtitle' => 'Music', 'sort_order' => 20],
+                ['title' => 'Spa Music Collection', 'subtitle' => 'Music', 'sort_order' => 30],
+            ],
+            'music_layers' => [
+                ['title' => 'Droning Bass', 'subtitle' => 'Music Layers', 'sort_order' => 10],
+                ['title' => 'Pulsing Bass', 'subtitle' => 'Music Layers', 'sort_order' => 20],
+                ['title' => 'Echoing Harmony', 'subtitle' => 'Music Layers', 'sort_order' => 30],
+                ['title' => 'Extending Pad', 'subtitle' => 'Music Layers', 'sort_order' => 40],
+            ],
+            'mixes_favorites' => [
+                ['title' => 'Your First Mix', 'subtitle' => 'Mix', 'sort_order' => 10],
+                ['title' => 'Create a mix', 'subtitle' => 'Mix', 'sort_order' => 20],
+            ],
+            'mixes_featured' => [
+                ['title' => 'Spring Forward', 'subtitle' => 'Let us gently ease your body into easy rest', 'cta_label' => 'Listen', 'sort_order' => 10],
+            ],
+            'mixes_sound_escapes' => [
+                ['title' => 'Dusk in the Amazon Jungle', 'subtitle' => 'Mix', 'sort_order' => 10],
+                ['title' => 'Rainy Day at Lake Titicaca', 'subtitle' => 'Mix', 'sort_order' => 20],
+                ['title' => 'Deep Green Dreams', 'subtitle' => 'Mix', 'sort_order' => 30],
+            ],
+            'meditation_promoted' => [
+                ['title' => 'Discover Meditation: 1 Minute Guide To Your Relaxation Tool', 'subtitle' => 'Video • by Andrew Green', 'sort_order' => 10],
+            ],
+            'meditation_bedtime' => [
+                ['title' => 'Starlight Bedtime Hypnosis', 'subtitle' => 'Meditation • 35 min', 'sort_order' => 10],
+                ['title' => 'Bedtime Bliss Sleep Hypnosis', 'subtitle' => 'Meditation • 1 h 28 min', 'sort_order' => 20],
+            ],
+            'meditation_new' => [
+                ['title' => 'Green Noise Deep Sleep Hypnosis', 'subtitle' => 'Meditation', 'sort_order' => 10],
+                ['title' => 'Back to Sleep Hypnosis', 'subtitle' => 'Meditation', 'sort_order' => 20],
+            ],
+            'sleeptales_promoted' => [
+                ['title' => 'Discover SleepTales: 1 Minute Guide to Your Bedtime Tool', 'subtitle' => 'Video • by Shogo Miyakita', 'sort_order' => 10],
+            ],
+            'sleeptales_popular' => [
+                ['title' => 'The Wonderful Wizard of Oz, Part 1', 'subtitle' => 'SleepTale • 52 min', 'sort_order' => 10],
+                ['title' => 'The Underwater City', 'subtitle' => 'SleepTale • 49 min', 'sort_order' => 20],
+            ],
+            'sleeptales_cozy' => [
+                ['title' => '2 a.m. at the Blueberry Hill Diner', 'subtitle' => 'SleepTale • 26 min', 'sort_order' => 10],
+                ['title' => 'Camping at Moonlit Lake', 'subtitle' => 'SleepTale • 28 min', 'sort_order' => 20],
+                ['title' => 'Wind down in nature', 'subtitle' => 'SleepTale • 27 min', 'sort_order' => 30],
             ],
         ];
 
