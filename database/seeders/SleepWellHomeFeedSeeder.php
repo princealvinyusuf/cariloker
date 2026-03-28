@@ -48,6 +48,7 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'saved_recently_played', 'title' => 'Recently Played', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 151],
             ['section_key' => 'saved_playlists', 'title' => 'Playlists', 'subtitle' => 'Created for you', 'section_type' => 'horizontal', 'sort_order' => 152],
             ['section_key' => 'saved_find_love', 'title' => 'Find something you love', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 153],
+            ['section_key' => 'saved_suggestions', 'title' => 'Suggestions for you', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 154],
         ];
 
         foreach ($sections as $sectionData) {
@@ -266,6 +267,14 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Drift off to a SleepTale', 'subtitle' => null, 'sort_order' => 20],
                 ['title' => 'Relax to a Guided Meditation', 'subtitle' => null, 'sort_order' => 30],
                 ['title' => 'Snooze to curated Music', 'subtitle' => null, 'sort_order' => 40],
+            ],
+            'saved_suggestions' => [
+                ['title' => 'Green Noise Deep Sleep Hypnosis', 'subtitle' => 'Meditation • 30 min', 'sort_order' => 10],
+                ['title' => 'Oceanscape', 'subtitle' => 'Mix • 7 items', 'sort_order' => 20],
+                ['title' => 'Emotional Release', 'subtitle' => 'Music', 'sort_order' => 30],
+                ['title' => 'Calming City Rain', 'subtitle' => 'Mix • 3 items', 'sort_order' => 40],
+                ['title' => 'The Underwater City', 'subtitle' => 'SleepTale • 49 min', 'sort_order' => 50],
+                ['title' => '3D Rain Narrative', 'subtitle' => 'Meditation • 30 min', 'sort_order' => 60],
             ],
         ];
 
