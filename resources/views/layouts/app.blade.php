@@ -64,7 +64,7 @@
         <meta name="keywords" content="{{ $metaKeywords }}">
         <meta name="robots" content="{{ $metaRobots }}">
         <meta name="author" content="Cari Loker">
-        <meta name="language" content="{{ app()->getLocale() === 'id' ? 'Indonesian' : 'English' }}">
+        <meta name="language" content="{{ app()->getLocale() === 'id' ? 'id' : 'en' }}">
 
         <link rel="canonical" href="{{ $canonicalUrl }}">
 
