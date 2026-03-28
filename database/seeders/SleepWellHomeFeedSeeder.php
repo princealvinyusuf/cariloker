@@ -37,6 +37,10 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'sleeptales_promoted', 'title' => 'Promoted content', 'subtitle' => null, 'section_type' => 'hero_carousel', 'sort_order' => 120],
             ['section_key' => 'sleeptales_popular', 'title' => 'Popular SleepTales', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 121],
             ['section_key' => 'sleeptales_cozy', 'title' => 'Get cozy with easy listens', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 122],
+            ['section_key' => 'routine_habits', 'title' => 'HABITS', 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 130],
+            ['section_key' => 'routine_wind_down', 'title' => 'WIND DOWN', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 131],
+            ['section_key' => 'routine_sleep', 'title' => 'SLEEP', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 132],
+            ['section_key' => 'routine_recommendation', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 133],
         ];
 
         foreach ($sections as $sectionData) {
@@ -189,6 +193,19 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => '2 a.m. at the Blueberry Hill Diner', 'subtitle' => 'SleepTale • 26 min', 'sort_order' => 10],
                 ['title' => 'Camping at Moonlit Lake', 'subtitle' => 'SleepTale • 28 min', 'sort_order' => 20],
                 ['title' => 'Wind down in nature', 'subtitle' => 'SleepTale • 27 min', 'sort_order' => 30],
+            ],
+            'routine_habits' => [
+                ['title' => "You don't have any habits. Tap the plus to add one.", 'subtitle' => null, 'sort_order' => 10],
+            ],
+            'routine_wind_down' => [
+                ['title' => 'Dropping into the Present Moment', 'subtitle' => 'Meditation • 14 min', 'sort_order' => 10],
+            ],
+            'routine_sleep' => [
+                ['title' => 'Track your sleep', 'subtitle' => 'Tap to learn more info.', 'sort_order' => 10, 'meta' => ['toggle' => true]],
+                ['title' => 'Night Wind', 'subtitle' => 'Mix • 1 h 0 min', 'sort_order' => 20],
+            ],
+            'routine_recommendation' => [
+                ['title' => 'Want to try a different routine?', 'subtitle' => 'Select a new routine and customize it to suit your sleep needs', 'cta_label' => 'Explore more', 'sort_order' => 10],
             ],
         ];
 
