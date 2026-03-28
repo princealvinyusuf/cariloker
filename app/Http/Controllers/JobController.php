@@ -554,34 +554,37 @@ class JobController extends Controller
                 ->get();
         });
 
-        // Get featured/latest jobs
-        $featuredJobs = Job::withoutGlobalScope('notExpired')
-            ->with(['company', 'location', 'category'])
-            ->where('status', 'published')
-            ->orderByRaw("
-                CASE
-                    WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
-                    ELSE 0
-                END ASC
-            ", [now()->toDateString()])
-            ->latest()
-            ->limit(6)
-            ->get();
+        // Cache homepage jobs to reduce repeated heavy queries on hot pages.
+        $featuredJobs = Cache::remember('beranda:jobs:featured', 300, function () {
+            return Job::withoutGlobalScope('notExpired')
+                ->with(['company', 'location', 'category'])
+                ->where('status', 'published')
+                ->orderByRaw("
+                    CASE
+                        WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
+                        ELSE 0
+                    END ASC
+                ", [now()->toDateString()])
+                ->latest()
+                ->limit(6)
+                ->get();
+        });
 
-        // Get top jobs (by views or most recent)
-        $topJobs = Job::withoutGlobalScope('notExpired')
-            ->with(['company', 'location', 'category'])
-            ->where('status', 'published')
-            ->orderByRaw("
-                CASE
-                    WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
-                    ELSE 0
-                END ASC
-            ", [now()->toDateString()])
-            ->orderByDesc('views')
-            ->orderByDesc('created_at')
-            ->limit(6)
-            ->get();
+        $topJobs = Cache::remember('beranda:jobs:top', 300, function () {
+            return Job::withoutGlobalScope('notExpired')
+                ->with(['company', 'location', 'category'])
+                ->where('status', 'published')
+                ->orderByRaw("
+                    CASE
+                        WHEN valid_until IS NOT NULL AND DATE(valid_until) < ? THEN 1
+                        ELSE 0
+                    END ASC
+                ", [now()->toDateString()])
+                ->orderByDesc('views')
+                ->orderByDesc('created_at')
+                ->limit(6)
+                ->get();
+        });
 
         return view('beranda', [
             'categories' => $categories,

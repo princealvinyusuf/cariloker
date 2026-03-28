@@ -34,23 +34,36 @@ class TrackVisitorIp
             return $next($request);
         }
 
-        // Track visitor IP (update or create)
-        $visitor = VisitorIp::firstOrNew(['ip_address' => $ipAddress]);
-        
-        if ($visitor->exists) {
-            // Update existing visitor
-            $visitor->increment('visit_count');
-            $visitor->last_visited_at = now();
-            $visitor->save();
-        } else {
-            // Create new visitor
-            $visitor->first_visited_at = now();
-            $visitor->last_visited_at = now();
-            $visitor->visit_count = 1;
-            $visitor->save();
-        }
+        // Defer tracking write until after the response is sent.
+        $request->attributes->set('track_visitor_ip', $ipAddress);
 
         return $next($request);
+    }
+
+    public function terminate(Request $request, Response $response): void
+    {
+        $ipAddress = (string) $request->attributes->get('track_visitor_ip', '');
+        if ($ipAddress === '') {
+            return;
+        }
+
+        try {
+            // Track visitor IP (update or create)
+            $visitor = VisitorIp::firstOrNew(['ip_address' => $ipAddress]);
+
+            if ($visitor->exists) {
+                $visitor->increment('visit_count');
+                $visitor->last_visited_at = now();
+                $visitor->save();
+            } else {
+                $visitor->first_visited_at = now();
+                $visitor->last_visited_at = now();
+                $visitor->visit_count = 1;
+                $visitor->save();
+            }
+        } catch (\Throwable $e) {
+            // Best-effort analytics: never break request lifecycle.
+        }
     }
 
     private function isGoogleCrawler(Request $request): bool
