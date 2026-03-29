@@ -62,6 +62,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/sleepwell', [SleepWellDashboardController::class, 'index'])
         ->name('admin.sleepwell.dashboard');
+    Route::get('/dashboard/sleepwell/content/{screen}', [SleepWellDashboardController::class, 'contentHub'])
+        ->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+        ->name('admin.sleepwell.content.hub');
     Route::get('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'index'])
         ->name('admin.sleepwell.tracks.index');
     Route::get('/dashboard/sleepwell/tracks/create', [SleepWellTrackController::class, 'create'])

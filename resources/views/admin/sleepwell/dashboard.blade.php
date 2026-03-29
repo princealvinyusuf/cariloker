@@ -70,6 +70,10 @@
                     <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
                         <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $screenLabel }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
+                            <a href="{{ route('admin.sleepwell.content.hub', ['screen' => $screenKey]) }}"
+                               class="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600">
+                                {{ __('Open Hub') }}
+                            </a>
                             <a href="{{ route('admin.sleepwell.content.sections', ['screen' => $screenKey]) }}"
                                class="rounded-lg bg-indigo-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-600">
                                 {{ __('Manage Sections') }}
