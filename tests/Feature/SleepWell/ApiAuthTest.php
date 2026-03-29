@@ -35,3 +35,4 @@ it('logs in and fetches current account', function () {
         ->assertOk()
         ->assertJsonPath('user.email', $user->email);
 });
+
