@@ -5,11 +5,18 @@ namespace App\Http\Controllers\Api\SleepWell;
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\Listener;
 use App\Models\SleepWell\SleepSession;
+use App\Models\SleepWell\TrackedNight;
+use App\Services\SleepWell\NightInsightsBuilder;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 
 class InsightsController extends Controller
 {
+    public function __construct(
+        private readonly NightInsightsBuilder $builder,
+    ) {
+    }
+
     public function forCurrentUser(): JsonResponse
     {
         $listener = Listener::query()
@@ -34,6 +41,8 @@ class InsightsController extends Controller
                 'usage_frequency_last_7_days' => 0,
                 'consistency_score' => 0,
                 'average_duration_minutes' => 0,
+                'available_dates' => [],
+                'nights' => [],
             ];
         }
 
@@ -54,10 +63,33 @@ class InsightsController extends Controller
 
         $consistencyScore = min(100, (int) round(($daysUsed / 7) * 100));
 
+        $nights = TrackedNight::query()
+            ->where('listener_id', $listener->id)
+            ->whereIn('status', ['completed', 'analyzed', 'uploaded'])
+            ->orderByDesc('tracked_date')
+            ->orderByDesc('started_at')
+            ->limit(14)
+            ->get()
+            ->map(fn (TrackedNight $night) => $this->builder->toApiPayload($night))
+            ->values()
+            ->all();
+
+        $availableDates = TrackedNight::query()
+            ->where('listener_id', $listener->id)
+            ->whereNotNull('tracked_date')
+            ->orderByDesc('tracked_date')
+            ->limit(31)
+            ->pluck('tracked_date')
+            ->map(fn ($date) => CarbonImmutable::parse($date)->toDateString())
+            ->values()
+            ->all();
+
         return [
             'usage_frequency_last_7_days' => $daysUsed,
             'consistency_score' => $consistencyScore,
             'average_duration_minutes' => $averageDurationMinutes,
+            'available_dates' => $availableDates,
+            'nights' => $nights,
         ];
     }
 }

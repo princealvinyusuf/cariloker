@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\SleepWell\SavedItemController;
 use App\Http\Controllers\Api\SleepWell\SearchController;
 use App\Http\Controllers\Api\SleepWell\SessionController;
 use App\Http\Controllers\Api\SleepWell\SleepNowController;
+use App\Http\Controllers\Api\SleepWell\TrackedNightController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/sleepwell')->group(function () {
@@ -33,6 +34,9 @@ Route::prefix('v1/sleepwell')->group(function () {
     Route::post('/sessions/start', [SessionController::class, 'start']);
     Route::post('/sessions/{session}/event', [SessionController::class, 'event']);
     Route::post('/sessions/{session}/end', [SessionController::class, 'end']);
+    Route::post('/tracked-nights/start', [TrackedNightController::class, 'start']);
+    Route::post('/tracked-nights/{trackedNight}/recording', [TrackedNightController::class, 'uploadRecording']);
+    Route::post('/tracked-nights/{trackedNight}/complete', [TrackedNightController::class, 'complete']);
 
     Route::post('/sleep-now', [SleepNowController::class, 'start']);
     Route::get('/insights/{deviceId}', [InsightsController::class, 'show']);
