@@ -104,6 +104,7 @@ class SleepWellTrackController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'subtitle' => ['nullable', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:50'],
             'sound_type' => ['nullable', 'string', 'max:50'],
             'duration_seconds' => ['required', 'integer', 'min:30', 'max:86400'],

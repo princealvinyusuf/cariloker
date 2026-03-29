@@ -31,6 +31,7 @@
                 <thead>
                     <tr class="text-left text-slate-600 dark:text-slate-300">
                         <th class="px-3 py-2">{{ __('Title') }}</th>
+                        <th class="px-3 py-2">{{ __('Subtitle') }}</th>
                         <th class="px-3 py-2">{{ __('Category') }}</th>
                         <th class="px-3 py-2">{{ __('Sound Type') }}</th>
                         <th class="px-3 py-2">{{ __('Duration') }}</th>
@@ -42,6 +43,7 @@
                     @forelse($tracks as $track)
                         <tr>
                             <td class="px-3 py-3 font-medium text-slate-900 dark:text-white">{{ $track->title }}</td>
+                            <td class="px-3 py-3 text-slate-700 dark:text-slate-200">{{ $track->subtitle ?: '-' }}</td>
                             <td class="px-3 py-3 text-slate-700 dark:text-slate-200">{{ $track->category }}</td>
                             <td class="px-3 py-3 text-slate-700 dark:text-slate-200">{{ $track->sound_type ?? '-' }}</td>
                             <td class="px-3 py-3 text-slate-700 dark:text-slate-200">{{ intval($track->duration_seconds / 60) }} min</td>
@@ -71,7 +73,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-3 py-6 text-center text-slate-600 dark:text-slate-300">
+                            <td colspan="7" class="px-3 py-6 text-center text-slate-600 dark:text-slate-300">
                                 {{ __('No tracks found yet.') }}
                             </td>
                         </tr>

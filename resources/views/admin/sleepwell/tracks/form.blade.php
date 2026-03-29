@@ -39,6 +39,13 @@
                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                 </div>
 
+                <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Subtitle') }}</label>
+                    <input type="text" name="subtitle" value="{{ old('subtitle', $track->subtitle) }}"
+                           placeholder="{{ __('E.g. My Favorite Mix') }}"
+                           class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                </div>
+
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Category') }}</label>
                     <select name="category" required
