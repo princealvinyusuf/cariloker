@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\SleepWell\AdPlacementController;
 use App\Http\Controllers\Api\SleepWell\AuthController;
 use App\Http\Controllers\Api\SleepWell\HomeFeedController;
 use App\Http\Controllers\Api\SleepWell\InsightsController;
+use App\Http\Controllers\Api\SleepWell\LegalContentController;
 use App\Http\Controllers\Api\SleepWell\MixPresetController;
 use App\Http\Controllers\Api\SleepWell\OnboardingContentController;
 use App\Http\Controllers\Api\SleepWell\OnboardingController;
@@ -24,6 +25,8 @@ Route::prefix('v1/sleepwell')->group(function () {
     Route::get('/home-feed', [HomeFeedController::class, 'index']);
     Route::get('/ad-placements', [AdPlacementController::class, 'index']);
     Route::get('/search', [SearchController::class, 'index']);
+    Route::get('/legal/{slug}', [LegalContentController::class, 'show'])
+        ->whereIn('slug', ['about', 'privacy', 'terms', 'help']);
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
 

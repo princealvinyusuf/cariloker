@@ -79,12 +79,12 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Unwind Tonight', 'subtitle' => 'Drift off with calm evening sessions.', 'cta_label' => 'Listen', 'sort_order' => 20, 'meta' => ['accent' => '#5C5EA8']],
             ],
             'explore_grid' => [
-                ['title' => 'Sounds', 'sort_order' => 10, 'meta' => ['emoji' => '🔥']],
-                ['title' => 'Mixes', 'sort_order' => 20, 'meta' => ['emoji' => '🎭']],
-                ['title' => 'Music', 'sort_order' => 30, 'meta' => ['emoji' => '🎼']],
-                ['title' => 'Meditations', 'sort_order' => 40, 'meta' => ['emoji' => '🌅']],
-                ['title' => 'SleepTales', 'sort_order' => 50, 'meta' => ['emoji' => '📖']],
-                ['title' => 'Favorites', 'sort_order' => 60, 'meta' => ['emoji' => '❤️']],
+                ['title' => 'Sounds', 'sort_order' => 10, 'meta' => ['emoji' => '🔥', 'action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
+                ['title' => 'Mixes', 'sort_order' => 20, 'meta' => ['emoji' => '🎭', 'action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
+                ['title' => 'Music', 'sort_order' => 30, 'meta' => ['emoji' => '🎼', 'action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
+                ['title' => 'Meditations', 'sort_order' => 40, 'meta' => ['emoji' => '🌅', 'action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
+                ['title' => 'SleepTales', 'sort_order' => 50, 'meta' => ['emoji' => '📖', 'action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
+                ['title' => 'Favorites', 'sort_order' => 60, 'meta' => ['emoji' => '❤️', 'action' => 'navigate_tab', 'target_tab' => 4, 'analytics_event' => 'open_saved_tab']],
             ],
             'colored_noises' => [
                 ['title' => 'White Noise', 'subtitle' => 'White Noise', 'sort_order' => 10],
@@ -107,7 +107,7 @@ class SleepWellHomeFeedSeeder extends Seeder
                     'subtitle' => 'Consistency is the best way to improve sleep',
                     'cta_label' => 'Start Recorder',
                     'sort_order' => 10,
-                    'meta' => ['quality' => 62],
+                    'meta' => ['quality' => 62, 'action' => 'start_sleep_now', 'analytics_event' => 'start_sleep_now'],
                 ],
             ],
             'top_rated' => [
@@ -222,7 +222,7 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ['title' => 'Night Wind', 'subtitle' => 'Mix • 1 h 0 min', 'sort_order' => 20],
             ],
             'routine_recommendation' => [
-                ['title' => 'Want to try a different routine?', 'subtitle' => 'Select a new routine and customize it to suit your sleep needs', 'cta_label' => 'Explore more', 'sort_order' => 10],
+                ['title' => 'Want to try a different routine?', 'subtitle' => 'Select a new routine and customize it to suit your sleep needs', 'cta_label' => 'Explore more', 'sort_order' => 10, 'meta' => ['action' => 'navigate_tab', 'target_tab' => 1, 'analytics_event' => 'open_sounds_tab']],
             ],
             'insight_sleep_quality' => [
                 [
@@ -238,6 +238,7 @@ class SleepWellHomeFeedSeeder extends Seeder
                     'subtitle' => "Record your sleep sounds to uncover what's disturbing your rest.",
                     'cta_label' => 'Track my sleep',
                     'sort_order' => 10,
+                    'meta' => ['action' => 'start_sleep_now', 'analytics_event' => 'start_sleep_now'],
                 ],
             ],
             'insight_phases' => [
@@ -246,6 +247,7 @@ class SleepWellHomeFeedSeeder extends Seeder
                     'subtitle' => 'Learn more about your sleeping patterns and how to improve them.',
                     'cta_label' => 'Learn more',
                     'sort_order' => 10,
+                    'meta' => ['action' => 'refresh_insights', 'analytics_event' => 'refresh_insights'],
                 ],
             ],
             'saved_favorites' => [
@@ -320,36 +322,37 @@ class SleepWellHomeFeedSeeder extends Seeder
                 ],
             ],
             'profile_resources' => [
-                ['title' => 'Alarm', 'sort_order' => 10, 'meta' => ['action' => 'pill', 'badge' => 'SET']],
-                ['title' => 'Bedtime', 'sort_order' => 20, 'meta' => ['action' => 'pill', 'badge' => 'SET']],
-                ['title' => 'Sleep Goal', 'sort_order' => 30, 'meta' => ['action' => 'arrow', 'value' => '8h']],
-                ['title' => 'Sleep Tracker Widget', 'sort_order' => 40, 'meta' => ['action' => 'pill', 'badge' => 'ADD']],
-                ['title' => 'Help & Support', 'sort_order' => 50],
+                ['title' => 'Alarm', 'sort_order' => 10, 'meta' => ['action' => 'navigate_tab', 'target_tab' => 2, 'badge' => 'SET', 'analytics_event' => 'open_routine_tab']],
+                ['title' => 'Bedtime', 'sort_order' => 20, 'meta' => ['action' => 'navigate_tab', 'target_tab' => 2, 'badge' => 'SET', 'analytics_event' => 'open_routine_tab']],
+                ['title' => 'Sleep Goal', 'sort_order' => 30, 'meta' => ['action' => 'navigate_tab', 'target_tab' => 2, 'value' => '8h', 'analytics_event' => 'open_routine_tab']],
+                ['title' => 'Sleep Tracker Widget', 'sort_order' => 40, 'meta' => ['action' => 'start_sleep_now', 'badge' => 'ADD', 'analytics_event' => 'start_sleep_now']],
+                ['title' => 'Help & Support', 'sort_order' => 50, 'meta' => ['action' => 'open_legal', 'target' => 'help', 'analytics_event' => 'open_help']],
             ],
             'profile_account' => [
                 [
                     'title' => 'Subscription',
                     'subtitle' => 'Yearly',
                     'sort_order' => 10,
-                    'meta' => ['action' => 'pill', 'badge' => 'MANAGE'],
+                    'meta' => ['action' => 'open_legal', 'target' => 'terms', 'badge' => 'MANAGE', 'analytics_event' => 'open_terms'],
                 ],
             ],
             'profile_settings_main' => [
-                ['title' => 'Change Language', 'sort_order' => 10, 'meta' => ['action' => 'arrow']],
-                ['title' => 'My Data', 'sort_order' => 20, 'meta' => ['action' => 'arrow']],
+                ['title' => 'Change Language', 'sort_order' => 10, 'meta' => ['action' => 'change_language', 'analytics_event' => 'change_language']],
+                ['title' => 'My Data', 'sort_order' => 20, 'meta' => ['action' => 'open_legal', 'target' => 'privacy', 'analytics_event' => 'open_privacy']],
                 [
                     'title' => 'Play with other apps',
                     'subtitle' => 'Allow playing music from other apps alongside BetterSleep.',
                     'sort_order' => 30,
                     'meta' => ['action' => 'toggle', 'enabled' => true],
                 ],
-                ['title' => 'Clear Downloads', 'sort_order' => 40, 'meta' => ['action' => 'arrow']],
+                ['title' => 'Clear Downloads', 'sort_order' => 40, 'meta' => ['action' => 'clear_downloads', 'analytics_event' => 'clear_downloads']],
             ],
             'profile_settings_more' => [
-                ['title' => 'Help & Support', 'sort_order' => 10, 'meta' => ['action' => 'arrow']],
-                ['title' => 'Rate Our App', 'sort_order' => 20, 'meta' => ['action' => 'arrow']],
-                ['title' => 'Terms of Service', 'sort_order' => 30, 'meta' => ['action' => 'arrow']],
-                ['title' => 'Privacy Policy', 'sort_order' => 40, 'meta' => ['action' => 'arrow']],
+                ['title' => 'About SleepWell', 'sort_order' => 5, 'meta' => ['action' => 'open_legal', 'target' => 'about', 'analytics_event' => 'open_about']],
+                ['title' => 'Help & Support', 'sort_order' => 10, 'meta' => ['action' => 'open_legal', 'target' => 'help', 'analytics_event' => 'open_help']],
+                ['title' => 'Rate Our App', 'sort_order' => 20, 'meta' => ['action' => 'rate_app', 'analytics_event' => 'rate_app_tap']],
+                ['title' => 'Terms of Service', 'sort_order' => 30, 'meta' => ['action' => 'open_legal', 'target' => 'terms', 'analytics_event' => 'open_terms']],
+                ['title' => 'Privacy Policy', 'sort_order' => 40, 'meta' => ['action' => 'open_legal', 'target' => 'privacy', 'analytics_event' => 'open_privacy']],
             ],
         ];
 
