@@ -15,6 +15,17 @@
         </div>
 
         <div class="surface-card p-6">
+            @if(session('status'))
+                <div class="mb-4 rounded-xl bg-emerald-100 px-4 py-3 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
+                    {{ session('status') }}
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-4 rounded-xl bg-rose-100 px-4 py-3 text-sm text-rose-800 dark:bg-rose-900/30 dark:text-rose-200">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 @csrf
                 @if($method !== 'POST') @method($method) @endif

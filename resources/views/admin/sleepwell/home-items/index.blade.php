@@ -54,6 +54,11 @@
                 {{ session('status') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="mb-4 rounded-xl bg-rose-100 px-4 py-3 text-sm text-rose-800 dark:bg-rose-900/30 dark:text-rose-200">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="surface-card overflow-x-auto p-4">
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">

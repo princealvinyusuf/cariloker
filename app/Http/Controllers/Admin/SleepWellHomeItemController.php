@@ -99,11 +99,17 @@ class SleepWellHomeItemController extends Controller
     public function destroy(HomeItem $item): RedirectResponse
     {
         $snapshot = $item->toArray();
-        $item->delete();
-        SleepWellAuditLogger::log(request(), 'delete', $item, ['before' => $snapshot]);
 
-        return redirect()->route('admin.sleepwell.home-items.index')
-            ->with('status', 'Home item deleted.');
+        try {
+            $item->delete();
+            SleepWellAuditLogger::log(request(), 'delete', $item, ['before' => $snapshot]);
+
+            return redirect()->route('admin.sleepwell.home-items.index')
+                ->with('status', 'Home item deleted.');
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.sleepwell.home-items.index')
+                ->with('error', 'Could not delete home item. Please try again.');
+        }
     }
 
     public function export(Request $request): JsonResponse
