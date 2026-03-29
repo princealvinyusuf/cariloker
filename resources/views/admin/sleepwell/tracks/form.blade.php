@@ -40,18 +40,17 @@
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Key') }}</label>
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Section (sync to Sounds items)') }}</label>
                     @php
                         $selectedSectionKey = old('section_key', $selectedSectionKey ?? '');
                     @endphp
                     <select id="subtitle_section_filter" name="section_key"
                             class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-                        <option value="">{{ __('Do not sync to Sounds') }}</option>
+                        <option value="">{{ __('Do not sync to a section') }}</option>
                         @foreach(($sectionOptions ?? []) as $sectionKey)
                             <option value="{{ $sectionKey }}" @selected($selectedSectionKey === $sectionKey)>{{ $sectionKey }}</option>
                         @endforeach
                     </select>
-                    <p class="mt-1 text-xs text-slate-500">{{ __('Select a sounds_* key to sync this track, or leave it unsynced.') }}</p>
                 </div>
 
                 <div class="md:col-span-2">
