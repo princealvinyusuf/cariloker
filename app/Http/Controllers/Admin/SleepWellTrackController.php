@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\AudioTrack;
+use App\Models\SleepWell\HomeItem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class SleepWellTrackController extends Controller
             'method' => 'POST',
             'action' => route('admin.sleepwell.tracks.store'),
             'title' => 'Create SleepWell Track',
+            'subtitleOptions' => $this->subtitleOptions(),
         ]);
     }
 
@@ -65,6 +67,7 @@ class SleepWellTrackController extends Controller
             'method' => 'PUT',
             'action' => route('admin.sleepwell.tracks.update', $track),
             'title' => 'Edit SleepWell Track',
+            'subtitleOptions' => $this->subtitleOptions(),
         ]);
     }
 
@@ -126,5 +129,24 @@ class SleepWellTrackController extends Controller
         $path = $request->file($fileKey)->store('sleepwell/uploads', 'public');
 
         return asset('storage/'.$path);
+    }
+
+    /**
+     * Pull subtitle presets from existing SleepWell home items.
+     *
+     * @return array<int, string>
+     */
+    private function subtitleOptions(): array
+    {
+        return HomeItem::query()
+            ->whereNotNull('subtitle')
+            ->where('subtitle', '!=', '')
+            ->orderBy('subtitle')
+            ->distinct()
+            ->pluck('subtitle')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter(fn (string $value) => $value !== '')
+            ->values()
+            ->all();
     }
 }

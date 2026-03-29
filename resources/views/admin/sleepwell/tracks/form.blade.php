@@ -41,9 +41,20 @@
 
                 <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Subtitle') }}</label>
-                    <input type="text" name="subtitle" value="{{ old('subtitle', $track->subtitle) }}"
-                           placeholder="{{ __('E.g. My Favorite Mix') }}"
-                           class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    @php
+                        $selectedSubtitle = old('subtitle', $track->subtitle);
+                        $options = $subtitleOptions ?? [];
+                        if (!empty($selectedSubtitle) && !in_array($selectedSubtitle, $options, true)) {
+                            $options[] = $selectedSubtitle;
+                        }
+                    @endphp
+                    <select name="subtitle"
+                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                        <option value="">{{ __('Select subtitle from items') }}</option>
+                        @foreach($options as $option)
+                            <option value="{{ $option }}" @selected($selectedSubtitle === $option)>{{ $option }}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>
