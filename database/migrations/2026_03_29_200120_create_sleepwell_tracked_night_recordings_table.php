@@ -20,7 +20,10 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
 
-            $table->index(['tracked_night_id', 'start_second']);
+            $table->index(
+                ['tracked_night_id', 'start_second'],
+                'sw_tnr_night_start_idx'
+            );
         });
     }
 
