@@ -9,6 +9,7 @@ use App\Models\SleepWell\HomeSection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 
@@ -256,21 +257,13 @@ class SleepWellTrackController extends Controller
 
     private function selectedSectionKeyForTrack(AudioTrack $track): string
     {
-        $byTrack = HomeItem::query()
+        $homeItem = $this->syncedHomeItemsQuery($track)
             ->with('section:id,section_key')
-            ->where('audio_track_id', $track->id)
+            ->orderByDesc('audio_track_id')
+            ->orderBy('sort_order')
             ->first();
-        if ($byTrack?->section?->section_key) {
-            return (string) $byTrack->section->section_key;
-        }
-
-        $byTitle = HomeItem::query()
-            ->with('section:id,section_key')
-            ->where('title', $track->title)
-            ->whereHas('section', fn ($query) => $query->where('section_key', 'like', 'sounds_%'))
-            ->first();
-        if ($byTitle?->section?->section_key) {
-            return (string) $byTitle->section->section_key;
+        if ($homeItem?->section?->section_key) {
+            return (string) $homeItem->section->section_key;
         }
 
         return '';
@@ -278,25 +271,27 @@ class SleepWellTrackController extends Controller
 
     private function syncTrackToHomeItem(AudioTrack $track, string $sectionKey): void
     {
+        $existingSyncs = $this->syncedHomeItemsQuery($track)->get();
+
         if ($sectionKey === '') {
+            $existingSyncs->each->delete();
             return;
         }
 
         $section = HomeSection::query()
             ->where('section_key', $sectionKey)
+            ->where('section_key', 'like', 'sounds_%')
             ->first();
         if (!$section) {
             return;
         }
 
-        $existing = HomeItem::query()
+        $existing = $existingSyncs
             ->where('section_id', $section->id)
-            ->where(function ($query) use ($track) {
-                $query->where('audio_track_id', $track->id)
-                    ->orWhere('title', $track->title);
-            })
-            ->orderByDesc('audio_track_id')
-            ->orderBy('sort_order')
+            ->sortBy([
+                ['audio_track_id', 'desc'],
+                ['sort_order', 'asc'],
+            ])
             ->first();
 
         $sortOrder = $existing?->sort_order
@@ -318,9 +313,23 @@ class SleepWellTrackController extends Controller
 
         if ($existing) {
             $existing->update($payload);
-            return;
+        } else {
+            $existing = HomeItem::query()->create($payload);
         }
 
-        HomeItem::query()->create($payload);
+        $existingSyncs
+            ->filter(fn (HomeItem $item) => $item->id !== $existing->id)
+            ->each
+            ->delete();
+    }
+
+    private function syncedHomeItemsQuery(AudioTrack $track): Builder
+    {
+        return HomeItem::query()
+            ->whereHas('section', fn (Builder $query) => $query->where('section_key', 'like', 'sounds_%'))
+            ->where(function (Builder $query) use ($track) {
+                $query->where('audio_track_id', $track->id)
+                    ->orWhere('title', $track->title);
+            });
     }
 }
