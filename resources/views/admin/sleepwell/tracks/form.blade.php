@@ -40,6 +40,17 @@
                 </div>
 
                 <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Section Filter (from Home Items)') }}</label>
+                    <select id="subtitle_section_filter"
+                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                        <option value="">{{ __('All Sections') }}</option>
+                        @foreach(($subtitleSections ?? []) as $sectionKey)
+                            <option value="{{ $sectionKey }}">{{ $sectionKey }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Subtitle') }}</label>
                     @php
                         $selectedSubtitle = old('subtitle', $track->subtitle);
@@ -48,7 +59,7 @@
                             $options[] = $selectedSubtitle;
                         }
                     @endphp
-                    <select name="subtitle"
+                    <select name="subtitle" id="subtitle_select"
                             class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                         <option value="">{{ __('Select subtitle from items') }}</option>
                         @foreach($options as $option)
@@ -72,8 +83,13 @@
 
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Sound Type') }}</label>
-                    <input type="text" name="sound_type" value="{{ old('sound_type', $track->sound_type) }}"
+                    <input type="text" name="sound_type" id="sound_type_input" value="{{ old('sound_type', $track->sound_type) }}" list="sound_type_options"
                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                    <datalist id="sound_type_options">
+                        @foreach(($soundTypeOptions ?? []) as $soundType)
+                            <option value="{{ $soundType }}"></option>
+                        @endforeach
+                    </datalist>
                 </div>
 
                 <div>
@@ -135,4 +151,76 @@
             </form>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const catalog = @json($subtitleCatalog ?? []);
+            const sectionFilter = document.getElementById('subtitle_section_filter');
+            const soundTypeInput = document.getElementById('sound_type_input');
+            const subtitleSelect = document.getElementById('subtitle_select');
+            if (!sectionFilter || !soundTypeInput || !subtitleSelect) {
+                return;
+            }
+
+            const normalize = (value) => (value ?? '').toString().trim().toLowerCase();
+            const initialSelected = subtitleSelect.value;
+            const initialSoundType = soundTypeInput.value;
+
+            const firstMatch = catalog.find((row) => normalize(row.subtitle) === normalize(initialSelected));
+            if (firstMatch && firstMatch.section_key) {
+                sectionFilter.value = firstMatch.section_key;
+            }
+
+            const buildOptions = () => {
+                const selectedSection = normalize(sectionFilter.value);
+                const selectedSoundType = normalize(soundTypeInput.value);
+                const previousValue = subtitleSelect.value;
+
+                const subtitles = [];
+                for (const row of catalog) {
+                    const rowSection = normalize(row.section_key);
+                    const rowSoundType = normalize(row.sound_type);
+                    if (selectedSection && rowSection !== selectedSection) {
+                        continue;
+                    }
+                    if (selectedSoundType && rowSoundType !== selectedSoundType) {
+                        continue;
+                    }
+                    if (!subtitles.includes(row.subtitle)) {
+                        subtitles.push(row.subtitle);
+                    }
+                }
+
+                subtitleSelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = 'Select subtitle from items';
+                subtitleSelect.appendChild(placeholder);
+
+                if (previousValue && !subtitles.includes(previousValue)) {
+                    subtitles.unshift(previousValue);
+                }
+
+                subtitles.sort((a, b) => a.localeCompare(b));
+
+                for (const subtitle of subtitles) {
+                    const option = document.createElement('option');
+                    option.value = subtitle;
+                    option.textContent = subtitle;
+                    subtitleSelect.appendChild(option);
+                }
+
+                subtitleSelect.value = previousValue || initialSelected || '';
+            };
+
+            sectionFilter.addEventListener('change', buildOptions);
+            soundTypeInput.addEventListener('input', buildOptions);
+            soundTypeInput.addEventListener('change', buildOptions);
+
+            if (initialSoundType) {
+                soundTypeInput.value = initialSoundType;
+            }
+            buildOptions();
+        })();
+    </script>
 </x-app-layout>

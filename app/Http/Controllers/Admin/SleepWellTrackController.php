@@ -8,6 +8,7 @@ use App\Models\SleepWell\HomeItem;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class SleepWellTrackController extends Controller
 {
@@ -28,6 +29,9 @@ class SleepWellTrackController extends Controller
             'action' => route('admin.sleepwell.tracks.store'),
             'title' => 'Create SleepWell Track',
             'subtitleOptions' => $this->subtitleOptions(),
+            'subtitleCatalog' => $this->subtitleCatalog(),
+            'subtitleSections' => $this->subtitleSections(),
+            'soundTypeOptions' => $this->soundTypeOptions(),
         ]);
     }
 
@@ -68,6 +72,9 @@ class SleepWellTrackController extends Controller
             'action' => route('admin.sleepwell.tracks.update', $track),
             'title' => 'Edit SleepWell Track',
             'subtitleOptions' => $this->subtitleOptions(),
+            'subtitleCatalog' => $this->subtitleCatalog(),
+            'subtitleSections' => $this->subtitleSections(),
+            'soundTypeOptions' => $this->soundTypeOptions(),
         ]);
     }
 
@@ -138,15 +145,78 @@ class SleepWellTrackController extends Controller
      */
     private function subtitleOptions(): array
     {
-        return HomeItem::query()
-            ->whereNotNull('subtitle')
-            ->where('subtitle', '!=', '')
-            ->orderBy('subtitle')
-            ->distinct()
+        return $this->subtitleCatalog()
             ->pluck('subtitle')
-            ->map(fn ($value) => trim((string) $value))
-            ->filter(fn (string $value) => $value !== '')
+            ->unique()
+            ->sort()
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function subtitleSections(): array
+    {
+        return $this->subtitleCatalog()
+            ->pluck('section_key')
+            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+            ->map(fn ($value) => trim((string) $value))
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function soundTypeOptions(): array
+    {
+        $catalogSoundTypes = $this->subtitleCatalog()
+            ->pluck('sound_type')
+            ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+            ->map(fn ($value) => trim((string) $value))
+            ->all();
+
+        $trackSoundTypes = AudioTrack::query()
+            ->whereNotNull('sound_type')
+            ->where('sound_type', '!=', '')
+            ->pluck('sound_type')
+            ->map(fn ($value) => trim((string) $value))
+            ->all();
+
+        return collect([...$catalogSoundTypes, ...$trackSoundTypes])
+            ->filter(fn (string $value) => $value !== '')
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return Collection<int, array{subtitle:string, section_key:string, sound_type:string}>
+     */
+    private function subtitleCatalog(): Collection
+    {
+        return HomeItem::query()
+            ->with(['section:id,section_key', 'track:id,sound_type'])
+            ->whereNotNull('subtitle')
+            ->where('subtitle', '!=', '')
+            ->get()
+            ->map(function (HomeItem $item): array {
+                $metaSoundType = is_array($item->meta)
+                    ? trim((string) ($item->meta['sound_type'] ?? ''))
+                    : '';
+
+                return [
+                    'subtitle' => trim((string) $item->subtitle),
+                    'section_key' => trim((string) ($item->section?->section_key ?? '')),
+                    'sound_type' => trim((string) ($item->track?->sound_type ?? $metaSoundType)),
+                ];
+            })
+            ->filter(fn (array $row) => $row['subtitle'] !== '')
+            ->unique(fn (array $row) => implode('|', [$row['subtitle'], $row['section_key'], $row['sound_type']]))
+            ->values();
     }
 }
