@@ -113,6 +113,16 @@ Route::middleware('auth')->group(function () {
         ->name('admin.sleepwell.home-items.update');
     Route::delete('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'destroy'])
         ->name('admin.sleepwell.home-items.destroy');
+
+    Route::get('/dashboard/sleepwell/content/{screen}/sections', function (string $screen) {
+        return redirect()->route('admin.sleepwell.home-sections.index', ['screen' => $screen]);
+    })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+        ->name('admin.sleepwell.content.sections');
+
+    Route::get('/dashboard/sleepwell/content/{screen}/items', function (string $screen) {
+        return redirect()->route('admin.sleepwell.home-items.index', ['screen' => $screen]);
+    })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+        ->name('admin.sleepwell.content.items');
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

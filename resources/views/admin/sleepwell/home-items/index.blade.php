@@ -20,6 +20,20 @@
             </a>
         </div>
 
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+            @foreach($screenOptions as $screenKey => $screenLabel)
+                @php
+                    $screenHref = $screenKey === 'all'
+                        ? route('admin.sleepwell.home-items.index')
+                        : route('admin.sleepwell.content.items', ['screen' => $screenKey]);
+                @endphp
+                <a href="{{ $screenHref }}"
+                   class="rounded-full px-3 py-1.5 text-xs font-semibold transition {{ $selectedScreen === $screenKey ? 'bg-indigo-900 text-white' : 'border border-slate-200 text-slate-700 hover:border-indigo-300 hover:text-indigo-700 dark:border-slate-700 dark:text-slate-200' }}">
+                    {{ $screenLabel }}
+                </a>
+            @endforeach
+        </div>
+
         @if(session('status'))
             <div class="mb-4 rounded-xl bg-emerald-100 px-4 py-3 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
                 {{ session('status') }}

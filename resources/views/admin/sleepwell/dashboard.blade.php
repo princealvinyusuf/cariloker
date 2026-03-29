@@ -52,6 +52,39 @@
         </div>
 
         <div class="surface-card mt-6 p-6">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ __('Content by Screen') }}</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">{{ __('Manage sections and items separately for each app screen.') }}</p>
+            @php
+                $screens = [
+                    'home' => 'Home',
+                    'sounds' => 'Sounds',
+                    'routine' => 'Routine',
+                    'insight' => 'Insight',
+                    'saved' => 'Saved',
+                    'profile' => 'Profile',
+                    'settings' => 'Settings',
+                ];
+            @endphp
+            <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                @foreach($screens as $screenKey => $screenLabel)
+                    <div class="rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ $screenLabel }}</p>
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <a href="{{ route('admin.sleepwell.content.sections', ['screen' => $screenKey]) }}"
+                               class="rounded-lg bg-indigo-700 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-600">
+                                {{ __('Manage Sections') }}
+                            </a>
+                            <a href="{{ route('admin.sleepwell.content.items', ['screen' => $screenKey]) }}"
+                               class="rounded-lg bg-indigo-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-800">
+                                {{ __('Manage Items') }}
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="surface-card mt-6 p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ __('SleepWell API Endpoints') }}</h3>
             <ul class="mt-4 space-y-2 text-sm text-slate-700 dark:text-slate-200">
                 <li><code>GET /api/v1/sleepwell/onboarding/content</code></li>
