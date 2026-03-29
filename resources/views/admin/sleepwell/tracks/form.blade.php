@@ -40,12 +40,15 @@
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Section Filter (from Home Items)') }}</label>
-                    <select id="subtitle_section_filter"
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Section (sync to Sounds items)') }}</label>
+                    @php
+                        $selectedSectionKey = old('section_key', $selectedSectionKey ?? '');
+                    @endphp
+                    <select id="subtitle_section_filter" name="section_key"
                             class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
-                        <option value="">{{ __('All Sections') }}</option>
-                        @foreach(($subtitleSections ?? []) as $sectionKey)
-                            <option value="{{ $sectionKey }}">{{ $sectionKey }}</option>
+                        <option value="">{{ __('Do not sync to a section') }}</option>
+                        @foreach(($sectionOptions ?? []) as $sectionKey)
+                            <option value="{{ $sectionKey }}" @selected($selectedSectionKey === $sectionKey)>{{ $sectionKey }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -166,9 +169,14 @@
             const initialSelected = subtitleSelect.value;
             const initialSoundType = soundTypeInput.value;
 
-            const firstMatch = catalog.find((row) => normalize(row.subtitle) === normalize(initialSelected));
-            if (firstMatch && firstMatch.section_key) {
-                sectionFilter.value = firstMatch.section_key;
+            const sectionFromServer = @json($selectedSectionKey ?? '');
+            if (sectionFromServer) {
+                sectionFilter.value = sectionFromServer;
+            } else {
+                const firstMatch = catalog.find((row) => normalize(row.subtitle) === normalize(initialSelected));
+                if (firstMatch && firstMatch.section_key) {
+                    sectionFilter.value = firstMatch.section_key;
+                }
             }
 
             const buildOptions = () => {

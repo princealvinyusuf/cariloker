@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\AudioTrack;
 use App\Models\SleepWell\HomeItem;
+use App\Models\SleepWell\HomeSection;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 
 class SleepWellTrackController extends Controller
 {
@@ -32,6 +34,8 @@ class SleepWellTrackController extends Controller
             'subtitleCatalog' => $this->subtitleCatalog(),
             'subtitleSections' => $this->subtitleSections(),
             'soundTypeOptions' => $this->soundTypeOptions(),
+            'sectionOptions' => $this->sectionOptions(),
+            'selectedSectionKey' => '',
         ]);
     }
 
@@ -57,7 +61,11 @@ class SleepWellTrackController extends Controller
         );
         unset($payload['audio_file'], $payload['cover_image_file']);
 
-        AudioTrack::query()->create($payload);
+        $sectionKey = trim((string) ($payload['section_key'] ?? ''));
+        unset($payload['section_key']);
+
+        $track = AudioTrack::query()->create($payload);
+        $this->syncTrackToHomeItem($track, $sectionKey);
 
         return redirect()
             ->route('admin.sleepwell.tracks.index')
@@ -75,6 +83,8 @@ class SleepWellTrackController extends Controller
             'subtitleCatalog' => $this->subtitleCatalog(),
             'subtitleSections' => $this->subtitleSections(),
             'soundTypeOptions' => $this->soundTypeOptions(),
+            'sectionOptions' => $this->sectionOptions(),
+            'selectedSectionKey' => $this->selectedSectionKeyForTrack($track),
         ]);
     }
 
@@ -94,7 +104,11 @@ class SleepWellTrackController extends Controller
         );
         unset($payload['audio_file'], $payload['cover_image_file']);
 
+        $sectionKey = trim((string) ($payload['section_key'] ?? ''));
+        unset($payload['section_key']);
+
         $track->update($payload);
+        $this->syncTrackToHomeItem($track, $sectionKey);
 
         return redirect()
             ->route('admin.sleepwell.tracks.index')
@@ -117,6 +131,11 @@ class SleepWellTrackController extends Controller
             'subtitle' => ['nullable', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:50'],
             'sound_type' => ['nullable', 'string', 'max:50'],
+            'section_key' => [
+                'nullable',
+                'string',
+                Rule::exists('sleepwell_home_sections', 'section_key'),
+            ],
             'duration_seconds' => ['required', 'integer', 'min:30', 'max:86400'],
             'talking' => ['nullable', 'boolean'],
             'is_active' => ['nullable', 'boolean'],
@@ -218,5 +237,90 @@ class SleepWellTrackController extends Controller
             ->filter(fn (array $row) => $row['subtitle'] !== '')
             ->unique(fn (array $row) => implode('|', [$row['subtitle'], $row['section_key'], $row['sound_type']]))
             ->values();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function sectionOptions(): array
+    {
+        return HomeSection::query()
+            ->where('section_key', 'like', 'sounds_%')
+            ->orderBy('sort_order')
+            ->pluck('section_key')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter(fn (string $value) => $value !== '')
+            ->values()
+            ->all();
+    }
+
+    private function selectedSectionKeyForTrack(AudioTrack $track): string
+    {
+        $byTrack = HomeItem::query()
+            ->with('section:id,section_key')
+            ->where('audio_track_id', $track->id)
+            ->first();
+        if ($byTrack?->section?->section_key) {
+            return (string) $byTrack->section->section_key;
+        }
+
+        $byTitle = HomeItem::query()
+            ->with('section:id,section_key')
+            ->where('title', $track->title)
+            ->whereHas('section', fn ($query) => $query->where('section_key', 'like', 'sounds_%'))
+            ->first();
+        if ($byTitle?->section?->section_key) {
+            return (string) $byTitle->section->section_key;
+        }
+
+        return '';
+    }
+
+    private function syncTrackToHomeItem(AudioTrack $track, string $sectionKey): void
+    {
+        if ($sectionKey === '') {
+            return;
+        }
+
+        $section = HomeSection::query()
+            ->where('section_key', $sectionKey)
+            ->first();
+        if (!$section) {
+            return;
+        }
+
+        $existing = HomeItem::query()
+            ->where('section_id', $section->id)
+            ->where(function ($query) use ($track) {
+                $query->where('audio_track_id', $track->id)
+                    ->orWhere('title', $track->title);
+            })
+            ->orderByDesc('audio_track_id')
+            ->orderBy('sort_order')
+            ->first();
+
+        $sortOrder = $existing?->sort_order
+            ?? ((int) HomeItem::query()->where('section_id', $section->id)->max('sort_order') + 10);
+        $meta = is_array($existing?->meta) ? $existing->meta : [];
+        if (!empty($track->sound_type)) {
+            $meta['sound_type'] = $track->sound_type;
+        }
+
+        $payload = [
+            'section_id' => $section->id,
+            'title' => $track->title,
+            'subtitle' => $track->subtitle,
+            'audio_track_id' => $track->id,
+            'sort_order' => $sortOrder,
+            'meta' => $meta,
+            'is_active' => (bool) $track->is_active,
+        ];
+
+        if ($existing) {
+            $existing->update($payload);
+            return;
+        }
+
+        HomeItem::query()->create($payload);
     }
 }
