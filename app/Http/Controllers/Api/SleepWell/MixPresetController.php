@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\SleepWell;
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\Listener;
 use App\Models\SleepWell\MixPreset;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -61,11 +62,22 @@ class MixPresetController extends Controller
         $payload = $request->validate([
             'name' => ['nullable', 'string', 'max:80'],
             'channels' => ['nullable', 'array'],
+            'if_unmodified_since' => ['nullable', 'date'],
         ]);
 
         $listener = $preset->listener;
         if ($request->user() && $listener?->user_id !== $request->user()->id) {
             abort(403);
+        }
+
+        if (!empty($payload['if_unmodified_since'])) {
+            $guardTime = CarbonImmutable::parse($payload['if_unmodified_since']);
+            if ($preset->updated_at && $preset->updated_at->gt($guardTime)) {
+                return response()->json([
+                    'message' => 'Conflict: preset was updated on another client.',
+                    'current' => $preset,
+                ], 409);
+            }
         }
 
         $preset->update([

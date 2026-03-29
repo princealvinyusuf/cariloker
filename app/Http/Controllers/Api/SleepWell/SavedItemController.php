@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\SleepWell;
 
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\SavedItem;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -34,7 +35,24 @@ class SavedItemController extends Controller
             'subtitle' => ['nullable', 'string', 'max:300'],
             'meta' => ['nullable', 'array'],
             'last_played_at' => ['nullable', 'date'],
+            'if_unmodified_since' => ['nullable', 'date'],
         ]);
+
+        $existing = SavedItem::query()
+            ->where('user_id', $request->user()->id)
+            ->where('item_type', $payload['item_type'])
+            ->where('item_ref', $payload['item_ref'])
+            ->first();
+
+        if ($existing && !empty($payload['if_unmodified_since'])) {
+            $guardTime = CarbonImmutable::parse($payload['if_unmodified_since']);
+            if ($existing->updated_at && $existing->updated_at->gt($guardTime)) {
+                return response()->json([
+                    'message' => 'Conflict: item was updated on another client.',
+                    'current' => $existing,
+                ], 409);
+            }
+        }
 
         $item = SavedItem::query()->updateOrCreate(
             [

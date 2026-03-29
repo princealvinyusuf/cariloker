@@ -127,12 +127,16 @@ class SleepWellHomeItemController extends Controller
             return back()->with('status', 'Invalid JSON payload.');
         }
 
+        $imported = 0;
+        $skipped = 0;
         foreach ($decoded as $row) {
             if (!is_array($row) || !isset($row['section_key']) || !isset($row['title'])) {
+                $skipped++;
                 continue;
             }
             $section = HomeSection::query()->where('section_key', (string) $row['section_key'])->first();
             if (!$section) {
+                $skipped++;
                 continue;
             }
             HomeItem::query()->updateOrCreate(
@@ -154,9 +158,10 @@ class SleepWellHomeItemController extends Controller
                     'unpublish_at' => $row['unpublish_at'] ?? null,
                 ]
             );
+            $imported++;
         }
 
-        return back()->with('status', 'Items imported.');
+        return back()->with('status', "Items import complete. Imported: {$imported}, skipped: {$skipped}.");
     }
 
     private function validatedPayload(Request $request): array

@@ -110,8 +110,11 @@ class SleepWellHomeSectionController extends Controller
             return back()->with('status', 'Invalid JSON payload.');
         }
 
+        $imported = 0;
+        $skipped = 0;
         foreach ($decoded as $row) {
             if (!is_array($row) || !isset($row['section_key'])) {
+                $skipped++;
                 continue;
             }
             $data = [
@@ -127,9 +130,10 @@ class SleepWellHomeSectionController extends Controller
                 ['section_key' => (string) $row['section_key']],
                 $data
             );
+            $imported++;
         }
 
-        return back()->with('status', 'Sections imported.');
+        return back()->with('status', "Sections import complete. Imported: {$imported}, skipped: {$skipped}.");
     }
 
     private function validatedPayload(Request $request): array

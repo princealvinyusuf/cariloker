@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\SleepWell;
 
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\HomeSection;
+use App\Models\SleepWell\Listener;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,16 @@ class HomeFeedController extends Controller
         $screen = (string) $request->query('screen', '');
         $goal = trim((string) $request->query('goal', ''));
         $timeSegment = trim((string) $request->query('time_segment', ''));
+        $deviceId = trim((string) $request->query('device_id', ''));
         $now = now();
+        $listener = $deviceId === ''
+            ? null
+            : Listener::query()->where('device_id', $deviceId)->first();
+        $preferredCategories = collect($listener?->preferred_categories ?? [])
+            ->filter(fn ($v) => is_string($v) && trim($v) !== '')
+            ->map(fn ($v) => trim((string) $v))
+            ->values()
+            ->all();
 
         $sections = HomeSection::query()
             ->where('is_active', true)
@@ -68,6 +78,14 @@ class HomeFeedController extends Controller
                     $inner->where(function ($segments) use ($timeSegment) {
                         $segments->whereNull('meta->time_segments')
                             ->orWhereJsonContains('meta->time_segments', $timeSegment);
+                    });
+                })
+                ->when(!empty($preferredCategories), function ($inner) use ($preferredCategories) {
+                    $inner->where(function ($pref) use ($preferredCategories) {
+                        $pref->whereNull('meta->categories');
+                        foreach ($preferredCategories as $category) {
+                            $pref->orWhereJsonContains('meta->categories', $category);
+                        }
                     });
                 })
                 ->orderBy('sort_order')

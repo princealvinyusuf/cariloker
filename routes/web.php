@@ -5,6 +5,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\SleepWellDashboardController;
 use App\Http\Controllers\Admin\SleepWellAdPlacementController;
+use App\Http\Controllers\Admin\SleepWellAuditLogController;
 use App\Http\Controllers\Admin\SleepWellHomeItemController;
 use App\Http\Controllers\Admin\SleepWellHomeSectionController;
 use App\Http\Controllers\Admin\SleepWellOnboardingScreenController;
@@ -149,6 +150,9 @@ Route::middleware('auth')->group(function () {
             ->name('admin.sleepwell.ad-placements.update');
         Route::delete('/dashboard/sleepwell/ad-placements/{placement}', [SleepWellAdPlacementController::class, 'destroy'])
             ->name('admin.sleepwell.ad-placements.destroy');
+
+        Route::get('/dashboard/sleepwell/audit-logs', [SleepWellAuditLogController::class, 'index'])
+            ->name('admin.sleepwell.audit-logs.index');
     });
 });
 

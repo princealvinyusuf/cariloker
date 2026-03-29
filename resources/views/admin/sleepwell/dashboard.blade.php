@@ -34,6 +34,10 @@
                class="rounded-xl bg-fuchsia-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-600">
                 {{ __('Manage Ad Placements') }}
             </a>
+            <a href="{{ route('admin.sleepwell.audit-logs.index') }}"
+               class="rounded-xl bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-600">
+                {{ __('Audit Logs') }}
+            </a>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
