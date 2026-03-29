@@ -50,11 +50,14 @@ class SleepWellHomeFeedSeeder extends Seeder
             ['section_key' => 'saved_find_love', 'title' => 'Find something you love', 'subtitle' => null, 'section_type' => 'grid', 'sort_order' => 153],
             ['section_key' => 'saved_suggestions', 'title' => 'Suggestions for you', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 154],
             ['section_key' => 'profile_header', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 160],
-            ['section_key' => 'profile_chronotype', 'title' => null, 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 161],
-            ['section_key' => 'profile_auth_card', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 162],
-            ['section_key' => 'profile_promo_therapy', 'title' => 'Still waking up tired?', 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 163],
-            ['section_key' => 'profile_resources', 'title' => 'BetterSleep Resources', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 164],
-            ['section_key' => 'profile_account', 'title' => 'Account', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 165],
+            ['section_key' => 'profile_top_promo', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 161],
+            ['section_key' => 'profile_chronotype', 'title' => null, 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 162],
+            ['section_key' => 'profile_auth_card', 'title' => null, 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 163],
+            ['section_key' => 'profile_promo_therapy', 'title' => 'Still waking up tired?', 'subtitle' => null, 'section_type' => 'promo', 'sort_order' => 164],
+            ['section_key' => 'profile_resources', 'title' => 'BetterSleep Resources', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 165],
+            ['section_key' => 'profile_account', 'title' => 'Account', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 166],
+            ['section_key' => 'profile_settings_main', 'title' => 'Settings', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 167],
+            ['section_key' => 'profile_settings_more', 'title' => 'More', 'subtitle' => null, 'section_type' => 'horizontal', 'sort_order' => 168],
         ];
 
         foreach ($sections as $sectionData) {
@@ -285,6 +288,14 @@ class SleepWellHomeFeedSeeder extends Seeder
             'profile_header' => [
                 ['title' => 'Sleeper', 'subtitle' => null, 'sort_order' => 10],
             ],
+            'profile_top_promo' => [
+                [
+                    'title' => 'You have 50% off your first month of therapy',
+                    'subtitle' => 'Take the assessment',
+                    'cta_label' => 'Take the assessment →',
+                    'sort_order' => 10,
+                ],
+            ],
             'profile_chronotype' => [
                 [
                     'title' => 'Discover Your Chronotype',
@@ -322,6 +333,23 @@ class SleepWellHomeFeedSeeder extends Seeder
                     'sort_order' => 10,
                     'meta' => ['action' => 'pill', 'badge' => 'MANAGE'],
                 ],
+            ],
+            'profile_settings_main' => [
+                ['title' => 'Change Language', 'sort_order' => 10, 'meta' => ['action' => 'arrow']],
+                ['title' => 'My Data', 'sort_order' => 20, 'meta' => ['action' => 'arrow']],
+                [
+                    'title' => 'Play with other apps',
+                    'subtitle' => 'Allow playing music from other apps alongside BetterSleep.',
+                    'sort_order' => 30,
+                    'meta' => ['action' => 'toggle', 'enabled' => true],
+                ],
+                ['title' => 'Clear Downloads', 'sort_order' => 40, 'meta' => ['action' => 'arrow']],
+            ],
+            'profile_settings_more' => [
+                ['title' => 'Help & Support', 'sort_order' => 10, 'meta' => ['action' => 'arrow']],
+                ['title' => 'Rate Our App', 'sort_order' => 20, 'meta' => ['action' => 'arrow']],
+                ['title' => 'Terms of Service', 'sort_order' => 30, 'meta' => ['action' => 'arrow']],
+                ['title' => 'Privacy Policy', 'sort_order' => 40, 'meta' => ['action' => 'arrow']],
             ],
         ];
 
