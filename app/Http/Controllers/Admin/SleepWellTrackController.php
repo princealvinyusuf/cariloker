@@ -62,10 +62,12 @@ class SleepWellTrackController extends Controller
         );
         unset($payload['audio_file'], $payload['cover_image_file']);
 
+        $homeKey = trim((string) ($payload['key'] ?? ''));
         $sectionKey = trim((string) ($payload['section_key'] ?? ''));
         unset($payload['section_key']);
 
         $track = AudioTrack::query()->create($payload);
+        $this->syncTrackToKeyedHomeItem($track, $homeKey);
         $this->syncTrackToHomeItem($track, $sectionKey);
 
         return redirect()
@@ -106,10 +108,12 @@ class SleepWellTrackController extends Controller
         );
         unset($payload['audio_file'], $payload['cover_image_file']);
 
+        $homeKey = trim((string) ($payload['key'] ?? ''));
         $sectionKey = trim((string) ($payload['section_key'] ?? ''));
         unset($payload['section_key']);
 
         $track->update($payload);
+        $this->syncTrackToKeyedHomeItem($track, $homeKey);
         $this->syncTrackToHomeItem($track, $sectionKey);
 
         return redirect()
@@ -253,6 +257,7 @@ class SleepWellTrackController extends Controller
     private function keyOptions(): array
     {
         return HomeSection::query()
+            ->whereIn('section_key', $this->homeSectionKeys())
             ->orderBy('sort_order')
             ->pluck('section_key')
             ->map(fn ($value) => trim((string) $value))
@@ -296,6 +301,62 @@ class SleepWellTrackController extends Controller
         }
 
         return '';
+    }
+
+    private function syncTrackToKeyedHomeItem(AudioTrack $track, string $key): void
+    {
+        if ($key === '') {
+            return;
+        }
+
+        $section = HomeSection::query()
+            ->where('section_key', $key)
+            ->first();
+        if (!$section) {
+            return;
+        }
+
+        $existing = HomeItem::query()
+            ->whereHas('section', function ($query) {
+                $query->whereIn('section_key', $this->homeSectionKeys());
+            })
+            ->where(function ($query) use ($track) {
+                $query->where('audio_track_id', $track->id)
+                    ->orWhere('title', $track->title);
+            })
+            ->orderByDesc('audio_track_id')
+            ->orderBy('sort_order')
+            ->first();
+
+        $sortOrder = $existing?->section_id === $section->id
+            ? (int) $existing->sort_order
+            : ((int) HomeItem::query()->where('section_id', $section->id)->max('sort_order') + 10);
+
+        $meta = is_array($existing?->meta) ? $existing->meta : [];
+        $meta['synced_from_track'] = true;
+        $meta['track_id'] = $track->id;
+        $meta['track_key'] = $key;
+        if (!empty($track->sound_type)) {
+            $meta['sound_type'] = $track->sound_type;
+        }
+
+        $payload = [
+            'section_id' => $section->id,
+            'title' => $track->title,
+            'subtitle' => $track->subtitle,
+            'image_url' => $existing?->image_url ?: $track->cover_image_url,
+            'audio_track_id' => $track->id,
+            'meta' => $meta,
+            'sort_order' => $sortOrder,
+            'is_active' => (bool) $track->is_active,
+        ];
+
+        if ($existing) {
+            $existing->update($payload);
+            return;
+        }
+
+        HomeItem::query()->create($payload);
     }
 
     private function syncTrackToHomeItem(AudioTrack $track, string $sectionKey): void
@@ -344,5 +405,25 @@ class SleepWellTrackController extends Controller
         }
 
         HomeItem::query()->create($payload);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function homeSectionKeys(): array
+    {
+        return [
+            'featured_content',
+            'explore_grid',
+            'promo_therapy',
+            'sleep_recorder',
+            'colored_noises',
+            'top_rated',
+            'quick_topics',
+            'discover_banner',
+            'try_something_else',
+            'curated_playlists',
+            'sleep_hypnosis',
+        ];
     }
 }
