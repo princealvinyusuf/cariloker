@@ -14,6 +14,7 @@ class AudioTrack extends Model
     protected $fillable = [
         'title',
         'subtitle',
+        'key',
         'category',
         'sound_type',
         'duration_seconds',

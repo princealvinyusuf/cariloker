@@ -40,6 +40,20 @@
                 </div>
 
                 <div class="md:col-span-2">
+                    <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Key') }}</label>
+                    @php
+                        $selectedKey = old('key', $track->key);
+                    @endphp
+                    <select name="key"
+                            class="w-full rounded-xl border-slate-300 bg-white text-slate-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
+                        <option value="">{{ __('Select key from SleepWell sections') }}</option>
+                        @foreach(($keyOptions ?? []) as $keyOption)
+                            <option value="{{ $keyOption }}" @selected($selectedKey === $keyOption)>{{ $keyOption }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
                     <label class="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">{{ __('Section (sync to Sounds items)') }}</label>
                     @php
                         $selectedSectionKey = old('section_key', $selectedSectionKey ?? '');

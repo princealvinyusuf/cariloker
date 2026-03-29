@@ -30,6 +30,7 @@ class SleepWellTrackController extends Controller
             'method' => 'POST',
             'action' => route('admin.sleepwell.tracks.store'),
             'title' => 'Create SleepWell Track',
+            'keyOptions' => $this->keyOptions(),
             'subtitleOptions' => $this->subtitleOptions(),
             'subtitleCatalog' => $this->subtitleCatalog(),
             'subtitleSections' => $this->subtitleSections(),
@@ -79,6 +80,7 @@ class SleepWellTrackController extends Controller
             'method' => 'PUT',
             'action' => route('admin.sleepwell.tracks.update', $track),
             'title' => 'Edit SleepWell Track',
+            'keyOptions' => $this->keyOptions(),
             'subtitleOptions' => $this->subtitleOptions(),
             'subtitleCatalog' => $this->subtitleCatalog(),
             'subtitleSections' => $this->subtitleSections(),
@@ -129,6 +131,12 @@ class SleepWellTrackController extends Controller
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
+            'key' => [
+                'nullable',
+                'string',
+                'max:80',
+                Rule::exists('sleepwell_home_sections', 'section_key'),
+            ],
             'category' => ['required', 'string', 'max:50'],
             'sound_type' => ['nullable', 'string', 'max:50'],
             'section_key' => [
@@ -237,6 +245,20 @@ class SleepWellTrackController extends Controller
             ->filter(fn (array $row) => $row['subtitle'] !== '')
             ->unique(fn (array $row) => implode('|', [$row['subtitle'], $row['section_key'], $row['sound_type']]))
             ->values();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function keyOptions(): array
+    {
+        return HomeSection::query()
+            ->orderBy('sort_order')
+            ->pluck('section_key')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter(fn (string $value) => $value !== '')
+            ->values()
+            ->all();
     }
 
     /**
