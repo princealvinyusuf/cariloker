@@ -87,8 +87,23 @@
                         {{ __('Active') }}
                     </label>
                 </div>
-                <div class="md:col-span-2">
-                    <button class="rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white">{{ __('Save Item') }}</button>
+                <div class="md:col-span-2 flex items-center justify-between gap-3">
+                    <button class="rounded-xl bg-primary-600 px-5 py-2.5 text-sm font-semibold text-white">
+                        {{ __('Save Item') }}
+                    </button>
+
+                    @if($item->exists)
+                        <form method="POST"
+                              action="{{ route('admin.sleepwell.home-items.destroy', $item) }}"
+                              onsubmit="return confirm('{{ __('Delete this item? This action cannot be undone.') }}')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="rounded-xl border border-rose-300 px-5 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 dark:border-rose-600 dark:text-rose-300 dark:hover:bg-rose-900/20">
+                                {{ __('Delete') }}
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </form>
         </div>
