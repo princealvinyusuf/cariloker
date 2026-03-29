@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackVisitorIp::class);
         $middleware->appendToGroup('web', \App\Http\Middleware\LogHttpErrors::class);
+        $middleware->alias([
+            'sleepwell.admin' => \App\Http\Middleware\EnsureSleepWellAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

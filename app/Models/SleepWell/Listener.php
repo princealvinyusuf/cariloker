@@ -2,8 +2,10 @@
 
 namespace App\Models\SleepWell;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Listener extends Model
@@ -13,6 +15,7 @@ class Listener extends Model
     protected $table = 'sleepwell_listeners';
 
     protected $fillable = [
+        'user_id',
         'device_id',
         'timezone',
         'sleep_difficulty',
@@ -23,6 +26,7 @@ class Listener extends Model
     ];
 
     protected $casts = [
+        'user_id' => 'integer',
         'prefers_talking' => 'boolean',
         'preferred_categories' => 'array',
         'preferred_sound_types' => 'array',
@@ -32,5 +36,10 @@ class Listener extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(SleepSession::class, 'listener_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

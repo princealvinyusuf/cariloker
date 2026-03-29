@@ -25,6 +25,7 @@ class OnboardingController extends Controller
         $listener = Listener::query()->updateOrCreate(
             ['device_id' => $payload['device_id']],
             [
+                'user_id' => $request->user()?->id,
                 'timezone' => $payload['timezone'] ?? null,
                 'sleep_difficulty' => $payload['sleep_difficulty'] ?? null,
                 'prefers_talking' => $payload['prefers_talking'] ?? null,

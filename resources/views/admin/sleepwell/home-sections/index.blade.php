@@ -34,6 +34,21 @@
             @endforeach
         </div>
 
+        <div class="mb-4 flex flex-wrap items-center gap-2">
+            <a href="{{ route('admin.sleepwell.home-sections.export', ['screen' => $selectedScreen]) }}"
+               class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700">
+                {{ __('Export JSON') }}
+            </a>
+            <details class="rounded-lg border border-slate-200 p-2 text-xs dark:border-slate-700">
+                <summary class="cursor-pointer font-semibold">{{ __('Bulk Import JSON') }}</summary>
+                <form method="POST" action="{{ route('admin.sleepwell.home-sections.import') }}" class="mt-2">
+                    @csrf
+                    <textarea name="sections_json" rows="6" class="w-full rounded-xl border-slate-300 text-xs dark:border-slate-700 dark:bg-slate-900" placeholder='[{"section_key":"featured_content","section_type":"hero_carousel"}]'></textarea>
+                    <button class="mt-2 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white">{{ __('Import') }}</button>
+                </form>
+            </details>
+        </div>
+
         @if(session('status'))
             <div class="mb-4 rounded-xl bg-emerald-100 px-4 py-3 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
                 {{ session('status') }}

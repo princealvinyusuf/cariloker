@@ -44,6 +44,14 @@
                     <label class="mb-1 block text-sm font-medium">{{ __('Sort Order') }}</label>
                     <input type="number" name="sort_order" min="0" max="9999" required value="{{ old('sort_order', $section->sort_order ?? 0) }}" class="w-full rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900">
                 </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium">{{ __('Publish At') }}</label>
+                    <input type="datetime-local" name="publish_at" value="{{ old('publish_at', optional($section->publish_at)->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium">{{ __('Unpublish At') }}</label>
+                    <input type="datetime-local" name="unpublish_at" value="{{ old('unpublish_at', optional($section->unpublish_at)->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border-slate-300 dark:border-slate-700 dark:bg-slate-900">
+                </div>
                 <div class="flex items-center gap-4">
                     <input type="hidden" name="is_active" value="0">
                     <label class="inline-flex items-center gap-2">

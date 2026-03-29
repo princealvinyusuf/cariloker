@@ -19,10 +19,14 @@ class HomeSection extends Model
         'section_type',
         'sort_order',
         'is_active',
+        'publish_at',
+        'unpublish_at',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'publish_at' => 'datetime',
+        'unpublish_at' => 'datetime',
     ];
 
     public function items(): HasMany

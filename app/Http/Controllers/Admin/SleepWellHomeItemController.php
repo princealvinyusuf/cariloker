@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\SleepWell\HomeItem;
 use App\Models\SleepWell\HomeSection;
+use App\Support\SleepWellAuditLogger;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -57,7 +59,8 @@ class SleepWellHomeItemController extends Controller
         $payload['icon_url'] = $this->resolveImageUpload($request, 'icon_file', (string) ($payload['icon_url'] ?? ''));
         unset($payload['meta_json'], $payload['image_file'], $payload['icon_file']);
 
-        HomeItem::query()->create($payload);
+        $item = HomeItem::query()->create($payload);
+        SleepWellAuditLogger::log($request, 'create', $item, $payload);
 
         return redirect()->route('admin.sleepwell.home-items.index')
             ->with('status', 'Home item created.');
@@ -82,7 +85,12 @@ class SleepWellHomeItemController extends Controller
         $payload['icon_url'] = $this->resolveImageUpload($request, 'icon_file', (string) ($payload['icon_url'] ?? $item->icon_url));
         unset($payload['meta_json'], $payload['image_file'], $payload['icon_file']);
 
+        $before = $item->toArray();
         $item->update($payload);
+        SleepWellAuditLogger::log($request, 'update', $item, [
+            'before' => $before,
+            'after' => $item->fresh()?->toArray(),
+        ]);
 
         return redirect()->route('admin.sleepwell.home-items.index')
             ->with('status', 'Home item updated.');
@@ -90,10 +98,65 @@ class SleepWellHomeItemController extends Controller
 
     public function destroy(HomeItem $item): RedirectResponse
     {
+        $snapshot = $item->toArray();
         $item->delete();
+        SleepWellAuditLogger::log(request(), 'delete', $item, ['before' => $snapshot]);
 
         return redirect()->route('admin.sleepwell.home-items.index')
             ->with('status', 'Home item deleted.');
+    }
+
+    public function export(Request $request): JsonResponse
+    {
+        $selectedScreen = (string) $request->query('screen', 'all');
+        $query = HomeItem::query()->with('section')->orderBy('sort_order');
+        $this->applyScreenFilter($query, $selectedScreen);
+
+        return response()->json([
+            'items' => $query->get(),
+        ]);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $payload = $request->validate([
+            'items_json' => ['required', 'string'],
+        ]);
+        $decoded = json_decode($payload['items_json'], true);
+        if (!is_array($decoded)) {
+            return back()->with('status', 'Invalid JSON payload.');
+        }
+
+        foreach ($decoded as $row) {
+            if (!is_array($row) || !isset($row['section_key']) || !isset($row['title'])) {
+                continue;
+            }
+            $section = HomeSection::query()->where('section_key', (string) $row['section_key'])->first();
+            if (!$section) {
+                continue;
+            }
+            HomeItem::query()->updateOrCreate(
+                [
+                    'section_id' => $section->id,
+                    'title' => (string) $row['title'],
+                ],
+                [
+                    'subtitle' => $row['subtitle'] ?? null,
+                    'tag' => $row['tag'] ?? null,
+                    'image_url' => $row['image_url'] ?? null,
+                    'icon_url' => $row['icon_url'] ?? null,
+                    'cta_label' => $row['cta_label'] ?? null,
+                    'audio_track_id' => $row['audio_track_id'] ?? null,
+                    'meta' => is_array($row['meta'] ?? null) ? $row['meta'] : [],
+                    'sort_order' => (int) ($row['sort_order'] ?? 0),
+                    'is_active' => (bool) ($row['is_active'] ?? true),
+                    'publish_at' => $row['publish_at'] ?? null,
+                    'unpublish_at' => $row['unpublish_at'] ?? null,
+                ]
+            );
+        }
+
+        return back()->with('status', 'Items imported.');
     }
 
     private function validatedPayload(Request $request): array
@@ -110,6 +173,8 @@ class SleepWellHomeItemController extends Controller
             'meta_json' => ['nullable', 'string'],
             'sort_order' => ['required', 'integer', 'min:0', 'max:9999'],
             'is_active' => ['nullable', 'boolean'],
+            'publish_at' => ['nullable', 'date'],
+            'unpublish_at' => ['nullable', 'date', 'after:publish_at'],
             'image_file' => ['nullable', 'image', 'max:6144'],
             'icon_file' => ['nullable', 'image', 'max:2048'],
         ]);

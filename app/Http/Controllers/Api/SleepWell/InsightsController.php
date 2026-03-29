@@ -10,16 +10,31 @@ use Illuminate\Http\JsonResponse;
 
 class InsightsController extends Controller
 {
+    public function forCurrentUser(): JsonResponse
+    {
+        $listener = Listener::query()
+            ->where('user_id', request()->user()->id)
+            ->latest('last_active_at')
+            ->first();
+
+        return response()->json($this->buildInsightsPayload($listener));
+    }
+
     public function show(string $deviceId): JsonResponse
     {
         $listener = Listener::query()->where('device_id', $deviceId)->first();
 
+        return response()->json($this->buildInsightsPayload($listener));
+    }
+
+    private function buildInsightsPayload(?Listener $listener): array
+    {
         if (!$listener) {
-            return response()->json([
+            return [
                 'usage_frequency_last_7_days' => 0,
                 'consistency_score' => 0,
                 'average_duration_minutes' => 0,
-            ]);
+            ];
         }
 
         $since = CarbonImmutable::now()->subDays(7);
@@ -39,10 +54,10 @@ class InsightsController extends Controller
 
         $consistencyScore = min(100, (int) round(($daysUsed / 7) * 100));
 
-        return response()->json([
+        return [
             'usage_frequency_last_7_days' => $daysUsed,
             'consistency_score' => $consistencyScore,
             'average_duration_minutes' => $averageDurationMinutes,
-        ]);
+        ];
     }
 }

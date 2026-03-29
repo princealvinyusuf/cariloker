@@ -86,5 +86,8 @@ class DatabaseSeeder extends Seeder
 
         // SleepWell Home Feed
         $this->call(SleepWellHomeFeedSeeder::class);
+
+        // SleepWell Ad Placements
+        $this->call(SleepWellAdPlacementSeeder::class);
     }
 }

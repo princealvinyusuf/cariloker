@@ -4,6 +4,7 @@
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Admin\SleepWellDashboardController;
+use App\Http\Controllers\Admin\SleepWellAdPlacementController;
 use App\Http\Controllers\Admin\SleepWellHomeItemController;
 use App\Http\Controllers\Admin\SleepWellHomeSectionController;
 use App\Http\Controllers\Admin\SleepWellOnboardingScreenController;
@@ -60,72 +61,95 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/jobs/distribute-from-staging', [\App\Http\Controllers\Admin\JobImportController::class, 'distribute'])
         ->name('admin.jobs.distribute-from-staging');
 
-    Route::get('/dashboard/sleepwell', [SleepWellDashboardController::class, 'index'])
-        ->name('admin.sleepwell.dashboard');
-    Route::get('/dashboard/sleepwell/content/{screen}', [SleepWellDashboardController::class, 'contentHub'])
-        ->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
-        ->name('admin.sleepwell.content.hub');
-    Route::get('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'index'])
-        ->name('admin.sleepwell.tracks.index');
-    Route::get('/dashboard/sleepwell/tracks/create', [SleepWellTrackController::class, 'create'])
-        ->name('admin.sleepwell.tracks.create');
-    Route::post('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'store'])
-        ->name('admin.sleepwell.tracks.store');
-    Route::get('/dashboard/sleepwell/tracks/{track}/edit', [SleepWellTrackController::class, 'edit'])
-        ->name('admin.sleepwell.tracks.edit');
-    Route::put('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'update'])
-        ->name('admin.sleepwell.tracks.update');
-    Route::delete('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'destroy'])
-        ->name('admin.sleepwell.tracks.destroy');
+    Route::middleware('sleepwell.admin')->group(function () {
+        Route::get('/dashboard/sleepwell', [SleepWellDashboardController::class, 'index'])
+            ->name('admin.sleepwell.dashboard');
+        Route::get('/dashboard/sleepwell/content/{screen}', [SleepWellDashboardController::class, 'contentHub'])
+            ->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+            ->name('admin.sleepwell.content.hub');
+        Route::get('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'index'])
+            ->name('admin.sleepwell.tracks.index');
+        Route::get('/dashboard/sleepwell/tracks/create', [SleepWellTrackController::class, 'create'])
+            ->name('admin.sleepwell.tracks.create');
+        Route::post('/dashboard/sleepwell/tracks', [SleepWellTrackController::class, 'store'])
+            ->name('admin.sleepwell.tracks.store');
+        Route::get('/dashboard/sleepwell/tracks/{track}/edit', [SleepWellTrackController::class, 'edit'])
+            ->name('admin.sleepwell.tracks.edit');
+        Route::put('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'update'])
+            ->name('admin.sleepwell.tracks.update');
+        Route::delete('/dashboard/sleepwell/tracks/{track}', [SleepWellTrackController::class, 'destroy'])
+            ->name('admin.sleepwell.tracks.destroy');
 
-    Route::get('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'index'])
-        ->name('admin.sleepwell.onboarding.index');
-    Route::get('/dashboard/sleepwell/onboarding/create', [SleepWellOnboardingScreenController::class, 'create'])
-        ->name('admin.sleepwell.onboarding.create');
-    Route::post('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'store'])
-        ->name('admin.sleepwell.onboarding.store');
-    Route::get('/dashboard/sleepwell/onboarding/{screen}/edit', [SleepWellOnboardingScreenController::class, 'edit'])
-        ->name('admin.sleepwell.onboarding.edit');
-    Route::put('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'update'])
-        ->name('admin.sleepwell.onboarding.update');
-    Route::delete('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'destroy'])
-        ->name('admin.sleepwell.onboarding.destroy');
+        Route::get('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'index'])
+            ->name('admin.sleepwell.onboarding.index');
+        Route::get('/dashboard/sleepwell/onboarding/create', [SleepWellOnboardingScreenController::class, 'create'])
+            ->name('admin.sleepwell.onboarding.create');
+        Route::post('/dashboard/sleepwell/onboarding', [SleepWellOnboardingScreenController::class, 'store'])
+            ->name('admin.sleepwell.onboarding.store');
+        Route::get('/dashboard/sleepwell/onboarding/{screen}/edit', [SleepWellOnboardingScreenController::class, 'edit'])
+            ->name('admin.sleepwell.onboarding.edit');
+        Route::put('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'update'])
+            ->name('admin.sleepwell.onboarding.update');
+        Route::delete('/dashboard/sleepwell/onboarding/{screen}', [SleepWellOnboardingScreenController::class, 'destroy'])
+            ->name('admin.sleepwell.onboarding.destroy');
 
-    Route::get('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'index'])
-        ->name('admin.sleepwell.home-sections.index');
-    Route::get('/dashboard/sleepwell/home-sections/create', [SleepWellHomeSectionController::class, 'create'])
-        ->name('admin.sleepwell.home-sections.create');
-    Route::post('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'store'])
-        ->name('admin.sleepwell.home-sections.store');
-    Route::get('/dashboard/sleepwell/home-sections/{section}/edit', [SleepWellHomeSectionController::class, 'edit'])
-        ->name('admin.sleepwell.home-sections.edit');
-    Route::put('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'update'])
-        ->name('admin.sleepwell.home-sections.update');
-    Route::delete('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'destroy'])
-        ->name('admin.sleepwell.home-sections.destroy');
+        Route::get('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'index'])
+            ->name('admin.sleepwell.home-sections.index');
+        Route::get('/dashboard/sleepwell/home-sections/create', [SleepWellHomeSectionController::class, 'create'])
+            ->name('admin.sleepwell.home-sections.create');
+        Route::post('/dashboard/sleepwell/home-sections', [SleepWellHomeSectionController::class, 'store'])
+            ->name('admin.sleepwell.home-sections.store');
+        Route::get('/dashboard/sleepwell/home-sections/{section}/edit', [SleepWellHomeSectionController::class, 'edit'])
+            ->name('admin.sleepwell.home-sections.edit');
+        Route::put('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'update'])
+            ->name('admin.sleepwell.home-sections.update');
+        Route::delete('/dashboard/sleepwell/home-sections/{section}', [SleepWellHomeSectionController::class, 'destroy'])
+            ->name('admin.sleepwell.home-sections.destroy');
+        Route::get('/dashboard/sleepwell/home-sections-export', [SleepWellHomeSectionController::class, 'export'])
+            ->name('admin.sleepwell.home-sections.export');
+        Route::post('/dashboard/sleepwell/home-sections-import', [SleepWellHomeSectionController::class, 'import'])
+            ->name('admin.sleepwell.home-sections.import');
 
-    Route::get('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'index'])
-        ->name('admin.sleepwell.home-items.index');
-    Route::get('/dashboard/sleepwell/home-items/create', [SleepWellHomeItemController::class, 'create'])
-        ->name('admin.sleepwell.home-items.create');
-    Route::post('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'store'])
-        ->name('admin.sleepwell.home-items.store');
-    Route::get('/dashboard/sleepwell/home-items/{item}/edit', [SleepWellHomeItemController::class, 'edit'])
-        ->name('admin.sleepwell.home-items.edit');
-    Route::put('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'update'])
-        ->name('admin.sleepwell.home-items.update');
-    Route::delete('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'destroy'])
-        ->name('admin.sleepwell.home-items.destroy');
+        Route::get('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'index'])
+            ->name('admin.sleepwell.home-items.index');
+        Route::get('/dashboard/sleepwell/home-items/create', [SleepWellHomeItemController::class, 'create'])
+            ->name('admin.sleepwell.home-items.create');
+        Route::post('/dashboard/sleepwell/home-items', [SleepWellHomeItemController::class, 'store'])
+            ->name('admin.sleepwell.home-items.store');
+        Route::get('/dashboard/sleepwell/home-items/{item}/edit', [SleepWellHomeItemController::class, 'edit'])
+            ->name('admin.sleepwell.home-items.edit');
+        Route::put('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'update'])
+            ->name('admin.sleepwell.home-items.update');
+        Route::delete('/dashboard/sleepwell/home-items/{item}', [SleepWellHomeItemController::class, 'destroy'])
+            ->name('admin.sleepwell.home-items.destroy');
+        Route::get('/dashboard/sleepwell/home-items-export', [SleepWellHomeItemController::class, 'export'])
+            ->name('admin.sleepwell.home-items.export');
+        Route::post('/dashboard/sleepwell/home-items-import', [SleepWellHomeItemController::class, 'import'])
+            ->name('admin.sleepwell.home-items.import');
 
-    Route::get('/dashboard/sleepwell/content/{screen}/sections', function (string $screen) {
-        return redirect()->route('admin.sleepwell.home-sections.index', ['screen' => $screen]);
-    })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
-        ->name('admin.sleepwell.content.sections');
+        Route::get('/dashboard/sleepwell/content/{screen}/sections', function (string $screen) {
+            return redirect()->route('admin.sleepwell.home-sections.index', ['screen' => $screen]);
+        })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+            ->name('admin.sleepwell.content.sections');
 
-    Route::get('/dashboard/sleepwell/content/{screen}/items', function (string $screen) {
-        return redirect()->route('admin.sleepwell.home-items.index', ['screen' => $screen]);
-    })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
-        ->name('admin.sleepwell.content.items');
+        Route::get('/dashboard/sleepwell/content/{screen}/items', function (string $screen) {
+            return redirect()->route('admin.sleepwell.home-items.index', ['screen' => $screen]);
+        })->whereIn('screen', ['home', 'sounds', 'routine', 'insight', 'saved', 'profile', 'settings'])
+            ->name('admin.sleepwell.content.items');
+
+        Route::get('/dashboard/sleepwell/ad-placements', [SleepWellAdPlacementController::class, 'index'])
+            ->name('admin.sleepwell.ad-placements.index');
+        Route::get('/dashboard/sleepwell/ad-placements/create', [SleepWellAdPlacementController::class, 'create'])
+            ->name('admin.sleepwell.ad-placements.create');
+        Route::post('/dashboard/sleepwell/ad-placements', [SleepWellAdPlacementController::class, 'store'])
+            ->name('admin.sleepwell.ad-placements.store');
+        Route::get('/dashboard/sleepwell/ad-placements/{placement}/edit', [SleepWellAdPlacementController::class, 'edit'])
+            ->name('admin.sleepwell.ad-placements.edit');
+        Route::put('/dashboard/sleepwell/ad-placements/{placement}', [SleepWellAdPlacementController::class, 'update'])
+            ->name('admin.sleepwell.ad-placements.update');
+        Route::delete('/dashboard/sleepwell/ad-placements/{placement}', [SleepWellAdPlacementController::class, 'destroy'])
+            ->name('admin.sleepwell.ad-placements.destroy');
+    });
 });
 
 Route::get('/locale/{locale}', function (string $locale) {

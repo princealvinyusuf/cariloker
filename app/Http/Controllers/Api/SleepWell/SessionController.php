@@ -47,6 +47,8 @@ class SessionController extends Controller
             'metadata' => ['nullable', 'array'],
         ]);
 
+        $this->authorizeSessionAccess($request, $session);
+
         $event = SessionEvent::query()->create([
             'session_id' => $session->id,
             'track_id' => $payload['track_id'] ?? null,
@@ -65,6 +67,8 @@ class SessionController extends Controller
             'status' => ['nullable', 'in:completed,abandoned'],
             'ended_at' => ['nullable', 'date'],
         ]);
+
+        $this->authorizeSessionAccess($request, $session);
 
         $endedAt = isset($payload['ended_at'])
             ? CarbonImmutable::parse($payload['ended_at'])
@@ -90,5 +94,18 @@ class SessionController extends Controller
             ['device_id' => $deviceId],
             ['last_active_at' => now()]
         );
+    }
+
+    private function authorizeSessionAccess(Request $request, SleepSession $session): void
+    {
+        $user = $request->user();
+        if (!$user) {
+            return;
+        }
+
+        $listener = $session->listener;
+        if (!$listener || $listener->user_id !== $user->id) {
+            abort(403);
+        }
     }
 }

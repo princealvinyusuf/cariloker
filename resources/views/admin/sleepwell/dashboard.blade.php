@@ -30,6 +30,10 @@
                class="rounded-xl bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-800">
                 {{ __('Manage Home Items') }}
             </a>
+            <a href="{{ route('admin.sleepwell.ad-placements.index') }}"
+               class="rounded-xl bg-fuchsia-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-fuchsia-600">
+                {{ __('Manage Ad Placements') }}
+            </a>
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -96,12 +100,17 @@
                 <li><code>POST /api/v1/sleepwell/onboarding/responses</code></li>
                 <li><code>GET /api/v1/sleepwell/catalog</code></li>
                 <li><code>GET /api/v1/sleepwell/home-feed</code></li>
+                <li><code>GET /api/v1/sleepwell/search?q=</code></li>
+                <li><code>GET /api/v1/sleepwell/ad-placements</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/start</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/{session}/event</code></li>
                 <li><code>POST /api/v1/sleepwell/sessions/{session}/end</code></li>
                 <li><code>POST /api/v1/sleepwell/sleep-now</code></li>
                 <li><code>GET /api/v1/sleepwell/insights/{deviceId}</code></li>
                 <li><code>GET|POST /api/v1/sleepwell/mix-presets</code></li>
+                <li><code>POST /api/v1/sleepwell/auth/register|login</code></li>
+                <li><code>GET|PUT /api/v1/sleepwell/auth/me</code></li>
+                <li><code>GET|POST|DELETE /api/v1/sleepwell/saved-items</code></li>
             </ul>
         </div>
     </div>
