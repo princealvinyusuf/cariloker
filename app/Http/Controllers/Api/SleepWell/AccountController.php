@@ -39,7 +39,18 @@ class AccountController extends Controller
         $user = $request->user();
         $user->update($payload);
 
-        return response()->json(['message' => 'Profile updated.']);
+        return response()->json([
+            'message' => 'Profile updated.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'headline' => $user->headline,
+                'phone' => $user->phone,
+                'bio' => $user->bio,
+            ],
+        ]);
     }
 
     public function changePassword(Request $request): JsonResponse
